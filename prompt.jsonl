@@ -1,0 +1,36 @@
+# agentic-game-lab
+{
+  "round": 12,
+  "game_parameters": {
+    "N": 4,
+    "M": 5,
+    "perception_noise_p": 0.1
+  },
+  "payoff": {
+    "B_base": 2.1,
+    "B_effective": 2.35,
+    "C": 1.0,
+    "formula": "u_i = B_eff * avg_other_coop - C * own_coop"
+  },
+  "drift_rule": {
+    "type": "q3_global",
+    "window_w": 20,
+    "eta": 0.02,
+    "r_star": 0.5,
+    "update_equation": "B_next = clip(B + eta*(r_obs - r_star))"
+  },
+  "streak_rule": {
+    "theta": 0.6,
+    "lambda": 0.3,
+    "tau": 5,
+    "current_streak": 3
+  },
+  "observed_history_last_k": [
+    [4,4,3,3,2,4,4,4,3,3],
+    [3,4,4,3,2,4,3,4,3,4],
+    [4,4,4,3,3,3,4,4,4,4],
+    [2,3,4,3,3,4,3,4,4,4]
+  ],
+  "rolling_observed_cooperation": 0.68,
+  "instruction": "Choose an integer action in [0,4] to maximize long-term reward."
+}

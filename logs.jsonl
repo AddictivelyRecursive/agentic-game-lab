@@ -1,0 +1,34 @@
+# agentic-game-lab
+{
+  "round": 12,
+  "true_actions": [4, 3, 4, 2],
+  "observed_actions": [4, 3, 3, 2],
+  "true_coop": [1.0, 0.75, 1.0, 0.5],
+  "observed_coop": [1.0, 0.75, 0.75, 0.5],
+  "rewards": [1.35, 1.62, 1.35, 0.87],
+  "B_base": 2.10,
+  "B_effective": 2.35,
+  "C": 1.0,
+  "r_obs_prev": 0.65,
+  "r_obs_current": 0.68,
+  "streak_prev": 2,
+  "streak_current": 3,
+  "agent_meta": [
+    {
+      "agent": "llm_v1",
+      "parse_success": true,
+      "action_valid": true,
+      "tokens_input": 1024,
+      "tokens_output": 18,
+      "latency_ms": 842
+    },
+    {
+      "agent": "llm_v2",
+      "parse_success": true,
+      "action_valid": true,
+      "tokens_input": 998,
+      "tokens_output": 20,
+      "latency_ms": 910
+    }
+  ]
+}
