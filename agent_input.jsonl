@@ -1,0 +1,44 @@
+{
+  "run_id": "r001",
+  "episode_id": 0,
+  "t": 12,
+  "agent_id": 0,
+  "schema_v": 1,
+
+  "game": {
+    "N": 4,
+    "M": 5,
+    "p": 0.10
+  },
+
+  "payoff": {
+    "B_base": 2.10,
+    "B_eff": 2.35,
+    "C": 1.00,
+    "K": 0.00
+  },
+
+  "q3_global": {
+    "window": 20,
+    "eta": 0.02,
+    "r_star": 0.50,
+    "r_obs_prev": 0.68,
+    "B_bounds": [1.2, 3.0]
+  },
+
+  "global_streak": {
+    "theta": 0.60,
+    "streak_prev": 3,
+    "lambda": 0.30,
+    "tau": 5
+  },
+
+  "observed_history_last_k": [
+    "4433201443",
+    "3443243434",
+    "4443334444",
+    "2343343444"
+  ],
+
+  "coop_mean_last_w": [0.82, 0.61, 0.90, 0.48]
+}
