@@ -53,18 +53,15 @@
       [4,4,4,3,3,3,4,4,4,4],
       [2,3,4,3,3,4,3,4,4,4]
     ],
-    "rolling_observed_cooperation_prev": 0.68
-  },
-
-  "timing": {
-    "decision_time": "You choose action for round t using only info up to t-1 shown above.",
-    "after_round_updates": [
-      "Perception noise applied to produce observed actions",
-      "Payoffs computed using TRUE actions and current B_eff",
-      "streak_next computed from observed mean cooperation at round t",
-      "r_obs_current updated using observed mean cooperation at round t",
-      "B_next updated by q3 rule for use in round t+1"
-    ]
+    "rolling_observed_cooperation_prev": 0.68,
+    "action_freq_NxM": [
+        [0.02, 0.08, 0.10, 0.25, 0.55],
+        [0.10, 0.20, 0.30, 0.20, 0.20],
+        [0.00, 0.05, 0.10, 0.15, 0.70],
+        [0.40, 0.20, 0.10, 0.10, 0.20]
+    ],
+  
+    
   },
 
   "instruction": {
