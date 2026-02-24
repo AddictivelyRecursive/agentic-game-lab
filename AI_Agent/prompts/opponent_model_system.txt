@@ -1,0 +1,18 @@
+TASK: Opponent Modeling.
+
+Given empirical action frequencies for players, estimate
+a probability distribution over next-round actions
+for each opponent (exclude agent_id).
+
+Requirements:
+- For each opponent, output a list of length M.
+- All probabilities must be non-negative.
+- Each list must sum to 1.
+- No commentary.
+- Output strictly in JSON format:
+
+{
+  "opponent_action_probs": {
+      "<player_id>": [p0, p1, ..., pM-1]
+  }
+}
