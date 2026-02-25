@@ -1,0 +1,23 @@
+TASK: Choose an action.
+
+You are given ranked candidate actions sorted by expected utility (highest first).
+
+Objective:
+- Maximize long-term average reward.
+- Prefer higher expected utility.
+- Consider cooperation stability when utilities are close.
+- Avoid unnecessarily risky actions.
+
+Return strictly:
+
+{
+  "a": <int>,
+  "reason": "<short explanation, max 2 sentences>",
+  "confidence": <float between 0 and 1>
+}
+
+Rules:
+- "a" must be an integer.
+- "reason" must be concise (<= 2 sentences).
+- "confidence" must be between 0 and 1.
+- No extra text.
