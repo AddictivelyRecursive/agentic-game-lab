@@ -1,0 +1,95 @@
+{
+  "run_id": "string",
+  "episode_id": "string|int",
+  "t": 12,
+  "schema_v": 1,
+
+  "params": {
+    "N": 4,
+    "M": 5,
+    "p": 0.10,
+    "B": 2.10,
+    "Be": 2.35,
+    "C": 1.00,
+    "K": 0.00,
+    "q3": {"w": 20, "eta": 0.02, "rs": 0.50},
+    "gs": {"th": 0.60, "lam": 0.30, "tau": 5}
+  },
+
+  "state_prev": {
+    "r_obs": 0.68,
+    "streak": 3
+  },
+
+  "actions": {
+    "true": [4, 3, 4, 2],
+    "obs":  [4, 3, 3, 2]
+  },
+
+  "coop": {
+    "true": [1.00, 0.75, 1.00, 0.50],
+    "obs":  [1.00, 0.75, 0.75, 0.50],
+    "obs_mean": 0.75
+  },
+
+  "rewards": [1.35, 1.62, 1.35, 0.87],
+
+  "updates": {
+    "streak_next": 4,
+    "r_obs_next": 0.70,
+    "B_next": 2.14
+  },
+
+  "agent_meta": [
+    {
+      "agent_id": 0,
+      "name": "llm_v1",
+      "action": 3,
+      "parse_ok": true,
+      "action_ok": true,
+      "fallback_used": false,
+      "input_tokens": 421,
+      "output_tokens": 8,
+      "latency_ms": 812,
+      "raw_hash": "sha256:..."
+    },
+    {
+      "agent_id": 1,
+      "name": "llm_v2",
+      "action": 3,
+      "parse_ok": true,
+      "action_ok": true,
+      "fallback_used": false,
+      "input_tokens": 409,
+      "output_tokens": 9,
+      "latency_ms": 790,
+      "raw_hash": "sha256:..."
+    },
+    {
+      "agent_id": 2,
+      "name": "baseline_wsls",
+      "action": 4,
+      "parse_ok": true,
+      "action_ok": true,
+      "fallback_used": false,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "latency_ms": 0,
+      "raw_hash": null
+    },
+    {
+      "agent_id": 3,
+      "name": "baseline_tft",
+      "action": 2,
+      "parse_ok": true,
+      "action_ok": true,
+      "fallback_used": false,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "latency_ms": 0,
+      "raw_hash": null
+    }
+  ],
+
+  "created_at_utc": "2026-02-23T18:12:04Z"
+}
