@@ -1,5 +1,5 @@
 """
-agents/baselines/graded_tft.py
+agents/graded_tft.py
 
 Purpose:
 - GradedTFT: generalized tit-for-tat for graded action space.

@@ -1,5 +1,5 @@
 """
-agents/baselines/llm_wrapper.py
+agents/llm_wrapper.py
 
 Purpose:
 - Wrap an external LLM-based agent so it can be plugged into the

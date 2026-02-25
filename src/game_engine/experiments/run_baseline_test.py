@@ -20,8 +20,8 @@ from datetime import datetime
 from game_engine.env.types import EnvConfig, PayoffConfig, DriftConfig, StreakConfig, ObservationConfig
 from game_engine.env.simulator import GameSimulator
 
-from game_engine.agents.baselines import AlwaysCooperate, AlwaysDefect, RandomAgent, GradedTFT
-from game_engine.agents.baselines.llm_wrapper import LLMWrapperAgent
+from game_engine.agents import AlwaysCooperate, AlwaysDefect, RandomAgent, GradedTFT
+from game_engine.agents.llm_wrapper import LLMWrapperAgent
 from game_engine.io.jsonl import write_episode
 
 
@@ -58,12 +58,19 @@ def main() -> None:
 
     # Per-run id + output root
     run_id = "baseline_" + datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
-    out_dir = os.path.join("results", "baseline_test", run_id)
+    out_dir = os.path.join("results", run_id)
     os.makedirs(out_dir, exist_ok=True)
+    
+    import json
+    # Save config for reproducibility
+    config_path = os.path.join(out_dir, "config.json")
 
+    with open(config_path, "w") as f:
+        json.dump(cfg.__dict__, f, indent=2, default=lambda o: o.__dict__)
+    
     # --- Agents ---
     # NOTE: N must match cfg.N.
-    # You can switch backends per agent:
+    # Can switch backends per agent:
     #   backend="dummy"  (fast, free; good for sanity)
     #   backend="ollama" (local ollama server; model_name selects model tag)
     agents = [

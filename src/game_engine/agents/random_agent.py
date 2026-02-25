@@ -1,5 +1,5 @@
 """
-agents/baselines/random_agent.py
+agents/random_agent.py
 
 Purpose:
 - RandomAgent: chooses a uniformly random action in [0, M-1].

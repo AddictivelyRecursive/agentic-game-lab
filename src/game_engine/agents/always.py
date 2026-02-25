@@ -1,5 +1,5 @@
 """
-agents/baselines/always.py
+agents/always.py
 
 Purpose:
 - AlwaysCooperate: returns action 0 (max cooperation by convention).

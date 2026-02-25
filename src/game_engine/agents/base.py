@@ -1,5 +1,5 @@
 """
-agents/baselines/base.py
+agents/base.py
 
 Purpose:
 - Defines a tiny BaseAgent with common utilities for baseline testing.
