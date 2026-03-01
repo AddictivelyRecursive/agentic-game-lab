@@ -33,7 +33,7 @@ from AI_Agent.agent.llm_agent import LLMAgent
 from AI_Agent.agent.llm_client import OllamaClient
 from AI_Agent.agent.dummy_llm_client import DummyLLMClient
 from AI_Agent.agent.logger import AgentLogger
-
+from AI_Agent.agent.openrouter_client import OpenRouterClient
 from game_engine.env.types import EnvConfig, Observation, AgentMeta
 
 
@@ -155,6 +155,17 @@ class LLMWrapperAgent:
 
         if backend_norm == "ollama":
             llm_client = OllamaClient(model_name=model_name, host=ollama_host)
+
+        elif backend_norm == "openrouter":
+            # model_name should be an OpenRouter model id, e.g. "openai/gpt-4o-mini"
+            llm_client = OpenRouterClient(
+                model_name=model_name,
+                api_key=os.getenv("OPENROUTER_API_KEY", ""),  # recommended via env
+                # Optional: helps OpenRouter analytics; safe to omit
+                site_url=os.getenv("OPENROUTER_SITE_URL"),
+                app_name=os.getenv("OPENROUTER_APP_NAME", "agentic-game-lab"),
+            )
+
         elif backend_norm == "dummy":
             llm_client = DummyLLMClient(
                 mode=dummy_mode,
@@ -162,8 +173,11 @@ class LLMWrapperAgent:
                 invalid_rate=dummy_invalid_rate,
                 force_invalid_first_n6=dummy_force_invalid_first_n6,
             )
+
         else:
-            raise ValueError(f"Unknown LLM backend: {backend!r}. Supported: 'ollama', 'dummy'.")
+            raise ValueError(
+                f"Unknown LLM backend: {backend!r}. Supported: 'ollama', 'openrouter', 'dummy'."
+            )
 
         # ---- Logging isolation (recommended) ----
         logger = None

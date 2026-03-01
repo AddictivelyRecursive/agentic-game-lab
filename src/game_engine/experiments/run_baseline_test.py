@@ -30,7 +30,7 @@ def main() -> None:
     cfg = EnvConfig(
         N=4,
         M=5,
-        T=50,
+        T=3,
         p_perception=0.10,
         payoff=PayoffConfig(
             B0=2.0,
@@ -78,15 +78,10 @@ def main() -> None:
             name="llm0",
             agent_id=0,
             env_cfg=cfg,
-            backend="dummy",              # change to "ollama" to use real local model
-            model_name="llama3.1:8b",     # used when backend="ollama"
+            backend="openrouter",
+            model_name="openai/gpt-4o-mini",   # or any OpenRouter-supported model id
             prompt_dir="AI_Agent/prompts",
             output_dir=os.path.join(out_dir, "agents", "llm0"),
-            # Dummy controls (ignored by ollama backend)
-            dummy_mode="mostly_valid",
-            dummy_seed=7,
-            dummy_invalid_rate=0.6,
-            dummy_force_invalid_first_n6=1,
         ),
         RandomAgent("rand1"),
         AlwaysDefect("def2"),
