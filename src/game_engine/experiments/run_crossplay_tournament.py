@@ -83,7 +83,7 @@ RESULTS_ROOT = os.path.join("results", "cross_play")
 # This isolates player-vs-player behavior first.
 BASE_CFG = EnvConfig(
     N=2,
-    M=5,
+    M=2,
     T=20,
     p_perception=0.00,
     payoff=PayoffConfig(
