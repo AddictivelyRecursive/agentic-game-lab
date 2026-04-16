@@ -1,0 +1,42 @@
+{
+  "run_id": "baseline_20260415T202655Z",
+  "episode_id": 0,
+  "schema_v": 1,
+  "config": {
+    "N": 4,
+    "M": 5,
+    "T": 3,
+    "p_perception": 0.1,
+    "payoff": {
+      "B0": 2.0,
+      "C": 1.0,
+      "K": 0.0,
+      "B_min": 1.2,
+      "B_max": 3.0
+    },
+    "drift": {
+      "window_w": 10,
+      "eta": 0.05,
+      "r_star": 0.5
+    },
+    "streak": {
+      "theta": 0.6,
+      "lam": 0.3,
+      "tau": 5.0
+    },
+    "obs": {
+      "history_k": 10,
+      "stats_window": 10
+    },
+    "seed": 123
+  },
+  "total_rewards": [
+    1.75,
+    1.3333333333333335,
+    3.833333333333333,
+    -1.1666666666666665
+  ],
+  "final_B": 1.996875,
+  "final_streak": 0,
+  "num_rounds": 3
+}
