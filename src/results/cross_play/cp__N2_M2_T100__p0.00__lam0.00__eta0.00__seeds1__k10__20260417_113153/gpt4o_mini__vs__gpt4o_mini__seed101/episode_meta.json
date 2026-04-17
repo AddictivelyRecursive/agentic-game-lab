@@ -1,11 +1,11 @@
 {
-  "run_id": "cp__N2_M2_T20__p0.00__lam0.00__eta0.00__seeds1__k10",
+  "run_id": "cp__N2_M2_T100__p0.00__lam0.00__eta0.00__seeds1__k10__20260417_113153",
   "episode_id": 0,
   "schema_v": 2,
   "config": {
     "N": 2,
     "M": 2,
-    "T": 20,
+    "T": 100,
     "p_perception": 0.0,
     "payoff": {
       "B0": 2.0,
@@ -31,12 +31,12 @@
     "seed": 101
   },
   "total_rewards": [
-    0.0,
-    0.0
+    100.0,
+    100.0
   ],
   "final_B": 2.0,
-  "final_streak": 0,
-  "num_rounds": 20,
+  "final_streak": 100,
+  "num_rounds": 100,
   "extra_meta": {
     "match_id": "gpt4o_mini__vs__gpt4o_mini__seed101",
     "seed": 101,
