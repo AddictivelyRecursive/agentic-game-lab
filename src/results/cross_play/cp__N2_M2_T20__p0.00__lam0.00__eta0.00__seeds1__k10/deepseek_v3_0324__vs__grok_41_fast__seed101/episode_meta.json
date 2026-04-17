@@ -1,0 +1,56 @@
+{
+  "run_id": "cp__N2_M2_T20__p0.00__lam0.00__eta0.00__seeds1__k10",
+  "episode_id": 0,
+  "schema_v": 2,
+  "config": {
+    "N": 2,
+    "M": 2,
+    "T": 20,
+    "p_perception": 0.0,
+    "payoff": {
+      "B0": 2.0,
+      "C": 1.0,
+      "K": 0.0,
+      "B_min": 2.0,
+      "B_max": 2.0
+    },
+    "drift": {
+      "window_w": 10,
+      "eta": 0.0,
+      "r_star": 0.5
+    },
+    "streak": {
+      "theta": 0.6,
+      "lam": 0.0,
+      "tau": 5.0
+    },
+    "obs": {
+      "history_k": 10,
+      "stats_window": 10
+    },
+    "seed": 101
+  },
+  "total_rewards": [
+    0.0,
+    0.0
+  ],
+  "final_B": 2.0,
+  "final_streak": 0,
+  "num_rounds": 20,
+  "extra_meta": {
+    "match_id": "deepseek_v3_0324__vs__grok_41_fast__seed101",
+    "seed": 101,
+    "row_player_label": "deepseek_v3_0324",
+    "row_player_kind": "llm",
+    "row_player_model_id": "deepseek/deepseek-chat-v3-0324",
+    "row_player_strategy": null,
+    "col_player_label": "grok_41_fast",
+    "col_player_kind": "llm",
+    "col_player_model_id": "x-ai/grok-4.1-fast",
+    "col_player_strategy": null,
+    "seat_assignment": {
+      "0": "deepseek_v3_0324",
+      "1": "grok_41_fast"
+    }
+  }
+}

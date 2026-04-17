@@ -1,0 +1,49 @@
+{
+  "run_id": "cp__N2_M2_T20__p0.00__lam0.00__eta0.00__seeds1__k10",
+  "match_id": "gemini_25_pro__vs__deepseek_v3_0324__seed101",
+  "seed": 101,
+  "row_player": {
+    "label": "gemini_25_pro",
+    "kind": "llm",
+    "model_name": "google/gemini-2.5-pro",
+    "backend": "openrouter",
+    "strategy": null,
+    "seat": 0
+  },
+  "col_player": {
+    "label": "deepseek_v3_0324",
+    "kind": "llm",
+    "model_name": "deepseek/deepseek-chat-v3-0324",
+    "backend": "openrouter",
+    "strategy": null,
+    "seat": 1
+  },
+  "config": {
+    "N": 2,
+    "M": 2,
+    "T": 20,
+    "p_perception": 0.0,
+    "payoff": {
+      "B0": 2.0,
+      "C": 1.0,
+      "K": 0.0,
+      "B_min": 2.0,
+      "B_max": 2.0
+    },
+    "drift": {
+      "window_w": 10,
+      "eta": 0.0,
+      "r_star": 0.5
+    },
+    "streak": {
+      "theta": 0.6,
+      "lam": 0.0,
+      "tau": 5.0
+    },
+    "obs": {
+      "history_k": 10,
+      "stats_window": 10
+    },
+    "seed": 101
+  }
+}
