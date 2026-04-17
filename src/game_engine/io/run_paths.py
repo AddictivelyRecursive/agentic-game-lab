@@ -4,6 +4,7 @@ import json
 import os
 import re
 from dataclasses import asdict, is_dataclass
+from datetime import datetime
 from typing import Any, Dict, Iterable, Optional
 
 
@@ -57,12 +58,18 @@ def model_label(model_name: str, label: Optional[str] = None) -> str:
     return slugify(raw, max_len=64)
 
 
+def timestamp_tag() -> str:
+    # Example: 20260417_194522
+    return datetime.now().strftime("%Y%m%d_%H%M%S")
+
+
 def build_experiment_id(
     prefix: str,
     *,
     cfg: Any,
     num_seeds: int,
     extra_tags: Optional[Iterable[str]] = None,
+    include_timestamp: bool = True,
 ) -> str:
     parts = [
         slugify(prefix, max_len=24),
@@ -74,6 +81,8 @@ def build_experiment_id(
     ]
     if extra_tags:
         parts.extend(slugify(str(x), max_len=24) for x in extra_tags)
+    if include_timestamp:
+        parts.append(timestamp_tag())
     return "__".join(parts)
 
 
