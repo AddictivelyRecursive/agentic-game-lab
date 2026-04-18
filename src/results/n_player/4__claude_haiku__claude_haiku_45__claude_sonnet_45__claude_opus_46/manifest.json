@@ -1,0 +1,90 @@
+{
+  "run_id": "4__claude_haiku__claude_haiku_45__claude_sonnet_45__claude_opus_46",
+  "experiment_type": "n_player",
+  "prompt_dir": "/home/gathvik/llm_new/agentic-game-lab/src/AI_Agent/prompts",
+  "fixed_T": 50,
+  "selected_standard": [],
+  "selected_llms": [
+    "claude_haiku",
+    "claude_haiku_45",
+    "claude_sonnet_45",
+    "claude_opus_46"
+  ],
+  "N": 4,
+  "M_values": [
+    5
+  ],
+  "noise_levels": [
+    0.0
+  ],
+  "streak_lambdas": [
+    0.0
+  ],
+  "seeds": [
+    101
+  ],
+  "lineup_labels": [
+    "claude_haiku",
+    "claude_haiku_45",
+    "claude_sonnet_45",
+    "claude_opus_46"
+  ],
+  "lineup_players": [
+    {
+      "label": "claude_haiku",
+      "kind": "llm",
+      "model_name": "anthropic/claude-3.5-haiku",
+      "backend": "openrouter",
+      "strategy": null
+    },
+    {
+      "label": "claude_haiku_45",
+      "kind": "llm",
+      "model_name": "anthropic/claude-haiku-4.5",
+      "backend": "openrouter",
+      "strategy": null
+    },
+    {
+      "label": "claude_sonnet_45",
+      "kind": "llm",
+      "model_name": "anthropic/claude-sonnet-4.5",
+      "backend": "openrouter",
+      "strategy": null
+    },
+    {
+      "label": "claude_opus_46",
+      "kind": "llm",
+      "model_name": "anthropic/claude-opus-4.6",
+      "backend": "openrouter",
+      "strategy": null
+    }
+  ],
+  "base_config": {
+    "N": 2,
+    "M": 2,
+    "T": 50,
+    "p_perception": 0.0,
+    "payoff": {
+      "B0": 2.0,
+      "C": 1.0,
+      "K": 0.0,
+      "B_min": 2.0,
+      "B_max": 2.0
+    },
+    "drift": {
+      "window_w": 10,
+      "eta": 0.0,
+      "r_star": 0.5
+    },
+    "streak": {
+      "theta": 0.6,
+      "lam": 0.0,
+      "tau": 5.0
+    },
+    "obs": {
+      "history_k": 10,
+      "stats_window": 10
+    },
+    "seed": 0
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "run_id": "4__gemini_25_pro__gpt54_mini__grok_41_fast__claude_opus_46",
+  "match_id": "gemini_25_pro__gpt54_mini__grok_41_fast__claude_opus_46__n4__m5__p0.00__lam0.00__seed101",
+  "seed": 101,
+  "N": 4,
+  "M": 5,
+  "noise_p": 0.0,
+  "streak_lambda": 0.0,
+  "players": [
+    {
+      "label": "gemini_25_pro",
+      "kind": "llm",
+      "model_name": "google/gemini-2.5-pro",
+      "backend": "openrouter",
+      "strategy": null,
+      "seat": 0
+    },
+    {
+      "label": "gpt54_mini",
+      "kind": "llm",
+      "model_name": "openai/gpt-5.4-mini",
+      "backend": "openrouter",
+      "strategy": null,
+      "seat": 1
+    },
+    {
+      "label": "grok_41_fast",
+      "kind": "llm",
+      "model_name": "x-ai/grok-4.1-fast",
+      "backend": "openrouter",
+      "strategy": null,
+      "seat": 2
+    },
+    {
+      "label": "claude_opus_46",
+      "kind": "llm",
+      "model_name": "anthropic/claude-opus-4.6",
+      "backend": "openrouter",
+      "strategy": null,
+      "seat": 3
+    }
+  ],
+  "config": {
+    "N": 4,
+    "M": 5,
+    "T": 50,
+    "p_perception": 0.0,
+    "payoff": {
+      "B0": 2.0,
+      "C": 1.0,
+      "K": 0.0,
+      "B_min": 2.0,
+      "B_max": 2.0
+    },
+    "drift": {
+      "window_w": 10,
+      "eta": 0.0,
+      "r_star": 0.5
+    },
+    "streak": {
+      "theta": 0.6,
+      "lam": 0.0,
+      "tau": 5.0
+    },
+    "obs": {
+      "history_k": 10,
+      "stats_window": 10
+    },
+    "seed": 101
+  }
+}
