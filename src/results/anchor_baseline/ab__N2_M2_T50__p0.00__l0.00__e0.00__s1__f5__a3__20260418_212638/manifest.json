@@ -1,0 +1,108 @@
+{
+  "run_id": "ab__N2_M2_T50__p0.00__l0.00__e0.00__s1__f5__a3__20260418_212638",
+  "experiment_type": "anchor_baseline",
+  "prompt_dir": "AI_Agent/prompts",
+  "swap_seats": false,
+  "include_focal_self_play": false,
+  "num_focals": 5,
+  "num_anchors": 3,
+  "num_seeds": 1,
+  "num_match_specs": 15,
+  "num_matches_expected": 15,
+  "focal_players": [
+    {
+      "label": "gpt4om",
+      "raw_label": "gpt4o_mini",
+      "kind": "llm",
+      "model_name": "openai/gpt-4o-mini",
+      "backend": "openrouter",
+      "strategy": null
+    },
+    {
+      "label": "dsv3",
+      "raw_label": "deepseek_v3_0324",
+      "kind": "llm",
+      "model_name": "deepseek/deepseek-chat-v3-0324",
+      "backend": "openrouter",
+      "strategy": null
+    },
+    {
+      "label": "qwen72b",
+      "raw_label": "qwen25_72b",
+      "kind": "llm",
+      "model_name": "qwen/qwen-2.5-72b-instruct",
+      "backend": "openrouter",
+      "strategy": null
+    },
+    {
+      "label": "llama33",
+      "raw_label": "llama33_70b",
+      "kind": "llm",
+      "model_name": "meta-llama/llama-3.3-70b-instruct",
+      "backend": "openrouter",
+      "strategy": null
+    },
+    {
+      "label": "grok41f",
+      "raw_label": "grok_41_fast",
+      "kind": "llm",
+      "model_name": "x-ai/grok-4.1-fast",
+      "backend": "openrouter",
+      "strategy": null
+    }
+  ],
+  "anchor_players": [
+    {
+      "label": "ac",
+      "raw_label": "always_cooperate",
+      "kind": "deterministic",
+      "model_name": null,
+      "backend": null,
+      "strategy": "always_cooperate"
+    },
+    {
+      "label": "ad",
+      "raw_label": "always_defect",
+      "kind": "deterministic",
+      "model_name": null,
+      "backend": null,
+      "strategy": "always_defect"
+    },
+    {
+      "label": "gtft",
+      "raw_label": "graded_tft",
+      "kind": "deterministic",
+      "model_name": null,
+      "backend": null,
+      "strategy": "graded_tft"
+    }
+  ],
+  "config": {
+    "N": 2,
+    "M": 2,
+    "T": 50,
+    "p_perception": 0.0,
+    "payoff": {
+      "B0": 2.0,
+      "C": 1.0,
+      "K": 0.0,
+      "B_min": 2.0,
+      "B_max": 2.0
+    },
+    "drift": {
+      "window_w": 10,
+      "eta": 0.0,
+      "r_star": 0.5
+    },
+    "streak": {
+      "theta": 0.6,
+      "lam": 0.0,
+      "tau": 5.0
+    },
+    "obs": {
+      "history_k": 10,
+      "stats_window": 10
+    },
+    "seed": 0
+  }
+}

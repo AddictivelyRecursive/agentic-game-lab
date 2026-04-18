@@ -1,30 +1,13 @@
 """
 experiments/run_causal_realism_study.py
-
-Purpose:
-- Run a fixed-lineup causal realism study.
-- The selected players are defined in this file as:
-    standard = [...]
-    llms = [...]
-- N is inferred automatically as len(standard) + len(llms).
-- T is fixed to 50.
-- We vary:
-    * M (action granularity, using the repo's current semantics)
-    * perception noise p
-    * streak lambda
-    * seed
-- Logs are written in the same style as cross-play:
-    * manifest.json
-    * match_manifest.json
-    * episode_meta.json
-    * episode_logs.jsonl
-    * error.json on failure
 """
 
 from __future__ import annotations
 
+import hashlib
 import os
 from dataclasses import replace
+from datetime import datetime
 from typing import Any, Dict, List, Sequence
 
 try:
@@ -51,16 +34,13 @@ from game_engine.env.types import (
 from game_engine.io.causal_design import (
     PlayerSpec,
     build_lineup,
-    lineup_label,
     player_manifest_obj,
     safe_label,
     validate_social_dilemma_cfg,
 )
 from game_engine.io.jsonl import write_episode
 from game_engine.io.run_paths import (
-    build_experiment_id,
     ensure_dir,
-    slugify,
     write_json,
 )
 
@@ -76,21 +56,14 @@ RESULTS_ROOT = os.path.join(SRC_ROOT, "results", "causal_realism")
 # User-editable study setup
 # ---------------------------------------------------------------------
 
-# Either array can be empty, but total players must be >= 2.
 standard = ["always_cooperate", "always_defect", "graded_tft"]
 llms = ["gpt4o_mini", "grok_41_fast"]
 
-# Repo-consistent M:
-# M = number of action levels, e.g.
-# M=2 -> [1.0, 0.0]
-# M=5 -> [1.0, 0.75, 0.5, 0.25, 0.0]
-M_VALUES = [2, 5]
-
-NOISE_LEVELS = [0.0, 0.05, 0.1, 0.2]
-STREAK_LAMBDAS = [0.0, 0.3, 0.6]
+M_VALUES = [5]
+NOISE_LEVELS = [0.2]
+STREAK_LAMBDAS = [0.6]
 SEEDS = [101]
 
-# Fixed horizon for this study
 FIXED_T = 50
 
 # ---------------------------------------------------------------------
@@ -125,6 +98,81 @@ BASE_CFG = EnvConfig(
     ),
     seed=0,
 )
+
+# ---------------------------------------------------------------------
+# Compact naming helpers
+# ---------------------------------------------------------------------
+
+LABEL_ALIASES = {
+    "always_cooperate": "ac",
+    "always_defect": "ad",
+    "graded_tft": "gtft",
+    "gpt4o_mini": "gpt4om",
+    "grok_41_fast": "grok41f",
+    "deepseek_v3_0324": "dsv3",
+    "claude_haiku": "ch",
+    "gemini_25_pro": "g25p",
+    "qwen25_72b": "qwen72b",
+    "llama33_70b": "llama33",
+}
+
+
+def _sha1_short(text: str, n: int = 6) -> str:
+    return hashlib.sha1(text.encode("utf-8")).hexdigest()[:n]
+
+
+def _short_label(spec: PlayerSpec) -> str:
+    raw = safe_label(spec)
+    return LABEL_ALIASES.get(raw, raw[:12])
+
+
+def _lineup_token(lineup: Sequence[PlayerSpec]) -> str:
+    short_names = [_short_label(spec) for spec in lineup]
+    joined = "-".join(short_names)
+    digest = _sha1_short("|".join(safe_label(spec) for spec in lineup), 6)
+    return f"{joined}__h{digest}"
+
+
+def _run_id(
+    *,
+    N: int,
+    m_values: Sequence[int],
+    noise_levels: Sequence[float],
+    streak_lambdas: Sequence[float],
+    seeds: Sequence[int],
+) -> str:
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    m_tag = "-".join(str(int(m)) for m in sorted(set(m_values)))
+    return (
+        f"cr__N{N}"
+        f"__M{m_tag}"
+        f"__p{len(noise_levels)}"
+        f"__l{len(streak_lambdas)}"
+        f"__s{len(seeds)}"
+        f"__t{FIXED_T}"
+        f"__{ts}"
+    )
+
+
+def _match_id(
+    *,
+    lineup: Sequence[PlayerSpec],
+    N: int,
+    M: int,
+    p: float,
+    lam: float,
+    seed: int,
+) -> str:
+    lineup_tok = _lineup_token(lineup)
+    return (
+        f"{lineup_tok}"
+        f"__n{N}"
+        f"__m{int(M)}"
+        f"__p{float(p):.2f}"
+        f"__l{float(lam):.2f}"
+        f"__s{int(seed)}"
+    )
+
 
 # ---------------------------------------------------------------------
 # Helpers
@@ -175,7 +223,7 @@ def _build_agent(
     cfg: EnvConfig,
     match_agents_dir: str,
 ):
-    label = safe_label(spec)
+    label = _short_label(spec)
 
     if spec.kind == "llm":
         seat_dir = ensure_dir(os.path.join(match_agents_dir, f"p{seat}__{label}"))
@@ -205,21 +253,6 @@ def _build_agent(
     raise ValueError(f"Unknown player kind: {spec.kind!r}")
 
 
-def _match_id(
-    *,
-    lineup: Sequence[PlayerSpec],
-    N: int,
-    M: int,
-    p: float,
-    lam: float,
-    seed: int,
-) -> str:
-    return slugify(
-        f"{lineup_label(lineup)}__N{N}__M{M}__p{p:.2f}__lam{lam:.2f}__seed{seed}",
-        max_len=220,
-    )
-
-
 # ---------------------------------------------------------------------
 # Main engine
 # ---------------------------------------------------------------------
@@ -239,25 +272,12 @@ def run_causal_realism_engine(
 
     N = len(lineup)
 
-    representative_cfg = _make_cfg(
-        base_cfg=BASE_CFG,
+    run_id = _run_id(
         N=N,
-        M=min(int(x) for x in m_values),
-        p=min(float(x) for x in noise_levels),
-        lam=min(float(x) for x in streak_lambdas),
-        seed=int(seeds[0]),
-    )
-
-    run_id = build_experiment_id(
-        "causal_realism",
-        cfg=representative_cfg,
-        num_seeds=len(seeds),
-        extra_tags=[
-            f"players{N}",
-            f"Mset{'-'.join(str(m) for m in sorted(set(m_values)))}",
-            f"noise{len(noise_levels)}",
-            f"lam{len(streak_lambdas)}",
-        ],
+        m_values=m_values,
+        noise_levels=noise_levels,
+        streak_lambdas=streak_lambdas,
+        seeds=seeds,
     )
     run_dir = ensure_dir(os.path.join(RESULTS_ROOT, run_id))
 
@@ -274,9 +294,12 @@ def run_causal_realism_engine(
         "streak_lambdas": list(streak_lambdas),
         "seeds": list(seeds),
         "lineup_labels": [safe_label(spec) for spec in lineup],
+        "lineup_short_labels": [_short_label(spec) for spec in lineup],
+        "lineup_token": _lineup_token(lineup),
         "lineup_players": [
             {
                 "label": safe_label(spec),
+                "short_label": _short_label(spec),
                 "kind": spec.kind,
                 "model_name": spec.model_name if spec.kind == "llm" else None,
                 "backend": spec.backend if spec.kind == "llm" else None,
@@ -323,6 +346,7 @@ def run_causal_realism_engine(
                         "M": int(M),
                         "noise_p": float(p),
                         "streak_lambda": float(lam),
+                        "lineup_token": _lineup_token(lineup),
                         "players": [
                             player_manifest_obj(spec, seat=i)
                             for i, spec in enumerate(lineup)
@@ -356,6 +380,7 @@ def run_causal_realism_engine(
                             "noise_p": float(p),
                             "streak_lambda": float(lam),
                             "lineup_labels": [safe_label(spec) for spec in lineup],
+                            "lineup_short_labels": [_short_label(spec) for spec in lineup],
                             "lineup_kinds": [spec.kind for spec in lineup],
                             "lineup_model_ids": [
                                 spec.model_name if spec.kind == "llm" else None
@@ -366,7 +391,7 @@ def run_causal_realism_engine(
                                 for spec in lineup
                             ],
                             "seat_assignment": {
-                                str(i): safe_label(spec)
+                                str(i): _short_label(spec)
                                 for i, spec in enumerate(lineup)
                             },
                         }
