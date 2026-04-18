@@ -123,27 +123,15 @@ BASE_CFG = EnvConfig(
 
 SEEDS: List[int] = [101]
 
-# EXACTLY 40 matches total:
-# 8 focal LLMs * 5 deterministic anchors * 1 seed = 40
 SWAP_SEATS = False
 INCLUDE_FOCAL_SELF_PLAY = False
 
-# 8 focal models only.
+# Cheaper focal models only.
 FOCAL_PLAYER_SPECS: List[PlayerSpec] = [
     PlayerSpec(
         kind="llm",
         label="gpt4o_mini",
         model_name="openai/gpt-4o-mini",
-    ),
-    PlayerSpec(
-        kind="llm",
-        label="claude_35_haiku",
-        model_name="anthropic/claude-3.5-haiku",
-    ),
-    PlayerSpec(
-        kind="llm",
-        label="gemini_25_pro",
-        model_name="google/gemini-2.5-pro",
     ),
     PlayerSpec(
         kind="llm",
@@ -165,11 +153,6 @@ FOCAL_PLAYER_SPECS: List[PlayerSpec] = [
         label="grok_41_fast",
         model_name="x-ai/grok-4.1-fast",
     ),
-    PlayerSpec(
-        kind="llm",
-        label="gemini_25_flash",
-        model_name="google/gemini-2.5-flash",
-    ),
 ]
 
 # 5 deterministic anchors only.
@@ -189,18 +172,7 @@ ANCHOR_SPECS: List[PlayerSpec] = [
         label="graded_tft",
         strategy="graded_tft",
     ),
-    PlayerSpec(
-        kind="deterministic",
-        label="grim_trigger",
-        strategy="grim_trigger",
-    ),
-    PlayerSpec(
-        kind="deterministic",
-        label="wsls",
-        strategy="wsls",
-    ),
 ]
-
 
 def _has_any_llm(specs: Sequence[PlayerSpec]) -> bool:
     return any(spec.kind == "llm" for spec in specs)
@@ -293,9 +265,6 @@ def _player_manifest_obj(spec: PlayerSpec, seat: int) -> Dict[str, Any]:
 def main() -> None:
     _require_openrouter_key_if_needed(FOCAL_PLAYER_SPECS)
 
-    assert BASE_CFG.N == 2, "Anchor-baseline tournament runner expects N=2."
-    assert len(FOCAL_PLAYER_SPECS) == 8, "This configuration expects exactly 8 focal LLMs."
-    assert len(ANCHOR_SPECS) == 5, "This configuration expects exactly 5 deterministic anchors."
     assert SEEDS == [101], "This configuration expects exactly one seed: 101."
     assert (
         BASE_CFG.payoff.B_min * (1.0 + BASE_CFG.streak.lam) > BASE_CFG.payoff.C
@@ -309,8 +278,6 @@ def main() -> None:
         FOCAL_PLAYER_SPECS,
         ANCHOR_SPECS,
     )
-
-    assert len(match_list) == 40, f"Expected 40 match specs, found {len(match_list)}."
 
     run_id = build_experiment_id(
         "ab",
