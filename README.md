@@ -37,7 +37,5 @@ python -m game_engine.experiments.run_baseline_test
 
 ```bash
 cd src
-python -m game_engine.experiments.run_tournament
+python -m game_engine.experiments.run_crossplay_tournament
 ```
-
-> Replace `run_tournament` with your actual tournament module name if different.

@@ -2,13 +2,13 @@
 experiments/run_cross_play_tournament.py
 
 Purpose:
-- Run an ordered round-robin cross-play tournament across a mixed roster of
-  OpenRouter-backed LLM agents and deterministic baseline agents.
-- Write logs in a path structure that is easy to analyze later.
+- Run a focal-vs-anchor tournament instead of a full round-robin.
+- Evaluate each focal LLM against a fixed set of deterministic anchor baselines.
+- Each focal LLM plays each deterministic anchor exactly once.
 
 Expected output structure:
 results/
-  cross_play/
+  anchor_baseline/
     <experiment_id>/
       manifest.json
       <match_id>/
@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field, replace
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence
 
 try:
     from dotenv import load_dotenv
@@ -38,7 +38,9 @@ from game_engine.agents import (
     AlwaysCooperate,
     AlwaysDefect,
     GradedTFT,
+    GrimTrigger,
     LLMWrapperAgent,
+    WinStayLoseShift,
 )
 from game_engine.env.simulator import GameSimulator
 from game_engine.env.types import (
@@ -72,15 +74,24 @@ class PlayerSpec:
     kwargs: Dict[str, Any] = field(default_factory=dict)
 
 
-PROMPT_DIR = "AI_Agent/prompts"
-RESULTS_ROOT = os.path.join("results", "cross_play")
+@dataclass(frozen=True)
+class MatchSpec:
+    row_spec: PlayerSpec
+    col_spec: PlayerSpec
+    focal_spec: PlayerSpec
+    anchor_spec: PlayerSpec
+    matchup_type: str  # always "focal_vs_anchor" in this runner
 
-# Controlled cross-play setup:
+
+PROMPT_DIR = "AI_Agent/prompts"
+RESULTS_ROOT = os.path.join("results", "anchor_baseline")
+
+# Controlled setup:
 # - N=2
 # - no perception noise
 # - no streak incentive
 # - no drift
-# This isolates player-vs-player behavior first.
+# This isolates strategic behavior first.
 BASE_CFG = EnvConfig(
     N=2,
     M=2,
@@ -111,15 +122,14 @@ BASE_CFG = EnvConfig(
 )
 
 SEEDS: List[int] = [101]
-INCLUDE_SELF_PLAY = True
 
-# 10 total players:
-# - 7 OpenRouter LLMs
-# - 3 deterministic strategies
-#
-# If any OpenRouter model ID is unavailable for your account/provider routing,
-# replace just that model_name string and keep the same label.
-PLAYER_SPECS: List[PlayerSpec] = [
+# EXACTLY 40 matches total:
+# 8 focal LLMs * 5 deterministic anchors * 1 seed = 40
+SWAP_SEATS = False
+INCLUDE_FOCAL_SELF_PLAY = False
+
+# 8 focal models only.
+FOCAL_PLAYER_SPECS: List[PlayerSpec] = [
     PlayerSpec(
         kind="llm",
         label="gpt4o_mini",
@@ -127,7 +137,7 @@ PLAYER_SPECS: List[PlayerSpec] = [
     ),
     PlayerSpec(
         kind="llm",
-        label="claude_haiku",
+        label="claude_35_haiku",
         model_name="anthropic/claude-3.5-haiku",
     ),
     PlayerSpec(
@@ -156,6 +166,15 @@ PLAYER_SPECS: List[PlayerSpec] = [
         model_name="x-ai/grok-4.1-fast",
     ),
     PlayerSpec(
+        kind="llm",
+        label="gemini_25_flash",
+        model_name="google/gemini-2.5-flash",
+    ),
+]
+
+# 5 deterministic anchors only.
+ANCHOR_SPECS: List[PlayerSpec] = [
+    PlayerSpec(
         kind="deterministic",
         label="always_cooperate",
         strategy="always_cooperate",
@@ -169,6 +188,16 @@ PLAYER_SPECS: List[PlayerSpec] = [
         kind="deterministic",
         label="graded_tft",
         strategy="graded_tft",
+    ),
+    PlayerSpec(
+        kind="deterministic",
+        label="grim_trigger",
+        strategy="grim_trigger",
+    ),
+    PlayerSpec(
+        kind="deterministic",
+        label="wsls",
+        strategy="wsls",
     ),
 ]
 
@@ -192,17 +221,25 @@ def _spec_label(spec: PlayerSpec) -> str:
     return slugify(spec.label, max_len=64)
 
 
-def _iter_pairs(
-    specs: Sequence[PlayerSpec],
-    include_self_play: bool,
-) -> List[Tuple[PlayerSpec, PlayerSpec]]:
-    pairs: List[Tuple[PlayerSpec, PlayerSpec]] = []
-    for row in specs:
-        for col in specs:
-            if not include_self_play and _spec_label(row) == _spec_label(col):
-                continue
-            pairs.append((row, col))
-    return pairs
+def _iter_anchor_matchups(
+    focals: Sequence[PlayerSpec],
+    anchors: Sequence[PlayerSpec],
+) -> List[MatchSpec]:
+    jobs: List[MatchSpec] = []
+
+    for focal in focals:
+        for anchor in anchors:
+            jobs.append(
+                MatchSpec(
+                    row_spec=focal,
+                    col_spec=anchor,
+                    focal_spec=focal,
+                    anchor_spec=anchor,
+                    matchup_type="focal_vs_anchor",
+                )
+            )
+
+    return jobs
 
 
 def _build_agent(
@@ -233,6 +270,10 @@ def _build_agent(
             return AlwaysDefect(name=f"p{seat}__{label}")
         if spec.strategy == "graded_tft":
             return GradedTFT(name=f"p{seat}__{label}")
+        if spec.strategy == "grim_trigger":
+            return GrimTrigger(name=f"p{seat}__{label}")
+        if spec.strategy == "wsls":
+            return WinStayLoseShift(name=f"p{seat}__{label}")
         raise ValueError(f"Unknown deterministic strategy: {spec.strategy!r}")
 
     raise ValueError(f"Unknown player kind: {spec.kind!r}")
@@ -250,39 +291,52 @@ def _player_manifest_obj(spec: PlayerSpec, seat: int) -> Dict[str, Any]:
 
 
 def main() -> None:
-    _require_openrouter_key_if_needed(PLAYER_SPECS)
+    _require_openrouter_key_if_needed(FOCAL_PLAYER_SPECS)
 
-    assert BASE_CFG.N == 2, "Cross-play tournament runner expects N=2."
-    assert len(PLAYER_SPECS) >= 2, "Need at least 2 players for cross-play."
+    assert BASE_CFG.N == 2, "Anchor-baseline tournament runner expects N=2."
+    assert len(FOCAL_PLAYER_SPECS) == 8, "This configuration expects exactly 8 focal LLMs."
+    assert len(ANCHOR_SPECS) == 5, "This configuration expects exactly 5 deterministic anchors."
+    assert SEEDS == [101], "This configuration expects exactly one seed: 101."
     assert (
         BASE_CFG.payoff.B_min * (1.0 + BASE_CFG.streak.lam) > BASE_CFG.payoff.C
     ), "PD constraint violated: B_eff may drop <= C"
 
-    labels = [_spec_label(spec) for spec in PLAYER_SPECS]
-    assert len(labels) == len(set(labels)), "Player labels must be unique."
+    all_specs = list(FOCAL_PLAYER_SPECS) + list(ANCHOR_SPECS)
+    labels = [_spec_label(spec) for spec in all_specs]
+    assert len(labels) == len(set(labels)), "Player labels must be unique across focals and anchors."
 
-    pair_list = _iter_pairs(PLAYER_SPECS, INCLUDE_SELF_PLAY)
+    match_list = _iter_anchor_matchups(
+        FOCAL_PLAYER_SPECS,
+        ANCHOR_SPECS,
+    )
 
-    # Assumes your updated run_paths.build_experiment_id() signature is:
-    # build_experiment_id(prefix, cfg=..., num_seeds=..., extra_tags=...)
+    assert len(match_list) == 40, f"Expected 40 match specs, found {len(match_list)}."
+
     run_id = build_experiment_id(
-        "cp",
+        "ab",
         cfg=BASE_CFG,
         num_seeds=len(SEEDS),
-        extra_tags=[f"K{len(PLAYER_SPECS)}"],
+        extra_tags=[
+            f"F{len(FOCAL_PLAYER_SPECS)}",
+            f"A{len(ANCHOR_SPECS)}",
+            "swap0",
+            "self0",
+        ],
     )
     run_dir = ensure_dir(os.path.join(RESULTS_ROOT, run_id))
 
     manifest = {
         "run_id": run_id,
-        "experiment_type": "cross_play",
+        "experiment_type": "anchor_baseline",
         "prompt_dir": PROMPT_DIR,
-        "include_self_play": INCLUDE_SELF_PLAY,
-        "num_players": len(PLAYER_SPECS),
+        "swap_seats": SWAP_SEATS,
+        "include_focal_self_play": INCLUDE_FOCAL_SELF_PLAY,
+        "num_focals": len(FOCAL_PLAYER_SPECS),
+        "num_anchors": len(ANCHOR_SPECS),
         "num_seeds": len(SEEDS),
-        "num_pairs": len(pair_list),
-        "num_matches_expected": len(pair_list) * len(SEEDS),
-        "players": [
+        "num_match_specs": len(match_list),
+        "num_matches_expected": len(match_list) * len(SEEDS),
+        "focal_players": [
             {
                 "label": _spec_label(spec),
                 "kind": spec.kind,
@@ -290,18 +344,35 @@ def main() -> None:
                 "backend": spec.backend if spec.kind == "llm" else None,
                 "strategy": spec.strategy if spec.kind == "deterministic" else None,
             }
-            for spec in PLAYER_SPECS
+            for spec in FOCAL_PLAYER_SPECS
+        ],
+        "anchor_players": [
+            {
+                "label": _spec_label(spec),
+                "kind": spec.kind,
+                "model_name": spec.model_name if spec.kind == "llm" else None,
+                "backend": spec.backend if spec.kind == "llm" else None,
+                "strategy": spec.strategy if spec.kind == "deterministic" else None,
+            }
+            for spec in ANCHOR_SPECS
         ],
         "config": BASE_CFG,
     }
     write_json(os.path.join(run_dir, "manifest.json"), manifest)
 
     completed = 0
-    total = len(pair_list) * len(SEEDS)
+    total = len(match_list) * len(SEEDS)
 
-    for row_spec, col_spec in pair_list:
+    for match in match_list:
+        row_spec = match.row_spec
+        col_spec = match.col_spec
+        focal_spec = match.focal_spec
+        anchor_spec = match.anchor_spec
+
         row_label = _spec_label(row_spec)
         col_label = _spec_label(col_spec)
+        focal_label = _spec_label(focal_spec)
+        anchor_label = _spec_label(anchor_spec)
 
         for seed in SEEDS:
             cfg = replace(BASE_CFG, seed=seed)
@@ -314,6 +385,21 @@ def main() -> None:
                 "run_id": run_id,
                 "match_id": match_id,
                 "seed": seed,
+                "matchup_type": match.matchup_type,
+                "focal_player": {
+                    "label": focal_label,
+                    "kind": focal_spec.kind,
+                    "model_name": focal_spec.model_name if focal_spec.kind == "llm" else None,
+                    "backend": focal_spec.backend if focal_spec.kind == "llm" else None,
+                    "strategy": focal_spec.strategy if focal_spec.kind == "deterministic" else None,
+                },
+                "anchor_player": {
+                    "label": anchor_label,
+                    "kind": anchor_spec.kind,
+                    "model_name": anchor_spec.model_name if anchor_spec.kind == "llm" else None,
+                    "backend": anchor_spec.backend if anchor_spec.kind == "llm" else None,
+                    "strategy": anchor_spec.strategy if anchor_spec.kind == "deterministic" else None,
+                },
                 "row_player": _player_manifest_obj(row_spec, seat=0),
                 "col_player": _player_manifest_obj(col_spec, seat=1),
                 "config": cfg,
@@ -342,6 +428,23 @@ def main() -> None:
                 extra_meta: Dict[str, Any] = {
                     "match_id": match_id,
                     "seed": seed,
+                    "matchup_type": match.matchup_type,
+                    "focal_player_label": focal_label,
+                    "focal_player_kind": focal_spec.kind,
+                    "focal_player_model_id": focal_spec.model_name
+                    if focal_spec.kind == "llm"
+                    else None,
+                    "focal_player_strategy": focal_spec.strategy
+                    if focal_spec.kind == "deterministic"
+                    else None,
+                    "anchor_player_label": anchor_label,
+                    "anchor_player_kind": anchor_spec.kind,
+                    "anchor_player_model_id": (
+                        anchor_spec.model_name if anchor_spec.kind == "llm" else None
+                    ),
+                    "anchor_player_strategy": (
+                        anchor_spec.strategy if anchor_spec.kind == "deterministic" else None
+                    ),
                     "row_player_label": row_label,
                     "row_player_kind": row_spec.kind,
                     "row_player_model_id": row_spec.model_name
@@ -376,7 +479,8 @@ def main() -> None:
                 completed += 1
                 print(
                     f"[{completed}/{total}] "
-                    f"{row_label} vs {col_label} | seed={seed} | "
+                    f"{row_label} vs {col_label} | "
+                    f"type={match.matchup_type} | seed={seed} | "
                     f"meta={meta_path} | logs={logs_path}"
                 )
 
@@ -387,6 +491,21 @@ def main() -> None:
                         "run_id": run_id,
                         "match_id": match_id,
                         "seed": seed,
+                        "matchup_type": match.matchup_type,
+                        "focal_player": {
+                            "label": focal_label,
+                            "kind": focal_spec.kind,
+                            "model_name": focal_spec.model_name if focal_spec.kind == "llm" else None,
+                            "backend": focal_spec.backend if focal_spec.kind == "llm" else None,
+                            "strategy": focal_spec.strategy if focal_spec.kind == "deterministic" else None,
+                        },
+                        "anchor_player": {
+                            "label": anchor_label,
+                            "kind": anchor_spec.kind,
+                            "model_name": anchor_spec.model_name if anchor_spec.kind == "llm" else None,
+                            "backend": anchor_spec.backend if anchor_spec.kind == "llm" else None,
+                            "strategy": anchor_spec.strategy if anchor_spec.kind == "deterministic" else None,
+                        },
                         "row_player": _player_manifest_obj(row_spec, seat=0),
                         "col_player": _player_manifest_obj(col_spec, seat=1),
                         "error": repr(e),
