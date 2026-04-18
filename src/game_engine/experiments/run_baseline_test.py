@@ -35,7 +35,7 @@ def main() -> None:
     cfg = EnvConfig(
         N=4,
         M=5,
-        T=3,
+        T=50,
         p_perception=0.10,
         payoff=PayoffConfig(
             B0=2.0,
@@ -65,7 +65,6 @@ def main() -> None:
     run_id = build_experiment_id(
         "baseline",
         cfg=cfg,
-        prompt_variant_id="neutral",
         num_seeds=1,
         extra_tags=["smoke"],
     )
