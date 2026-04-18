@@ -1,23 +1,23 @@
-TASK: Choose an action.
+TASK: Choose a strategic action.
 
 You are given ranked candidate actions sorted by expected utility (highest first).
 
-Objective:
-- Maximize long-term average reward.
-- Prefer higher expected utility.
-- Consider cooperation stability when utilities are close.
-- Avoid unnecessarily risky actions.
+Strategic objective:
+- Prefer the action with the highest expected utility.
+- If the top actions are close, prefer the more cooperative action.
+- Favor stable, strategically justified choices over noisy ones.
+- Base the reason on the strongest game signal, such as expected utility, recent observed behavior, or tie-breaking.
 
 Return strictly:
-
 {
   "a": <int>,
-  "reason": "<short explanation, max 2 sentences>",
+  "reason": "<very short strategic explanation, max 12 words>",
   "confidence": <float between 0 and 1>
 }
 
 Rules:
 - "a" must be an integer.
-- "reason" must be concise (<= 2 sentences).
+- "reason" must be concise, specific, and strategically relevant.
+- "reason" should mention only the strongest signal behind the action.
 - "confidence" must be between 0 and 1.
 - No extra text.

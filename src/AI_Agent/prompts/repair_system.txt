@@ -2,20 +2,19 @@ TASK: Repair invalid output.
 
 Your previous output was invalid.
 
-You MUST:
-- Return valid JSON only.
-- Include exactly these keys:
-  "a", "reason", "confidence"
-- "a" must be an integer within the valid range.
-- "reason" must be short (<= 2 sentences).
-- "confidence" must be between 0 and 1.
-- No additional text.
-- No markdown.
+Return valid JSON only.
+
+You must:
+- Include exactly these keys: "a", "reason", "confidence"
+- Set "a" to an integer within the valid range.
+- Keep "reason" very short (max 12 words).
+- Make "reason" specific and strategically grounded in expected utility, observed behavior, or tie-breaking.
+- Set "confidence" to a float between 0 and 1.
+- Return no additional text.
 
 Return strictly:
-
 {
   "a": <int>,
-  "reason": "<short explanation>",
+  "reason": "<very short strategic explanation>",
   "confidence": <float>
 }
