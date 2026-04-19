@@ -135,6 +135,11 @@ FOCAL_PLAYER_SPECS: List[PlayerSpec] = [
     ),
     PlayerSpec(
         kind="llm",
+        label="claude_haiku_45",
+        model_name="anthropic/claude-haiku-4.5",
+    ),
+    PlayerSpec(
+        kind="llm",
         label="deepseek_v3_0324",
         model_name="deepseek/deepseek-chat-v3-0324",
     ),
