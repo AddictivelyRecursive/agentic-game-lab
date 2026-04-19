@@ -59,9 +59,9 @@ RESULTS_ROOT = os.path.join(SRC_ROOT, "results", "causal_realism")
 standard = ["always_cooperate", "always_defect", "graded_tft"]
 llms = ["gpt4o_mini", "grok_41_fast"]
 
-M_VALUES = [5]
-NOISE_LEVELS = [0.2]
-STREAK_LAMBDAS = [0.6]
+M_VALUES = [5, 3, 2]
+NOISE_LEVELS = [0.2, 0.1, 0.0]
+STREAK_LAMBDAS = [0.6, 0.3, 0.0]
 SEEDS = [101]
 
 FIXED_T = 50

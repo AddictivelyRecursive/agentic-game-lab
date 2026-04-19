@@ -1,0 +1,80 @@
+{
+  "run_id": "cr__N5__M2-3-5__p3__l3__s1__t50__20260418_220804",
+  "match_id": "ac-ad-gtft-gpt4om-grok41f__hc0e419__n5__m2__p0.00__l0.60__s101",
+  "seed": 101,
+  "N": 5,
+  "M": 2,
+  "noise_p": 0.0,
+  "streak_lambda": 0.6,
+  "lineup_token": "ac-ad-gtft-gpt4om-grok41f__hc0e419",
+  "players": [
+    {
+      "label": "always_cooperate",
+      "kind": "deterministic",
+      "model_name": null,
+      "backend": null,
+      "strategy": "always_cooperate",
+      "seat": 0
+    },
+    {
+      "label": "always_defect",
+      "kind": "deterministic",
+      "model_name": null,
+      "backend": null,
+      "strategy": "always_defect",
+      "seat": 1
+    },
+    {
+      "label": "graded_tft",
+      "kind": "deterministic",
+      "model_name": null,
+      "backend": null,
+      "strategy": "graded_tft",
+      "seat": 2
+    },
+    {
+      "label": "gpt4o_mini",
+      "kind": "llm",
+      "model_name": "openai/gpt-4o-mini",
+      "backend": "openrouter",
+      "strategy": null,
+      "seat": 3
+    },
+    {
+      "label": "grok_41_fast",
+      "kind": "llm",
+      "model_name": "x-ai/grok-4.1-fast",
+      "backend": "openrouter",
+      "strategy": null,
+      "seat": 4
+    }
+  ],
+  "config": {
+    "N": 5,
+    "M": 2,
+    "T": 50,
+    "p_perception": 0.0,
+    "payoff": {
+      "B0": 2.0,
+      "C": 1.0,
+      "K": 0.0,
+      "B_min": 2.0,
+      "B_max": 2.0
+    },
+    "drift": {
+      "window_w": 10,
+      "eta": 0.0,
+      "r_star": 0.5
+    },
+    "streak": {
+      "theta": 0.6,
+      "lam": 0.6,
+      "tau": 5.0
+    },
+    "obs": {
+      "history_k": 10,
+      "stats_window": 10
+    },
+    "seed": 101
+  }
+}

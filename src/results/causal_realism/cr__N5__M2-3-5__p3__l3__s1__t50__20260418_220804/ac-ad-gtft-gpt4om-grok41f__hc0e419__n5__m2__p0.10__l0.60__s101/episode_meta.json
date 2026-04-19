@@ -1,0 +1,93 @@
+{
+  "run_id": "cr__N5__M2-3-5__p3__l3__s1__t50__20260418_220804",
+  "episode_id": 0,
+  "schema_v": 2,
+  "config": {
+    "N": 5,
+    "M": 2,
+    "T": 50,
+    "p_perception": 0.1,
+    "payoff": {
+      "B0": 2.0,
+      "C": 1.0,
+      "K": 0.0,
+      "B_min": 2.0,
+      "B_max": 2.0
+    },
+    "drift": {
+      "window_w": 10,
+      "eta": 0.0,
+      "r_star": 0.5
+    },
+    "streak": {
+      "theta": 0.6,
+      "lam": 0.6,
+      "tau": 5.0
+    },
+    "obs": {
+      "history_k": 10,
+      "stats_window": 10
+    },
+    "seed": 101
+  },
+  "total_rewards": [
+    -40.807343332622615,
+    34.81859129909982,
+    22.19265666737739,
+    28.484279144256373,
+    28.58618141828831
+  ],
+  "final_B": 2.0,
+  "final_streak": 0,
+  "num_rounds": 50,
+  "extra_meta": {
+    "match_id": "ac-ad-gtft-gpt4om-grok41f__hc0e419__n5__m2__p0.10__l0.60__s101",
+    "seed": 101,
+    "N": 5,
+    "M": 2,
+    "noise_p": 0.1,
+    "streak_lambda": 0.6,
+    "lineup_labels": [
+      "always_cooperate",
+      "always_defect",
+      "graded_tft",
+      "gpt4o_mini",
+      "grok_41_fast"
+    ],
+    "lineup_short_labels": [
+      "ac",
+      "ad",
+      "gtft",
+      "gpt4om",
+      "grok41f"
+    ],
+    "lineup_kinds": [
+      "deterministic",
+      "deterministic",
+      "deterministic",
+      "llm",
+      "llm"
+    ],
+    "lineup_model_ids": [
+      null,
+      null,
+      null,
+      "openai/gpt-4o-mini",
+      "x-ai/grok-4.1-fast"
+    ],
+    "lineup_strategies": [
+      "always_cooperate",
+      "always_defect",
+      "graded_tft",
+      null,
+      null
+    ],
+    "seat_assignment": {
+      "0": "ac",
+      "1": "ad",
+      "2": "gtft",
+      "3": "gpt4om",
+      "4": "grok41f"
+    }
+  }
+}
