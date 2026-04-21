@@ -408,7 +408,7 @@ def plot_heatmaps(df: pd.DataFrame, out_dir: Path) -> None:
     draw_heatmap(
         coop_heat,
         "Cooperation landscape",
-        out_dir / "heatmap_cooperationy.png",
+        out_dir / "heatmap_cooperation.png",
         vmin=0.0,
         vmax=1.0,
     )
