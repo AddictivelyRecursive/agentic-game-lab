@@ -46,5 +46,5 @@ python -m game_engine.experiments.run_crossplay_tournament
 
 ```bash
 cd src
-python "plots/plotting_scripts.py"  --root "results/causal_realism/cr__N5__M2-3-5__p3__l3__s1__t50__20260418_220804"        
+python -m plotting_scripts.plot_hostility_sweep --run-dir "results/hostility_sweep/hs__N2_M2_T100__p0.00__lam0.00__eta0.00__seeds1__f5__u4__t100__20260421_150314"       
 ```
