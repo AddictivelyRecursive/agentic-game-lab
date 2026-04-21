@@ -1,0 +1,93 @@
+{
+  "run_id": "cr__N5__M2-3-5__p3__l3__s1__t50__20260421_023830",
+  "episode_id": 0,
+  "schema_v": 2,
+  "config": {
+    "N": 5,
+    "M": 2,
+    "T": 50,
+    "p_perception": 0.0,
+    "payoff": {
+      "B0": 2.0,
+      "C": 1.0,
+      "K": 0.0,
+      "B_min": 2.0,
+      "B_max": 2.0
+    },
+    "drift": {
+      "window_w": 10,
+      "eta": 0.0,
+      "r_star": 0.5
+    },
+    "streak": {
+      "theta": 0.6,
+      "lam": 0.3,
+      "tau": 5.0
+    },
+    "obs": {
+      "history_k": 10,
+      "stats_window": 10
+    },
+    "seed": 101
+  },
+  "total_rewards": [
+    45.70790877184117,
+    127.61054502912155,
+    45.70790877184117,
+    45.70790877184117,
+    45.70790877184117
+  ],
+  "final_B": 2.0,
+  "final_streak": 50,
+  "num_rounds": 50,
+  "extra_meta": {
+    "match_id": "ac-ad-gtft-dsv3-ch__hc1002e__n5__m2__p0.00__l0.30__s101",
+    "seed": 101,
+    "N": 5,
+    "M": 2,
+    "noise_p": 0.0,
+    "streak_lambda": 0.3,
+    "lineup_labels": [
+      "always_cooperate",
+      "always_defect",
+      "graded_tft",
+      "deepseek_v3_0324",
+      "claude_haiku"
+    ],
+    "lineup_short_labels": [
+      "ac",
+      "ad",
+      "gtft",
+      "dsv3",
+      "ch"
+    ],
+    "lineup_kinds": [
+      "deterministic",
+      "deterministic",
+      "deterministic",
+      "llm",
+      "llm"
+    ],
+    "lineup_model_ids": [
+      null,
+      null,
+      null,
+      "deepseek/deepseek-chat-v3-0324",
+      "anthropic/claude-3.5-haiku"
+    ],
+    "lineup_strategies": [
+      "always_cooperate",
+      "always_defect",
+      "graded_tft",
+      null,
+      null
+    ],
+    "seat_assignment": {
+      "0": "ac",
+      "1": "ad",
+      "2": "gtft",
+      "3": "dsv3",
+      "4": "ch"
+    }
+  }
+}

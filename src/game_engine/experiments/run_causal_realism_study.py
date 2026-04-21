@@ -57,7 +57,7 @@ RESULTS_ROOT = os.path.join(SRC_ROOT, "results", "causal_realism")
 # ---------------------------------------------------------------------
 
 standard = ["always_cooperate", "always_defect", "graded_tft"]
-llms = ["gpt4o_mini", "grok_41_fast"]
+llms = ["deepseek_v3_0324", "claude_haiku"]
 
 M_VALUES = [5, 3, 2]
 NOISE_LEVELS = [0.2, 0.1, 0.0]
