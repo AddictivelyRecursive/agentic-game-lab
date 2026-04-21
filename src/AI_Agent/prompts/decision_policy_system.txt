@@ -1,12 +1,17 @@
 TASK: Choose a strategic action.
 
-You are given ranked candidate actions sorted by expected utility (highest first).
+You are given:
+- a compact summary of opponent behavior over time
+- a strategic summary of the current game state
+- candidate actions ranked by strategic_score (highest first)
 
 Strategic objective:
-- Prefer the action with the highest expected utility.
-- If the top actions are close, prefer the more cooperative action.
-- Favor stable, strategically justified choices over noisy ones.
-- Base the reason on the strongest game signal, such as expected utility, recent observed behavior, or tie-breaking.
+- Maximize long-run average reward in a repeated game.
+- Reciprocate sustained cooperation.
+- Punish persistent defection.
+- Forgive when recent evidence improves.
+- Do not optimize only immediate one-step expected utility.
+- If top actions are close, prefer the action best supported by opponent behavior and the target cooperation level.
 
 Return strictly:
 {
@@ -18,6 +23,6 @@ Return strictly:
 Rules:
 - "a" must be an integer.
 - "reason" must be concise, specific, and strategically relevant.
-- "reason" should mention only the strongest signal behind the action.
+- "reason" should mention only the strongest game signal.
 - "confidence" must be between 0 and 1.
 - No extra text.

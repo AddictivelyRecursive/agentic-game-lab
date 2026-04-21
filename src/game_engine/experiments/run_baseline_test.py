@@ -2,7 +2,7 @@
 experiments/run_baseline_test.py
 
 Purpose:
-- End-to-end sanity test of env with baseline agents + optional LLM agents.
+- End-to-end sanity test of env with one LLM agent vs one baseline agent.
 - Writes logs using the same directory logic as the cross-play runner.
 """
 
@@ -10,14 +10,7 @@ from __future__ import annotations
 
 import os
 
-try:
-    from dotenv import load_dotenv
-
-    load_dotenv()
-except Exception:
-    pass
-
-from game_engine.agents import AlwaysCooperate, AlwaysDefect, RandomAgent
+from game_engine.agents import RandomAgent
 from game_engine.agents.llm_wrapper import LLMWrapperAgent
 from game_engine.env.simulator import GameSimulator
 from game_engine.env.types import (
@@ -33,8 +26,8 @@ from game_engine.io.run_paths import build_experiment_id, ensure_dir, write_json
 
 def main() -> None:
     cfg = EnvConfig(
-        N=4,
-        M=5,
+        N=2,
+        M=2,
         T=50,
         p_perception=0.10,
         payoff=PayoffConfig(
@@ -50,7 +43,7 @@ def main() -> None:
             r_star=0.5,
         ),
         streak=StreakConfig(
-            theta=0.6,
+            theta=0,
             lam=0.3,
             tau=5.0,
         ),
@@ -66,7 +59,7 @@ def main() -> None:
         "baseline",
         cfg=cfg,
         num_seeds=1,
-        extra_tags=["smoke"],
+        extra_tags=["llama31_8b_vs_random"],
     )
     run_dir = ensure_dir(os.path.join("results", "baseline", run_id))
     match_dir = ensure_dir(os.path.join(run_dir, "single_match"))
@@ -82,17 +75,15 @@ def main() -> None:
 
     agents = [
         LLMWrapperAgent(
-            name="llm0",
+            name="llama31_8b",
             agent_id=0,
             env_cfg=cfg,
             backend="openrouter",
-            model_name="openai/gpt-4o-mini",
+            model_name="meta-llama/llama-3.1-8b-instruct",
             prompt_dir="AI_Agent/prompts",
-            output_dir=os.path.join(match_dir, "agents", "p0__llm0"),
+            output_dir=os.path.join(match_dir, "agents", "p0__llama31_8b"),
         ),
         RandomAgent("rand1"),
-        AlwaysDefect("def2"),
-        AlwaysCooperate("coop3"),
     ]
 
     write_json(
@@ -102,10 +93,8 @@ def main() -> None:
             "match_id": "single_match",
             "config": cfg,
             "agents": [
-                "openai/gpt-4o-mini",
+                "meta-llama/llama-3.1-8b-instruct",
                 "RandomAgent",
-                "AlwaysDefect",
-                "AlwaysCooperate",
             ],
         },
     )

@@ -267,18 +267,21 @@ class LLMWrapperAgent:
         # Convert packed strings -> NxK ints, chronological old->new
         hist_oldest_first = _history_packed_to_matrix(hist_packed, obs.M)
 
-        # --- Guard for t=1 (or any case with empty history) ---
-        # AI_Agent build_features expects at least one timestep (uses [:,0]).
-        # If history is empty, inject a 1-step default action per player.
-        if not hist_oldest_first or all(len(row) == 0 for row in hist_oldest_first):
-            # Default to "most cooperative" action 0
-            hist_oldest_first = [[0] for _ in range(obs.N)]
+        # Keep true empty history at t=1; do not inject synthetic cooperation.
+        if not hist_oldest_first:
+            hist_oldest_first = [[] for _ in range(obs.N)]
+        elif len(hist_oldest_first) < obs.N:
+            hist_oldest_first = hist_oldest_first + [[] for _ in range(obs.N - len(hist_oldest_first))]
+        elif len(hist_oldest_first) > obs.N:
+            hist_oldest_first = hist_oldest_first[: obs.N]
 
         # Convert to most-recent-first for LLM input convention
         hist_most_recent_first = _reverse_rows(hist_oldest_first)
 
         # Compute NxM per-player action frequencies
         action_freq_nxm = _freq_from_history_matrix(hist_oldest_first, obs.M)
+        if not action_freq_nxm or len(action_freq_nxm) != obs.N:
+            action_freq_nxm = [[0.0] * obs.M for _ in range(obs.N)]
 
         turn: Dict[str, Any] = {
             "round": int(obs.t),
