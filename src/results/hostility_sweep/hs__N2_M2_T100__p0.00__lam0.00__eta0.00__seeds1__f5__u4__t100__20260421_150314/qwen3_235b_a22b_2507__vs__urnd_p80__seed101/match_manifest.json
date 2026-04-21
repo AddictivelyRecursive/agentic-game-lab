@@ -1,0 +1,61 @@
+{
+  "run_id": "hs__N2_M2_T100__p0.00__lam0.00__eta0.00__seeds1__f5__u4__t100__20260421_150314",
+  "match_id": "qwen3_235b_a22b_2507__vs__urnd_p80__seed101",
+  "seed": 101,
+  "matchup_type": "focal_vs_urnd",
+  "focal_player": {
+    "label": "qwen3_235b_a22b_2507",
+    "kind": "llm",
+    "model_name": "qwen/qwen3-235b-a22b-2507",
+    "backend": "openrouter"
+  },
+  "opponent_player": {
+    "label": "urnd_p80",
+    "kind": "urnd",
+    "p_cooperate": 0.8
+  },
+  "row_player": {
+    "label": "qwen3_235b_a22b_2507",
+    "kind": "llm",
+    "model_name": "qwen/qwen3-235b-a22b-2507",
+    "backend": "openrouter",
+    "p_cooperate": null,
+    "seat": 0
+  },
+  "col_player": {
+    "label": "urnd_p80",
+    "kind": "urnd",
+    "model_name": null,
+    "backend": null,
+    "p_cooperate": 0.8,
+    "seat": 1
+  },
+  "config": {
+    "N": 2,
+    "M": 2,
+    "T": 100,
+    "p_perception": 0.0,
+    "payoff": {
+      "B0": 2.0,
+      "C": 1.0,
+      "K": 0.0,
+      "B_min": 2.0,
+      "B_max": 2.0
+    },
+    "drift": {
+      "window_w": 10,
+      "eta": 0.0,
+      "r_star": 0.5
+    },
+    "streak": {
+      "theta": 0.6,
+      "lam": 0.0,
+      "tau": 5.0
+    },
+    "obs": {
+      "history_k": 10,
+      "stats_window": 10
+    },
+    "seed": 101
+  }
+}

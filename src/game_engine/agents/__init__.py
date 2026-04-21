@@ -13,3 +13,4 @@ from .grim_trigger import GrimTrigger
 from .win_stay_lose_shift import WinStayLoseShift
 from .threshold_public_goods import ThresholdPublicGoods
 from .best_response_freq import BestResponseToFrequencies
+from .urnd_agent import UnfairRandomAgent

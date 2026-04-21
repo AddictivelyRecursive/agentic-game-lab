@@ -1,0 +1,92 @@
+{
+  "run_id": "hs__N2_M2_T100__p0.00__lam0.00__eta0.00__seeds1__f5__u4__t100__20260421_150314",
+  "experiment_type": "hostility_sweep",
+  "prompt_dir": "AI_Agent/prompts",
+  "num_focals": 5,
+  "num_urnd_opponents": 4,
+  "num_seeds": 1,
+  "num_match_specs": 20,
+  "num_matches_expected": 20,
+  "focal_players": [
+    {
+      "label": "deepseek_v32",
+      "kind": "llm",
+      "model_name": "deepseek/deepseek-v3.2",
+      "backend": "openrouter"
+    },
+    {
+      "label": "qwen3_235b_a22b_2507",
+      "kind": "llm",
+      "model_name": "qwen/qwen3-235b-a22b-2507",
+      "backend": "openrouter"
+    },
+    {
+      "label": "gpt_oss_20b",
+      "kind": "llm",
+      "model_name": "openai/gpt-oss-20b",
+      "backend": "openrouter"
+    },
+    {
+      "label": "gemma3_27b",
+      "kind": "llm",
+      "model_name": "google/gemma-3-27b-it",
+      "backend": "openrouter"
+    },
+    {
+      "label": "llama31_8b",
+      "kind": "llm",
+      "model_name": "meta-llama/llama-3.1-8b-instruct",
+      "backend": "openrouter"
+    }
+  ],
+  "urnd_opponents": [
+    {
+      "label": "urnd_p20",
+      "kind": "urnd",
+      "p_cooperate": 0.2
+    },
+    {
+      "label": "urnd_p40",
+      "kind": "urnd",
+      "p_cooperate": 0.4
+    },
+    {
+      "label": "urnd_p60",
+      "kind": "urnd",
+      "p_cooperate": 0.6
+    },
+    {
+      "label": "urnd_p80",
+      "kind": "urnd",
+      "p_cooperate": 0.8
+    }
+  ],
+  "config": {
+    "N": 2,
+    "M": 2,
+    "T": 100,
+    "p_perception": 0.0,
+    "payoff": {
+      "B0": 2.0,
+      "C": 1.0,
+      "K": 0.0,
+      "B_min": 2.0,
+      "B_max": 2.0
+    },
+    "drift": {
+      "window_w": 10,
+      "eta": 0.0,
+      "r_star": 0.5
+    },
+    "streak": {
+      "theta": 0.6,
+      "lam": 0.0,
+      "tau": 5.0
+    },
+    "obs": {
+      "history_k": 10,
+      "stats_window": 10
+    },
+    "seed": 0
+  }
+}
