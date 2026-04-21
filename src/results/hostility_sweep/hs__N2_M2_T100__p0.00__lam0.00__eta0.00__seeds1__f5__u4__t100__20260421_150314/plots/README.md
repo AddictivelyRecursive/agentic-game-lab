@@ -30,30 +30,6 @@ This run contains a single seed, so all figures should be interpreted as descrip
 - **Most responsive to opponent friendliness:** DeepSeek-V3.2 (cooperation slope **1.340** vs opponent p).
 - **Least responsive / flattest reaction curve:** GPT-OSS-20B (slope **1.130**).
 
-## Main figures
-
-### Cooperation vs hostility
-![Cooperation vs hostility](./cooperation_vs_hostility_pretty.png)
-
-### Payoff vs hostility
-![Payoff vs hostility](./payoff_vs_hostility_pretty.png)
-
-### Behavioral profile heatmap
-![Behavioral profile heatmap](./heatmap_behavior_pretty.png)
-
-### Reward landscape heatmap
-![Reward landscape heatmap](./heatmap_payoff_pretty.png)
-
-### Cooperation landscape heatmap
-![Cooperation landscape heatmap](./heatmap_cooperation_pretty.png)
-
-### Cooperation–reward tradeoff
-![Cooperation–reward tradeoff](./scatter_cooperation_vs_payoff_pretty.png)
-
-### Round-wise cooperation trajectories
-![Round-wise cooperation trajectories](./trajectories_small_multiples_pretty.png)
-
-
 ## Aggregate performance by model
 
 | Model | Mean coop | Mean reward | Mean payoff gap | Nice | Retaliatory | Forgiving | Switch rate | Matches |
@@ -93,13 +69,13 @@ This run contains a single seed, so all figures should be interpreted as descrip
 
 - `match_level_summary.csv`
 - `grouped_summary.csv`
-- `cooperation_vs_hostility_pretty.png`
-- `payoff_vs_hostility_pretty.png`
-- `heatmap_behavior_pretty.png`
-- `heatmap_payoff_pretty.png`
-- `heatmap_cooperation_pretty.png`
-- `scatter_cooperation_vs_payoff_pretty.png`
-- `trajectories_small_multiples_pretty.png`
+- `cooperation_vs_hostility.png`
+- `payoff_vs_hostility.png`
+- `heatmap_behavior.png`
+- `heatmap_payoff.png`
+- `heatmap_cooperation.png`
+- `scatter_cooperation_vs_payoff.png`
+- `trajectories_small_multiples.png`
 
 ---
-Generated automatically by `plot_hostility_sweep_pretty.py`
+Generated automatically by `plot_hostility_sweep.py`
