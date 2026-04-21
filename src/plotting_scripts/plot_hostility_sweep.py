@@ -68,6 +68,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--out-dir", type=str, default=None)
     return parser.parse_args()
 
+def fmt_float(x, nd=3) -> str:
+    if x is None or (isinstance(x, float) and np.isnan(x)):
+        return "—"
+    return f"{float(x):.{nd}f}"
+
 
 def load_json(path: Path) -> dict:
     with open(path, "r", encoding="utf-8") as f:
@@ -206,7 +211,7 @@ def aggregate_for_lines(df: pd.DataFrame, y_col: str) -> pd.DataFrame:
 # Plot helpers
 # ----------------------------
 
-def prettify_axes(ax):
+def plot_axes(ax):
     ax.set_facecolor(PANEL)
     for spine in ax.spines.values():
         spine.set_color("#d4ccbf")
@@ -239,7 +244,7 @@ def plot_cooperation_vs_hostility(df: pd.DataFrame, out_dir: Path) -> None:
     stats = aggregate_for_lines(df, "llm_coop_rate")
 
     fig, ax = plt.subplots(figsize=(8.8, 5.6))
-    prettify_axes(ax)
+    plot_axes(ax)
 
     for model in stats["model_label"].unique():
         sub = stats[stats["model_label"] == model].sort_values("opponent_p")
@@ -290,7 +295,7 @@ def plot_payoff_vs_hostility(df: pd.DataFrame, out_dir: Path) -> None:
     stats = aggregate_for_lines(df, "llm_avg_reward")
 
     fig, ax = plt.subplots(figsize=(8.8, 5.6))
-    prettify_axes(ax)
+    plot_axes(ax)
 
     for model in stats["model_label"].unique():
         sub = stats[stats["model_label"] == model].sort_values("opponent_p")
@@ -451,7 +456,7 @@ def plot_heatmaps(df: pd.DataFrame, out_dir: Path) -> None:
 
 def plot_cooperation_payoff_scatter(df: pd.DataFrame, out_dir: Path) -> None:
     fig, ax = plt.subplots(figsize=(8.0, 5.6))
-    prettify_axes(ax)
+    plot_axes(ax)
 
     for model in sorted(df["model_label"].unique()):
         sub = df[df["model_label"] == model].sort_values("opponent_p")
@@ -494,7 +499,7 @@ def plot_small_multiples_trajectories(df: pd.DataFrame, out_dir: Path) -> None:
         axes = [axes]
 
     for ax, model in zip(axes, models):
-        prettify_axes(ax)
+        plot_axes(ax)
         sub = df[df["model_label"] == model].sort_values("opponent_p")
 
         for _, row in sub.iterrows():
@@ -541,6 +546,238 @@ def write_summary_tables(df: pd.DataFrame, out_dir: Path) -> None:
     )
     grouped.to_csv(out_dir / "grouped_summary.csv", index=False)
 
+def build_readme_tables(df: pd.DataFrame) -> tuple[str, str]:
+    """
+    Returns:
+    - markdown table aggregated by model x opponent_p
+    - markdown table aggregated by model overall
+    """
+    grouped = (
+        df.groupby(["model_label", "opponent_p"], as_index=False)
+        .agg(
+            coop=("llm_coop_rate", "mean"),
+            reward=("llm_avg_reward", "mean"),
+            gap=("payoff_gap", "mean"),
+            nice=("nice", "mean"),
+            retaliatory=("retaliatory", "mean"),
+            forgiving=("forgiving", "mean"),
+            switching=("switch_rate", "mean"),
+            n=("seed", "count"),
+        )
+        .sort_values(["model_label", "opponent_p"])
+    )
+
+    lines = []
+    lines.append("| Model | Opponent p | Coop rate | Avg reward | Payoff gap | Nice | Retaliatory | Forgiving | Switch rate | n |")
+    lines.append("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
+    for _, r in grouped.iterrows():
+        lines.append(
+            f"| {short_label(r['model_label'])} | {r['opponent_p']:.1f} | "
+            f"{fmt_float(r['coop'], 3)} | {fmt_float(r['reward'], 3)} | {fmt_float(r['gap'], 3)} | "
+            f"{fmt_float(r['nice'], 2)} | {fmt_float(r['retaliatory'], 2)} | "
+            f"{fmt_float(r['forgiving'], 2)} | {fmt_float(r['switching'], 2)} | {int(r['n'])} |"
+        )
+    grouped_md = "\n".join(lines)
+
+    overall = (
+        df.groupby("model_label", as_index=False)
+        .agg(
+            coop=("llm_coop_rate", "mean"),
+            reward=("llm_avg_reward", "mean"),
+            gap=("payoff_gap", "mean"),
+            nice=("nice", "mean"),
+            retaliatory=("retaliatory", "mean"),
+            forgiving=("forgiving", "mean"),
+            switching=("switch_rate", "mean"),
+            matches=("match_dir", "count"),
+        )
+        .sort_values("reward", ascending=False)
+    )
+
+    lines2 = []
+    lines2.append("| Model | Mean coop | Mean reward | Mean payoff gap | Nice | Retaliatory | Forgiving | Switch rate | Matches |")
+    lines2.append("|---|---:|---:|---:|---:|---:|---:|---:|---:|")
+    for _, r in overall.iterrows():
+        lines2.append(
+            f"| {short_label(r['model_label'])} | {fmt_float(r['coop'], 3)} | "
+            f"{fmt_float(r['reward'], 3)} | {fmt_float(r['gap'], 3)} | "
+            f"{fmt_float(r['nice'], 2)} | {fmt_float(r['retaliatory'], 2)} | "
+            f"{fmt_float(r['forgiving'], 2)} | {fmt_float(r['switching'], 2)} | "
+            f"{int(r['matches'])} |"
+        )
+    overall_md = "\n".join(lines2)
+
+    return grouped_md, overall_md
+
+
+def build_key_findings(df: pd.DataFrame) -> List[str]:
+    findings: List[str] = []
+
+    overall = (
+        df.groupby("model_label", as_index=False)
+        .agg(
+            coop=("llm_coop_rate", "mean"),
+            reward=("llm_avg_reward", "mean"),
+            nice=("nice", "mean"),
+            retaliatory=("retaliatory", "mean"),
+            forgiving=("forgiving", "mean"),
+            switching=("switch_rate", "mean"),
+        )
+    )
+
+    if overall.empty:
+        return findings
+
+    best_reward = overall.sort_values("reward", ascending=False).iloc[0]
+    most_coop = overall.sort_values("coop", ascending=False).iloc[0]
+    most_retal = overall.sort_values("retaliatory", ascending=False).iloc[0]
+    most_forg = overall.sort_values("forgiving", ascending=False).iloc[0]
+    most_switch = overall.sort_values("switching", ascending=False).iloc[0]
+
+    findings.append(
+        f"**Best average payoff:** {short_label(best_reward['model_label'])} "
+        f"with mean reward **{fmt_float(best_reward['reward'], 3)}** per round."
+    )
+    findings.append(
+        f"**Most cooperative overall:** {short_label(most_coop['model_label'])} "
+        f"with mean cooperation **{fmt_float(most_coop['coop'], 3)}**."
+    )
+    findings.append(
+        f"**Most retaliatory:** {short_label(most_retal['model_label'])} "
+        f"with retaliatory score **{fmt_float(most_retal['retaliatory'], 2)}**."
+    )
+    findings.append(
+        f"**Most forgiving:** {short_label(most_forg['model_label'])} "
+        f"with forgiving score **{fmt_float(most_forg['forgiving'], 2)}**."
+    )
+    findings.append(
+        f"**Most switch-heavy policy:** {short_label(most_switch['model_label'])} "
+        f"with switch rate **{fmt_float(most_switch['switching'], 2)}**."
+    )
+
+    # Response slope: how strongly cooperation tracks opponent friendliness
+    slopes = []
+    for model in sorted(df["model_label"].unique()):
+        sub = (
+            df[df["model_label"] == model]
+            .groupby("opponent_p", as_index=False)["llm_coop_rate"]
+            .mean()
+            .sort_values("opponent_p")
+        )
+        if len(sub) >= 2:
+            slope = np.polyfit(sub["opponent_p"].values, sub["llm_coop_rate"].values, 1)[0]
+            slopes.append((model, slope))
+
+    if slopes:
+        slopes_df = pd.DataFrame(slopes, columns=["model_label", "slope"])
+        most_responsive = slopes_df.sort_values("slope", ascending=False).iloc[0]
+        least_responsive = slopes_df.sort_values("slope", ascending=True).iloc[0]
+        findings.append(
+            f"**Most responsive to opponent friendliness:** {short_label(most_responsive['model_label'])} "
+            f"(cooperation slope **{fmt_float(most_responsive['slope'], 3)}** vs opponent p)."
+        )
+        findings.append(
+            f"**Least responsive / flattest reaction curve:** {short_label(least_responsive['model_label'])} "
+            f"(slope **{fmt_float(least_responsive['slope'], 3)}**)."
+        )
+
+    return findings
+
+
+def write_readme(run_dir: Path, out_dir: Path, df: pd.DataFrame) -> None:
+    manifest_path = run_dir / "manifest.json"
+    manifest = load_json(manifest_path) if manifest_path.exists() else {}
+
+    cfg = manifest.get("config", {})
+    num_focals = manifest.get("num_focals", len(df["model_label"].unique()))
+    num_urnd = manifest.get("num_urnd_opponents", len(df["opponent_p"].unique()))
+    num_seeds = manifest.get("num_seeds", int(df["seed"].nunique()) if "seed" in df.columns else 1)
+    run_id = manifest.get("run_id", run_dir.name)
+
+    grouped_md, overall_md = build_readme_tables(df)
+    findings = build_key_findings(df)
+
+    finding_block = "\n".join([f"- {x}" for x in findings]) if findings else "- No findings available."
+
+    image_blocks = [
+        ("Cooperation vs hostility", "cooperation_vs_hostility_pretty.png"),
+        ("Payoff vs hostility", "payoff_vs_hostility_pretty.png"),
+        ("Behavioral profile heatmap", "heatmap_behavior_pretty.png"),
+        ("Reward landscape heatmap", "heatmap_payoff_pretty.png"),
+        ("Cooperation landscape heatmap", "heatmap_cooperation_pretty.png"),
+        ("Cooperation–reward tradeoff", "scatter_cooperation_vs_payoff_pretty.png"),
+        ("Round-wise cooperation trajectories", "trajectories_small_multiples_pretty.png"),
+    ]
+
+    img_md_lines = []
+    for title, filename in image_blocks:
+        img_md_lines.append(f"### {title}")
+        img_md_lines.append(f"![{title}](./{filename})")
+        img_md_lines.append("")
+
+    note = (
+        "This run contains a single seed, so all figures should be interpreted as "
+        "descriptive summaries rather than confidence-interval-based estimates."
+        if int(num_seeds) == 1
+        else "This run contains multiple seeds, so line plots can be interpreted with uncertainty across repeated episodes."
+    )
+
+    md = f"""# Hostility Sweep Results
+
+Auto-generated report for run:
+
+`{run_id}`
+
+## Experiment summary
+
+- **Setup:** 2-player hostility sweep
+- **Focal LLMs:** {num_focals}
+- **URND opponents:** {num_urnd}
+- **Seeds:** {num_seeds}
+- **Rounds per match:** {cfg.get("T", "—")}
+- **Action levels (M):** {cfg.get("M", "—")}
+- **Perception noise:** {cfg.get("p_perception", "—")}
+- **Streak lambda:** {cfg.get("streak", {}).get("lam", "—") if isinstance(cfg.get("streak", {}), dict) else "—"}
+- **Drift eta:** {cfg.get("drift", {}).get("eta", "—") if isinstance(cfg.get("drift", {}), dict) else "—"}
+
+## Interpretation note
+
+{note}
+
+## Key findings
+
+{finding_block}
+
+## Main figures
+
+{chr(10).join(img_md_lines)}
+
+## Aggregate performance by model
+
+{overall_md}
+
+## Detailed results by model × opponent hostility
+
+{grouped_md}
+
+## Files generated
+
+- `match_level_summary.csv`
+- `grouped_summary.csv`
+- `cooperation_vs_hostility_pretty.png`
+- `payoff_vs_hostility_pretty.png`
+- `heatmap_behavior_pretty.png`
+- `heatmap_payoff_pretty.png`
+- `heatmap_cooperation_pretty.png`
+- `scatter_cooperation_vs_payoff_pretty.png`
+- `trajectories_small_multiples_pretty.png`
+
+---
+Generated automatically by `plot_hostility_sweep_pretty.py`
+"""
+    with open(out_dir / "README.md", "w", encoding="utf-8") as f:
+        f.write(md)
+        
 
 def main() -> None:
     args = parse_args()
@@ -557,6 +794,7 @@ def main() -> None:
     plot_cooperation_payoff_scatter(df, out_dir)
     plot_small_multiples_trajectories(df, out_dir)
 
+    write_readme(run_dir, out_dir, df)
     print(f"Saved plots to: {out_dir}")
     print(f"Loaded {len(df)} match summaries.")
 
