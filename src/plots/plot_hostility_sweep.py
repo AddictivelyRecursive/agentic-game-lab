@@ -782,7 +782,7 @@ Generated automatically by `plot_hostility_sweep_pretty.py`
 def main() -> None:
     args = parse_args()
     run_dir = Path(args.run_dir)
-    out_dir = Path(args.out_dir) if args.out_dir else run_dir / "plots"
+    out_dir = Path(args.out_dir) if args.out_dir else run_dir / "plots_hostility"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     df = load_run_dataframe(run_dir)
