@@ -1,20 +1,37 @@
 TASK: Repair invalid output.
 
-Your previous output was invalid.
-
 Return valid JSON only.
 
-You must:
-- Include exactly these keys: "a", "reason", "confidence"
-- Set "a" to an integer within the valid range.
-- Keep "reason" very short (max 12 words).
-- Make "reason" specific and strategically grounded in expected utility, observed behavior, or tie-breaking.
-- Set "confidence" to a float between 0 and 1.
-- Return no additional text.
+You must return exactly these keys:
+- "a"
+- "reason"
+- "confidence"
+- "audit"
 
-Return strictly:
+Required schema:
+
 {
-  "a": <int>,
-  "reason": "<very short strategic explanation>",
-  "confidence": <float>
+  "a": 0,
+  "reason": "short justification",
+  "confidence": 0.0,
+  "audit": {
+    "used_math": true,
+    "primary_signal": "math|reciprocity|retaliation|forgiveness|stability|mixed",
+    "looked_at": {
+      "B_effective": true,
+      "C": true,
+      "recent_history": true,
+      "strategy_summary": true,
+      "candidate_scores": true
+    },
+    "math_basis": "short phrase",
+    "history_basis": "short phrase",
+    "choice_basis": "short phrase"
+  }
 }
+
+Rules:
+- "a" must be an integer within the valid range.
+- "confidence" must be a float between 0 and 1.
+- Every audit string must be very short.
+- No extra text.

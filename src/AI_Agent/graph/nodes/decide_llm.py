@@ -1,25 +1,55 @@
+from __future__ import annotations
+
 import json
+from typing import Any, Dict, List
 
 from ..node import Node
 
 
 class N6_DecisionPolicy(Node):
     """
-    LLM-based final policy head.
+    Final LLM policy head.
 
-    - Receives strategic summary + deterministic opponent-style summary
-    - Receives candidate actions ranked by strategic_score
-    - Calls the LLM at a higher temperature for within-state variation
+    Key change:
+    The model now receives BOTH:
+    1) raw game context (payoff / action semantics / history / rules)
+    2) derived strategic summaries and ranked candidates
+
+    This preserves strategic scaffolding without hiding the actual game.
     """
 
     def __init__(self):
         super().__init__("N6_DecisionPolicy")
 
-    def run(self, state, context):
+    @staticmethod
+    def _compact_history(history: List[List[int]]) -> List[List[int]]:
+        if not isinstance(history, list):
+            return []
+        out: List[List[int]] = []
+        for row in history:
+            if isinstance(row, list):
+                out.append(row[:])
+            else:
+                out.append([])
+        return out
+
+    @staticmethod
+    def _make_action_table(index_to_coop: List[float]) -> List[Dict[str, Any]]:
+        table: List[Dict[str, Any]] = []
+        for idx, coop in enumerate(index_to_coop):
+            table.append(
+                {
+                    "action": int(idx),
+                    "true_cooperation_level": float(round(float(coop), 4)),
+                }
+            )
+        return table
+
+    def run(self, state: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         candidates = state["candidates"]
-        agent_id = state["agent_id"]
-        round_num = state["round"]
-        M = state["M"]
+        agent_id = int(state["agent_id"])
+        round_num = int(state["round"])
+        M = int(state["M"])
 
         base_prompt = context["prompts"]["base_system"]
         decision_prompt = context["prompts"]["decision_policy_system"]
@@ -29,15 +59,41 @@ class N6_DecisionPolicy(Node):
 
         strategy_summary = state.get("strategy_summary", {})
         opponent_style_summary = state.get("opponent_style_summary", {})
-        history = state.get("info", {}).get("observed_history_last_k", [])
 
-        last_observed_actions = []
-        if isinstance(history, list):
-            for row in history:
-                if isinstance(row, list) and len(row) > 0:
-                    last_observed_actions.append(row[0])
-                else:
-                    last_observed_actions.append(None)
+        info = state.get("info", {}) or {}
+        observed_history_last_k = self._compact_history(
+            info.get("observed_history_last_k", [])
+        )
+
+        raw_game_context = {
+            "round": round_num,
+            "agent_id": agent_id,
+            "N": int(state["N"]),
+            "M": M,
+            "valid_actions": list(range(M)),
+            "perception_noise_p": float(state.get("p", 0.0)),
+            "action_semantics": {
+                "index_to_true_cooperation": self._make_action_table(
+                    state.get("index_to_coop", [])
+                ),
+                "note": "Lower action index means more cooperation.",
+            },
+            "payoff": state.get("payoff_context", {}),
+            "streak_rule": state.get("streak_rule", {}),
+            "streak_effect_on_payoff": state.get("streak_effect", {}),
+            "drift_rule": info.get("drift_rule", {}),
+        }
+
+        observation_context = {
+            "observed_history_last_k": observed_history_last_k,
+            "recent_observed_actions_by_player": [
+                row[0] if isinstance(row, list) and len(row) > 0 else None
+                for row in observed_history_last_k
+            ],
+            "rolling_observed_mean_cooperation_prev": info.get("r_obs_prev"),
+            "player_mean_observed_cooperation": info.get("player_mean_observed_coop"),
+            "action_frequency_matrix": info.get("action_freq_NxM"),
+        }
 
         compact_candidates = []
         for c in top_candidates:
@@ -53,42 +109,45 @@ class N6_DecisionPolicy(Node):
                 }
             )
 
-        user_prompt = f"""
-Round: {round_num}
-Agent ID: {agent_id}
-Valid actions: integers in [0, {M - 1}]
-
-This is a repeated strategic game.
-Choose using long-run repeated-game evidence, not only immediate one-step payoff.
-
-Most recent observed actions by player (None means no history):
-{last_observed_actions}
-
-Opponent behavior summary:
-{opponent_style_summary}
-
-Strategic summary:
-{strategy_summary}
-
-Top candidate actions (sorted by strategic_score desc):
-{compact_candidates}
-
-Return JSON only:
-{{
-  "a": <int>,
-  "reason": "<brief strategic reason>",
-  "confidence": <float between 0 and 1>
-}}
-""".strip()
+        user_payload = {
+            "raw_game_context": raw_game_context,
+            "observation_context": observation_context,
+            "opponent_behavior_summary": opponent_style_summary,
+            "strategic_summary": strategy_summary,
+            "top_candidate_actions": compact_candidates,
+            "instruction": {
+                "objective": (
+                    "Choose one action for a repeated strategic game using the FULL "
+                    "game context. Explicitly account for payoff incentives, action "
+                    "semantics, recent observed behavior, and longer-run strategic effects."
+                ),
+                "decision_rule": (
+                    "Do not ignore the payoff parameters. Use them together with repeated-game "
+                    "considerations. The payoff formula and current B_effective are part of the task."
+                ),
+                "output_schema": {
+                    "a": "integer action in [0, M-1]",
+                    "reason": "brief strategic justification grounded in payoff + history",
+                    "confidence": "number in [0,1]",
+                },
+                "constraints": [
+                    "Return JSON only.",
+                    "Be concise.",
+                    "Reason must be strategic and grounded in the provided game context.",
+                    "Do not output markdown.",
+                ],
+            },
+        }
 
         full_prompt = base_prompt + "\n" + decision_prompt
+        user_prompt = json.dumps(user_payload, ensure_ascii=False, indent=2)
 
         try:
             try:
                 response = context["llm_client"].generate(
                     system_prompt=full_prompt,
                     user_prompt=user_prompt,
-                    temperature=0.7,
+                    temperature=0.4,
                 )
             except TypeError:
                 response = context["llm_client"].generate(
@@ -101,7 +160,7 @@ Return JSON only:
 
             data = self._safe_parse_json(response)
 
-            decision = {}
+            decision: Dict[str, Any] = {}
             if "a" in data:
                 decision["a"] = data["a"]
             if "reason" in data:

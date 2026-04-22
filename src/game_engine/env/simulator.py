@@ -155,18 +155,40 @@ class GameSimulator:
             # --- Convert to cooperation levels ---
             true_coop = actions_to_coop(true_actions, coop_levels)
             obs_coop = actions_to_coop(obs_actions, coop_levels)
-            obs_coop_mean = sum(obs_coop) / cfg.N
+
+            if len(obs_coop) != cfg.N:
+                raise ValueError(
+                    f"obs_coop length mismatch: len(obs_coop)={len(obs_coop)}, N={cfg.N}, "
+                    f"obs_actions={obs_actions}, true_actions={true_actions}"
+                )
+
+            if not all(0.0 <= x <= 1.0 for x in obs_coop):
+                raise ValueError(
+                    f"obs_coop contains invalid values: obs_coop={obs_coop}, "
+                    f"obs_actions={obs_actions}, true_actions={true_actions}, N={cfg.N}, M={cfg.M}"
+                )
+
+            obs_coop_mean = sum(obs_coop) / float(cfg.N)
+
+            if not (0.0 <= obs_coop_mean <= 1.0):
+                raise ValueError(
+                    f"obs_coop_mean out of bounds: obs_coop_mean={obs_coop_mean}, "
+                    f"obs_coop={obs_coop}, obs_actions={obs_actions}, true_actions={true_actions}, "
+                    f"N={cfg.N}, M={cfg.M}"
+                )
 
             # --- Compute payoffs on TRUE cooperation, using B_eff for this round ---
             rewards = compute_rewards(true_coop, B_eff, cfg.payoff.C, cfg.payoff.K)
-            for i in range(cfg.N):
-                total_rewards[i] += rewards[i]
 
             # --- Update streak (based on observed cooperation at this round) ---
             streak_next = update_streak(streak_prev, obs_coop, cfg.streak.theta)
 
             # --- Update rolling observed cooperation rate (q3-global driver) ---
             r_obs_next = state.r_obs_roll.update(obs_coop_mean)
+
+            # Defensive clamp against tiny floating/state issues.
+            # Mathematically this should already be in [0,1].
+            r_obs_next = max(0.0, min(1.0, float(r_obs_next)))
 
             # --- Update base B via q3 drift (for next round) ---
             B_next = update_B_q3(

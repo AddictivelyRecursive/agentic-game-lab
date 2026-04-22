@@ -97,11 +97,11 @@ BASE_CFG = EnvConfig(
     T=100,
     p_perception=0.00,
     payoff=PayoffConfig(
-        B0=2.0,
-        C=1.0,
+        B0=300.0,
+        C=200.0,
         K=0.0,
-        B_min=2.0,
-        B_max=2.0,
+        B_min=300.0,
+        B_max=300.0,
     ),
     drift=DriftConfig(
         window_w=10,
