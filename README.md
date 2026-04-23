@@ -46,5 +46,5 @@ python -m game_engine.experiments.run_crossplay_tournament
 
 ```bash
 cd src
-python -m plotting_scripts.plot_hostility_sweep --run-dir "results/hostility_sweep/hs__N2_M2_T100__p0.00__lam0.00__eta0.00__seeds1__f5__u4__t100__20260421_150314"       
+python -m plots.plot_llmvsbaseline --run-dir "results\llm_vs_baseline\lvb__N2_M2_T100__p0.00__lam0.00__eta0.00__seeds1__f5__b6__swap0__t100__20260421_205443" --out-dir "plots\llm_vs_baseline"        
 ```
