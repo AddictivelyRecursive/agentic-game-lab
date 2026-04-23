@@ -119,11 +119,16 @@ GEMMA = PlayerSpec(
     model_name="google/gemma-3-27b-it",
 )
 
+# Requested order:
+# N=2 -> GPT, LLAMA
+# N=3 -> GPT, LLAMA, DEEPSEEK
+# N=4 -> GPT, LLAMA, DEEPSEEK, GEMMA
+# N=5 -> GPT, LLAMA, DEEPSEEK, GEMMA, QWEN
 LINEUPS_BY_N: Dict[int, List[PlayerSpec]] = {
-    2: [DEEPSEEK, LLAMA],
-    3: [DEEPSEEK, LLAMA, GPT],
-    4: [DEEPSEEK, LLAMA, GPT, QWEN],
-    5: [DEEPSEEK, LLAMA, GPT, QWEN, GEMMA],
+    2: [GPT, LLAMA],
+    3: [GPT, LLAMA, DEEPSEEK],
+    4: [GPT, LLAMA, DEEPSEEK, GEMMA],
+    5: [GPT, LLAMA, DEEPSEEK, GEMMA, QWEN],
 }
 
 N_VALUES: List[int] = [2, 3, 4, 5]
@@ -210,7 +215,7 @@ def main() -> None:
             "n2-3-4-5",
             "progressive",
             f"m{5}",
-            f"t{5}",
+            f"t{50}",
         ],
     )
     run_dir = ensure_dir(os.path.join(RESULTS_ROOT, run_id))
@@ -300,10 +305,10 @@ def main() -> None:
                     str(i): lineup_labels[i] for i in range(len(lineup))
                 },
                 "progressive_growth_rule": (
-                    "N=2: DeepSeek+Llama; "
-                    "N=3: +GPT; "
-                    "N=4: +Qwen; "
-                    "N=5: +Gemma"
+                    "N=2: GPT+Llama; "
+                    "N=3: +DeepSeek; "
+                    "N=4: +Gemma; "
+                    "N=5: +Qwen"
                 ),
             }
 

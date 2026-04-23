@@ -1,0 +1,68 @@
+{
+  "run_id": "cnp__N5_M5_T50__p0.05__lam0.25__eta0.35__seeds1__n2-3-4-5__progressive__m5__t50__20260423_140952",
+  "episode_id": 0,
+  "schema_v": 2,
+  "config": {
+    "N": 4,
+    "M": 5,
+    "T": 50,
+    "p_perception": 0.05,
+    "payoff": {
+      "B0": 12.0,
+      "C": 8.0,
+      "K": 0.0,
+      "B_min": 9.0,
+      "B_max": 15.0
+    },
+    "drift": {
+      "window_w": 8,
+      "eta": 0.35,
+      "r_star": 0.55
+    },
+    "streak": {
+      "theta": 0.6,
+      "lam": 0.25,
+      "tau": 4.0
+    },
+    "obs": {
+      "history_k": 10,
+      "stats_window": 10
+    },
+    "seed": 0
+  },
+  "total_rewards": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "final_B": 12.035052083333323,
+  "final_streak": 2,
+  "num_rounds": 50,
+  "extra_meta": {
+    "match_id": "progressive__n4__m5__t50",
+    "N": 4,
+    "M": 5,
+    "T": 50,
+    "lineup_label": "progressive_N4",
+    "player_labels": [
+      "gpt_oss_20b",
+      "llama31_8b",
+      "deepseek_v32",
+      "gemma3_27b"
+    ],
+    "player_model_ids": {
+      "0": "openai/gpt-oss-20b",
+      "1": "meta-llama/llama-3.1-8b-instruct",
+      "2": "deepseek/deepseek-v3.2",
+      "3": "google/gemma-3-27b-it"
+    },
+    "seat_assignment": {
+      "0": "gpt_oss_20b",
+      "1": "llama31_8b",
+      "2": "deepseek_v32",
+      "3": "gemma3_27b"
+    },
+    "progressive_growth_rule": "N=2: GPT+Llama; N=3: +DeepSeek; N=4: +Gemma; N=5: +Qwen"
+  }
+}

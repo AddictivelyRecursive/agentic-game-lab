@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import os
 from dataclasses import replace
 from datetime import datetime
@@ -34,7 +33,9 @@ from game_engine.io.run_paths import ensure_dir, write_json
 
 SRC_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 PROMPT_DIR = os.path.join(SRC_ROOT, "AI_Agent", "prompts")
-RESULTS_ROOT = os.path.join(SRC_ROOT, "results", "causal_noise")
+
+# Keep result paths short for Windows.
+RESULTS_ROOT = os.path.join("results", "cn")
 
 
 # Fixed 5-LLM lineup for this study.
@@ -71,10 +72,10 @@ LLM_SPECS = [
     ),
 ]
 
-NOISE_VALUES = [0.00, 0.2, 0.4, 0.6, 0.8]
+NOISE_VALUES = [0.00, 0.20, 0.40, 0.60, 0.80]
 
-FIXED_M = 2
-FIXED_THETA = 0.25
+FIXED_M = 5
+FIXED_THETA = 0.6
 FIXED_STREAK_LAMBDA = 0.25
 SEEDS = [101]
 FIXED_T = 50
@@ -98,8 +99,8 @@ BASE_CFG = EnvConfig(
         r_star=0.55,
     ),
     streak=StreakConfig(
-        theta=FIXED_THETA,
-        lam=FIXED_STREAK_LAMBDA,
+        theta=0.6,
+        lam=0.25,
         tau=4.0,
     ),
     obs=ObservationConfig(
@@ -108,31 +109,6 @@ BASE_CFG = EnvConfig(
     ),
     seed=0,
 )
-
-
-LABEL_ALIASES = {
-    "deepseek_v32": "dsv32",
-    "llama31_8b": "llama31",
-    "gpt_oss_20b": "gptoss20",
-    "qwen3_235b_a22b_2507": "qwen3235",
-    "gemma3_27b": "gemma327",
-}
-
-
-def _sha1_short(text: str, n: int = 6) -> str:
-    return hashlib.sha1(text.encode("utf-8")).hexdigest()[:n]
-
-
-def _short_label(spec: PlayerSpec) -> str:
-    raw = safe_label(spec)
-    return LABEL_ALIASES.get(raw, raw[:12])
-
-
-def _lineup_token(lineup: Sequence[PlayerSpec]) -> str:
-    short_names = [_short_label(spec) for spec in lineup]
-    joined = "-".join(short_names)
-    digest = _sha1_short("|".join(safe_label(spec) for spec in lineup), 6)
-    return f"{joined}__h{digest}"
 
 
 def _run_id(
@@ -144,18 +120,8 @@ def _run_id(
     streak_lambda: float,
     seeds: Sequence[int],
 ) -> str:
-    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    p_tag = "-".join(f"{p:.2f}".replace(".", "p") for p in sorted(set(noise_values)))
-    return (
-        f"cn__N{N}"
-        f"__M{int(M)}"
-        f"__th{float(theta):.2f}"
-        f"__p{p_tag}"
-        f"__lam{float(streak_lambda):.2f}"
-        f"__seeds{len(seeds)}"
-        f"__t{FIXED_T}"
-        f"__{ts}"
-    )
+    ts = datetime.now().strftime("%m%d_%H%M%S")
+    return f"cn_n{N}_m{M}_{ts}"
 
 
 def _match_id(
@@ -168,18 +134,10 @@ def _match_id(
     streak_lambda: float,
     seed: int,
 ) -> str:
-    lineup_tok = _lineup_token(lineup)
-    p_tag = f"{noise_p:.2f}".replace(".", "p")
-    th_tag = f"{theta:.2f}".replace(".", "p")
-    return (
-        f"{lineup_tok}"
-        f"__n{N}"
-        f"__m{int(M)}"
-        f"__th{th_tag}"
-        f"__p{p_tag}"
-        f"__lam{float(streak_lambda):.2f}"
-        f"__s{int(seed)}"
-    )
+    ptag = int(round(noise_p * 100))
+    ttag = int(round(theta * 100))
+    ltag = int(round(streak_lambda * 100))
+    return f"m_n{N}_m{M}_t{ttag}_p{ptag}_l{ltag}_s{seed}"
 
 
 def _require_openrouter_key_if_needed(lineup: Sequence[PlayerSpec]) -> None:
@@ -237,10 +195,9 @@ def _build_agent(
             f"Found non-LLM player: {safe_label(spec)!r}"
         )
 
-    label = _short_label(spec)
-    seat_dir = ensure_dir(os.path.join(match_agents_dir, f"p{seat}__{label}"))
+    seat_dir = ensure_dir(os.path.join(match_agents_dir, f"p{seat}"))
     return LLMWrapperAgent(
-        name=f"p{seat}__{label}",
+        name=f"p{seat}",
         agent_id=seat,
         env_cfg=cfg,
         backend=spec.backend,
@@ -298,12 +255,9 @@ def run_causal_noise_engine(
         "streak_lambda": float(streak_lambda),
         "seeds": list(seeds),
         "lineup_labels": [safe_label(spec) for spec in lineup],
-        "lineup_short_labels": [_short_label(spec) for spec in lineup],
-        "lineup_token": _lineup_token(lineup),
         "lineup_players": [
             {
                 "label": safe_label(spec),
-                "short_label": _short_label(spec),
                 "kind": spec.kind,
                 "model_name": spec.model_name,
                 "backend": spec.backend,
@@ -351,7 +305,6 @@ def run_causal_noise_engine(
                 "theta": float(theta),
                 "noise_p": float(noise_p),
                 "streak_lambda": float(streak_lambda),
-                "lineup_token": _lineup_token(lineup),
                 "players": [
                     player_manifest_obj(spec, seat=i) for i, spec in enumerate(lineup)
                 ],
@@ -382,12 +335,11 @@ def run_causal_noise_engine(
                     "noise_p": float(noise_p),
                     "streak_lambda": float(streak_lambda),
                     "lineup_labels": [safe_label(spec) for spec in lineup],
-                    "lineup_short_labels": [_short_label(spec) for spec in lineup],
                     "lineup_kinds": [spec.kind for spec in lineup],
                     "lineup_model_ids": [spec.model_name for spec in lineup],
                     "lineup_strategies": [None for _ in lineup],
                     "seat_assignment": {
-                        str(i): _short_label(spec) for i, spec in enumerate(lineup)
+                        str(i): safe_label(spec) for i, spec in enumerate(lineup)
                     },
                 }
 
@@ -431,7 +383,7 @@ def run_causal_noise_engine(
                 print(f"[ERROR] {match_id}: {e}")
 
     print("\nDone.")
-    print("Run dir:", run_dir)
+    print("Run dir:", os.path.relpath(run_dir))
     return run_dir
 
 

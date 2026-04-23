@@ -1,0 +1,60 @@
+{
+  "run_id": "cnp__N5_M5_T50__p0.00__lam0.00__eta0.35__seeds1__n2-3-4-5__progressive__m5__t5__20260423_020551",
+  "episode_id": 0,
+  "schema_v": 2,
+  "config": {
+    "N": 2,
+    "M": 5,
+    "T": 50,
+    "p_perception": 0.0,
+    "payoff": {
+      "B0": 12.0,
+      "C": 8.0,
+      "K": 0.0,
+      "B_min": 9.0,
+      "B_max": 15.0
+    },
+    "drift": {
+      "window_w": 8,
+      "eta": 0.35,
+      "r_star": 0.55
+    },
+    "streak": {
+      "theta": 0.6,
+      "lam": 0.0,
+      "tau": 4.0
+    },
+    "obs": {
+      "history_k": 10,
+      "stats_window": 10
+    },
+    "seed": 0
+  },
+  "total_rewards": [
+    0.0,
+    0.0
+  ],
+  "final_B": 15.0,
+  "final_streak": 50,
+  "num_rounds": 50,
+  "extra_meta": {
+    "match_id": "progressive__n2__m5__t50",
+    "N": 2,
+    "M": 5,
+    "T": 50,
+    "lineup_label": "progressive_N2",
+    "player_labels": [
+      "deepseek_v32",
+      "llama31_8b"
+    ],
+    "player_model_ids": {
+      "0": "deepseek/deepseek-v3.2",
+      "1": "meta-llama/llama-3.1-8b-instruct"
+    },
+    "seat_assignment": {
+      "0": "deepseek_v32",
+      "1": "llama31_8b"
+    },
+    "progressive_growth_rule": "N=2: DeepSeek+Llama; N=3: +GPT; N=4: +Qwen; N=5: +Gemma"
+  }
+}

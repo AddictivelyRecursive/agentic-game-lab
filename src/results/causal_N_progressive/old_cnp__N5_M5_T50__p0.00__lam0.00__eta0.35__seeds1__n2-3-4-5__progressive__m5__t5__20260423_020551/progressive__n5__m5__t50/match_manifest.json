@@ -1,0 +1,85 @@
+{
+  "run_id": "cnp__N5_M5_T50__p0.00__lam0.00__eta0.35__seeds1__n2-3-4-5__progressive__m5__t5__20260423_020551",
+  "match_id": "progressive__n5__m5__t50",
+  "N": 5,
+  "M": 5,
+  "T": 50,
+  "lineup_label": "progressive_N5",
+  "player_labels": [
+    "deepseek_v32",
+    "llama31_8b",
+    "gpt_oss_20b",
+    "qwen3_235b_a22b_2507",
+    "gemma3_27b"
+  ],
+  "players": [
+    {
+      "label": "deepseek_v32",
+      "kind": "llm",
+      "model_name": "deepseek/deepseek-v3.2",
+      "backend": "openrouter",
+      "kwargs": {},
+      "seat": 0
+    },
+    {
+      "label": "llama31_8b",
+      "kind": "llm",
+      "model_name": "meta-llama/llama-3.1-8b-instruct",
+      "backend": "openrouter",
+      "kwargs": {},
+      "seat": 1
+    },
+    {
+      "label": "gpt_oss_20b",
+      "kind": "llm",
+      "model_name": "openai/gpt-oss-20b",
+      "backend": "openrouter",
+      "kwargs": {},
+      "seat": 2
+    },
+    {
+      "label": "qwen3_235b_a22b_2507",
+      "kind": "llm",
+      "model_name": "qwen/qwen3-235b-a22b-2507",
+      "backend": "openrouter",
+      "kwargs": {},
+      "seat": 3
+    },
+    {
+      "label": "gemma3_27b",
+      "kind": "llm",
+      "model_name": "google/gemma-3-27b-it",
+      "backend": "openrouter",
+      "kwargs": {},
+      "seat": 4
+    }
+  ],
+  "config": {
+    "N": 5,
+    "M": 5,
+    "T": 50,
+    "p_perception": 0.0,
+    "payoff": {
+      "B0": 12.0,
+      "C": 8.0,
+      "K": 0.0,
+      "B_min": 9.0,
+      "B_max": 15.0
+    },
+    "drift": {
+      "window_w": 8,
+      "eta": 0.35,
+      "r_star": 0.55
+    },
+    "streak": {
+      "theta": 0.6,
+      "lam": 0.0,
+      "tau": 4.0
+    },
+    "obs": {
+      "history_k": 10,
+      "stats_window": 10
+    },
+    "seed": 0
+  }
+}
