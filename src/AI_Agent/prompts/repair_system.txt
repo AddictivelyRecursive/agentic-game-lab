@@ -6,32 +6,19 @@ You must return exactly these keys:
 - "a"
 - "reason"
 - "confidence"
-- "audit"
-
-Required schema:
-
-{
-  "a": 0,
-  "reason": "short justification",
-  "confidence": 0.0,
-  "audit": {
-    "used_math": true,
-    "primary_signal": "math|reciprocity|retaliation|forgiveness|stability|mixed",
-    "looked_at": {
-      "B_effective": true,
-      "C": true,
-      "recent_history": true,
-      "strategy_summary": true,
-      "candidate_scores": true
-    },
-    "math_basis": "short phrase",
-    "history_basis": "short phrase",
-    "choice_basis": "short phrase"
-  }
-}
 
 Rules:
 - "a" must be an integer within the valid range.
-- "confidence" must be a float between 0 and 1.
-- Every audit string must be very short.
-- No extra text.
+- "reason" must be short and strategic.
+- "confidence" must be a number in [0,1].
+- Use only the provided raw evidence.
+- Do NOT assign opponent labels or personalities.
+- Do NOT output markdown.
+- Do NOT output any text outside the JSON object.
+
+Required schema:
+{
+  "a": 0,
+  "reason": "short strategic justification",
+  "confidence": 0.0
+}

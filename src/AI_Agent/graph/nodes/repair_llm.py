@@ -1,15 +1,12 @@
 import json
-
 from ..node import Node
 
 
 class N8_RepairOrFinalize(Node):
     """
-    Repair node for invalid LLM output.
+    Repair invalid LLM output using the same raw-evidence context.
 
-    Important change:
-    - Repair prompt now uses strategic summary / strategic candidates,
-      not "expected utility descending" language.
+    No dependency on candidates, strategy_summary, or opponent forecasts.
     """
 
     def __init__(self):
@@ -24,56 +21,44 @@ class N8_RepairOrFinalize(Node):
         base_prompt = context["prompts"]["base_system"]
         repair_prompt = context["prompts"]["repair_system"]
 
-        candidates = state.get("candidates", [])
-        top_k = min(max(3, M), len(candidates))
-        top_candidates = candidates[:top_k]
-        strategy_summary = state.get("strategy_summary", {})
-
         prev_raw = ""
         if "llm_raw_outputs" in state and "N6" in state["llm_raw_outputs"]:
             prev_raw = state["llm_raw_outputs"]["N6"]
 
-        compact_candidates = []
-        for c in top_candidates:
-            compact_candidates.append(
-                {
-                    "action": c["action"],
-                    "strategic_score": round(float(c["strategic_score"]), 4),
-                    "own_true_coop": round(float(c["own_true_coop"]), 4),
-                    "target_coop": round(float(c["target_coop"]), 4),
-                    "distance_to_target": round(float(c["distance_to_target"]), 4),
-                    "EU": round(float(c["EU"]), 4),
-                }
-            )
+        payload = {
+            "task": "Repair the previous invalid decision and return valid JSON only.",
+            "validation_error": error,
+            "previous_invalid_output": prev_raw,
+            "round": round_num,
+            "agent_id": agent_id,
+            "valid_actions": {
+                "min": 0,
+                "max": M - 1,
+                "note": "Lower action index means more cooperation.",
+            },
+            "raw_turn_input": state.get("raw_input", {}),
+            "game_parameters": state.get("game_parameters", {}),
+            "payoff_context": {
+                "B_eff": state.get("B_eff"),
+                "C": state.get("C"),
+                "K": state.get("K"),
+                "formula": state.get("payoff_context", {}).get(
+                    "formula",
+                    "u_i = B_eff * avg_other_coop(true) - C * own_coop(true) + K",
+                ),
+                "details": state.get("payoff_context", {}),
+            },
+            "noise_context": state.get("noise_model", {}),
+            "observation_context": state.get("info", {}),
+            "derived_features": state.get("features", {}),
+            "output_schema": {
+                "a": "integer in [0, M-1]",
+                "reason": "brief strategic justification grounded in payoff + history",
+                "confidence": "number in [0,1]",
+            },
+        }
 
-        user_prompt = f"""
-Round: {round_num}
-Agent ID: {agent_id}
-Valid actions: integers in [0, {M - 1}]
-
-Your previous output was invalid because: {error}
-
-This is a repeated strategic game.
-Choose for long-run performance, not just immediate one-step payoff.
-Use the strategic summary and candidates below.
-
-Strategic summary:
-{strategy_summary}
-
-Top candidate actions (sorted by strategic_score desc):
-{compact_candidates}
-
-Return corrected JSON only:
-{{
-  "a": <int>,
-  "reason": "<brief strategic reason>",
-  "confidence": <float between 0 and 1>
-}}
-
-Previous raw output (for reference):
-{prev_raw}
-""".strip()
-
+        user_prompt = json.dumps(payload, ensure_ascii=False, indent=2)
         full_prompt = base_prompt + "\n" + repair_prompt
 
         try:
@@ -86,15 +71,15 @@ Previous raw output (for reference):
 
             data = self._safe_parse_json(response)
 
-            repaired = {}
+            decision = {}
             if "a" in data:
-                repaired["a"] = data["a"]
+                decision["a"] = data["a"]
             if "reason" in data:
-                repaired["reason"] = data["reason"]
+                decision["reason"] = data["reason"]
             if "confidence" in data:
-                repaired["confidence"] = data["confidence"]
+                decision["confidence"] = data["confidence"]
 
-            state["decision"] = repaired if repaired else None
+            state["decision"] = decision if decision else None
 
         except Exception as e:
             state.setdefault("llm_raw_outputs", {})
@@ -104,18 +89,8 @@ Previous raw output (for reference):
         return state
 
     def _safe_parse_json(self, text: str) -> dict:
-        start = None
-        depth = 0
-
-        for i, ch in enumerate(text):
-            if ch == "{":
-                if start is None:
-                    start = i
-                depth += 1
-            elif ch == "}":
-                if start is not None:
-                    depth -= 1
-                    if depth == 0:
-                        return json.loads(text[start:i + 1])
-
-        raise ValueError("No balanced JSON object found in LLM output.")
+        start = text.find("{")
+        end = text.rfind("}")
+        if start == -1 or end == -1 or end < start:
+            raise ValueError("No JSON object found in repaired LLM output.")
+        return json.loads(text[start:end + 1])

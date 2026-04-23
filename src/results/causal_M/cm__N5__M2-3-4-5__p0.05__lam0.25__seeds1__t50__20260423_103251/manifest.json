@@ -1,0 +1,110 @@
+{
+  "run_id": "cm__N5__M2-3-4-5__p0.05__lam0.25__seeds1__t50__20260423_103251",
+  "experiment_type": "causal_M",
+  "prompt_dir": "C:\\Users\\HP\\Documents\\agentic-game-lab\\src\\AI_Agent\\prompts",
+  "fixed_T": 50,
+  "selected_llms": [
+    "deepseek_v32",
+    "llama31_8b",
+    "gpt_oss_20b",
+    "qwen3_235b_a22b_2507",
+    "gemma3_27b"
+  ],
+  "N": 5,
+  "M_values": [
+    2,
+    3,
+    4,
+    5
+  ],
+  "noise_p": 0.05,
+  "streak_lambda": 0.25,
+  "seeds": [
+    101
+  ],
+  "lineup_labels": [
+    "deepseek_v32",
+    "llama31_8b",
+    "gpt_oss_20b",
+    "qwen3_235b_a22b_2507",
+    "gemma3_27b"
+  ],
+  "lineup_short_labels": [
+    "dsv32",
+    "llama31",
+    "gptoss20",
+    "qwen3235",
+    "gemma327"
+  ],
+  "lineup_token": "dsv32-llama31-gptoss20-qwen3235-gemma327__hb61c51",
+  "lineup_players": [
+    {
+      "label": "deepseek_v32",
+      "short_label": "dsv32",
+      "kind": "llm",
+      "model_name": "deepseek/deepseek-v3.2",
+      "backend": "openrouter",
+      "strategy": null
+    },
+    {
+      "label": "llama31_8b",
+      "short_label": "llama31",
+      "kind": "llm",
+      "model_name": "meta-llama/llama-3.1-8b-instruct",
+      "backend": "openrouter",
+      "strategy": null
+    },
+    {
+      "label": "gpt_oss_20b",
+      "short_label": "gptoss20",
+      "kind": "llm",
+      "model_name": "openai/gpt-oss-20b",
+      "backend": "openrouter",
+      "strategy": null
+    },
+    {
+      "label": "qwen3_235b_a22b_2507",
+      "short_label": "qwen3235",
+      "kind": "llm",
+      "model_name": "qwen/qwen3-235b-a22b-2507",
+      "backend": "openrouter",
+      "strategy": null
+    },
+    {
+      "label": "gemma3_27b",
+      "short_label": "gemma327",
+      "kind": "llm",
+      "model_name": "google/gemma-3-27b-it",
+      "backend": "openrouter",
+      "strategy": null
+    }
+  ],
+  "base_config": {
+    "N": 2,
+    "M": 2,
+    "T": 50,
+    "p_perception": 0.05,
+    "payoff": {
+      "B0": 12.0,
+      "C": 8.0,
+      "K": 0.0,
+      "B_min": 9.0,
+      "B_max": 15.0
+    },
+    "drift": {
+      "window_w": 8,
+      "eta": 0.35,
+      "r_star": 0.55
+    },
+    "streak": {
+      "theta": 0.6,
+      "lam": 0.25,
+      "tau": 4.0
+    },
+    "obs": {
+      "history_k": 10,
+      "stats_window": 10
+    },
+    "seed": 0
+  }
+}

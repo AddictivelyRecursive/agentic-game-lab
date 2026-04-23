@@ -7,8 +7,6 @@ from ..graph.nodes.parse_turn import N0_ParseTurn
 from ..graph.nodes.build_features import N1_BuildFeatures
 from ..graph.nodes.compute_payoff import N2_ComputePayoff
 from ..graph.nodes.compute_noise import N3_ComputeNoise
-from ..graph.nodes.opp_model_llm import N4_OpponentModel
-from ..graph.nodes.rank_actions import N5_RankActions
 from ..graph.nodes.decide_llm import N6_DecisionPolicy
 from ..graph.nodes.validate import N7_ValidateDecision
 from ..graph.nodes.repair_llm import N8_RepairOrFinalize
@@ -65,8 +63,6 @@ class LLMAgent:
             "N1_BuildFeatures": N1_BuildFeatures(),
             "N2_ComputePayoff": N2_ComputePayoff(),
             "N3_ComputeNoise": N3_ComputeNoise(),
-            "N4_OpponentModel": N4_OpponentModel(),
-            "N5_RankActions": N5_RankActions(),
             "N6_DecisionPolicy": N6_DecisionPolicy(),
             "N7_ValidateDecision": N7_ValidateDecision(),
             "N8_RepairOrFinalize": N8_RepairOrFinalize(),

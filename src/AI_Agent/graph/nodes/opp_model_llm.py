@@ -166,21 +166,6 @@ class N4_OpponentModel(Node):
                 else 0.5
             )
 
-            if not row:
-                style = "unknown"
-            elif long_coop >= 0.80 and persistence >= 0.70:
-                style = "cooperative_sticky"
-            elif long_coop <= 0.20 and persistence >= 0.70:
-                style = "defective_sticky"
-            elif reciprocity_index >= 0.72 and 0.20 < long_coop < 0.80:
-                style = "reciprocal"
-            elif trend >= 0.12:
-                style = "improving"
-            elif trend <= -0.12:
-                style = "hardening"
-            else:
-                style = "mixed"
-
             others_recent: List[float] = []
             for j in range(N):
                 if j == i:
@@ -192,20 +177,7 @@ class N4_OpponentModel(Node):
                         others_recent.append(coop_vals[a0])
             ref_recent = float(sum(others_recent) / len(others_recent)) if others_recent else 0.5
 
-            if style == "unknown":
-                target_coop = 0.5
-            elif style == "cooperative_sticky":
-                target_coop = max(0.80, 0.5 * recent_coop + 0.5 * long_coop)
-            elif style == "defective_sticky":
-                target_coop = min(0.20, 0.5 * recent_coop + 0.5 * long_coop)
-            elif style == "reciprocal":
-                target_coop = 0.65 * ref_recent + 0.35 * recent_coop
-            elif style == "improving":
-                target_coop = recent_coop + 0.10
-            elif style == "hardening":
-                target_coop = recent_coop - 0.10
-            else:
-                target_coop = 0.50 * recent_coop + 0.50 * long_coop
+            
 
             target_coop = self._clamp(target_coop)
 
