@@ -1,0 +1,150 @@
+{
+  "run_id": "nxm__n2-5__m2-3-5__ps3__th0p60__lam0p25__s1__t50__20260423_194209",
+  "experiment_type": "causal_NxM_noise_slices_progressive",
+  "prompt_dir": "/home/f20220596/agentic-game-lab/src/AI_Agent/prompts",
+  "num_matches_expected": 36,
+  "noise_slices": [
+    0.0,
+    0.05,
+    0.2
+  ],
+  "N_values": [
+    2,
+    3,
+    4,
+    5
+  ],
+  "M_values": [
+    2,
+    3,
+    5
+  ],
+  "fixed_T": 50,
+  "fixed_theta": 0.6,
+  "fixed_streak_lambda": 0.25,
+  "seeds": [
+    101
+  ],
+  "lineups_by_N": {
+    "2": [
+      {
+        "label": "gpt_oss_20b",
+        "kind": "llm",
+        "model_name": "openai/gpt-oss-20b",
+        "backend": "openrouter"
+      },
+      {
+        "label": "llama31_8b",
+        "kind": "llm",
+        "model_name": "meta-llama/llama-3.1-8b-instruct",
+        "backend": "openrouter"
+      }
+    ],
+    "3": [
+      {
+        "label": "gpt_oss_20b",
+        "kind": "llm",
+        "model_name": "openai/gpt-oss-20b",
+        "backend": "openrouter"
+      },
+      {
+        "label": "llama31_8b",
+        "kind": "llm",
+        "model_name": "meta-llama/llama-3.1-8b-instruct",
+        "backend": "openrouter"
+      },
+      {
+        "label": "deepseek_v32",
+        "kind": "llm",
+        "model_name": "deepseek/deepseek-v3.2",
+        "backend": "openrouter"
+      }
+    ],
+    "4": [
+      {
+        "label": "gpt_oss_20b",
+        "kind": "llm",
+        "model_name": "openai/gpt-oss-20b",
+        "backend": "openrouter"
+      },
+      {
+        "label": "llama31_8b",
+        "kind": "llm",
+        "model_name": "meta-llama/llama-3.1-8b-instruct",
+        "backend": "openrouter"
+      },
+      {
+        "label": "deepseek_v32",
+        "kind": "llm",
+        "model_name": "deepseek/deepseek-v3.2",
+        "backend": "openrouter"
+      },
+      {
+        "label": "gemma3_27b",
+        "kind": "llm",
+        "model_name": "google/gemma-3-27b-it",
+        "backend": "openrouter"
+      }
+    ],
+    "5": [
+      {
+        "label": "gpt_oss_20b",
+        "kind": "llm",
+        "model_name": "openai/gpt-oss-20b",
+        "backend": "openrouter"
+      },
+      {
+        "label": "llama31_8b",
+        "kind": "llm",
+        "model_name": "meta-llama/llama-3.1-8b-instruct",
+        "backend": "openrouter"
+      },
+      {
+        "label": "deepseek_v32",
+        "kind": "llm",
+        "model_name": "deepseek/deepseek-v3.2",
+        "backend": "openrouter"
+      },
+      {
+        "label": "gemma3_27b",
+        "kind": "llm",
+        "model_name": "google/gemma-3-27b-it",
+        "backend": "openrouter"
+      },
+      {
+        "label": "qwen3_235b_a22b_2507",
+        "kind": "llm",
+        "model_name": "qwen/qwen3-235b-a22b-2507",
+        "backend": "openrouter"
+      }
+    ]
+  },
+  "config_template": {
+    "N": 5,
+    "M": 5,
+    "T": 50,
+    "p_perception": 0.05,
+    "payoff": {
+      "B0": 12.0,
+      "C": 8.0,
+      "K": 0.0,
+      "B_min": 9.0,
+      "B_max": 15.0
+    },
+    "drift": {
+      "window_w": 8,
+      "eta": 0.35,
+      "r_star": 0.55
+    },
+    "streak": {
+      "theta": 0.6,
+      "lam": 0.25,
+      "tau": 4.0
+    },
+    "obs": {
+      "history_k": 10,
+      "stats_window": 10
+    },
+    "seed": 0
+  }
+}
