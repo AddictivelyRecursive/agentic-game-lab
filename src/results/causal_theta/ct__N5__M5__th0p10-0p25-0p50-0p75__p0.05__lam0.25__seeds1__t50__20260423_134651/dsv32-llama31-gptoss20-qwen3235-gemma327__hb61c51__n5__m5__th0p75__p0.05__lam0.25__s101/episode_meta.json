@@ -1,0 +1,94 @@
+{
+  "run_id": "ct__N5__M5__th0p10-0p25-0p50-0p75__p0.05__lam0.25__seeds1__t50__20260423_134651",
+  "episode_id": 0,
+  "schema_v": 2,
+  "config": {
+    "N": 5,
+    "M": 5,
+    "T": 50,
+    "p_perception": 0.05,
+    "payoff": {
+      "B0": 12.0,
+      "C": 8.0,
+      "K": 0.0,
+      "B_min": 9.0,
+      "B_max": 15.0
+    },
+    "drift": {
+      "window_w": 8,
+      "eta": 0.35,
+      "r_star": 0.55
+    },
+    "streak": {
+      "theta": 0.75,
+      "lam": 0.25,
+      "tau": 4.0
+    },
+    "obs": {
+      "history_k": 10,
+      "stats_window": 10
+    },
+    "seed": 101
+  },
+  "total_rewards": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "final_B": 10.345270833333325,
+  "final_streak": 0,
+  "num_rounds": 50,
+  "extra_meta": {
+    "match_id": "dsv32-llama31-gptoss20-qwen3235-gemma327__hb61c51__n5__m5__th0p75__p0.05__lam0.25__s101",
+    "seed": 101,
+    "N": 5,
+    "M": 5,
+    "theta": 0.75,
+    "noise_p": 0.05,
+    "streak_lambda": 0.25,
+    "lineup_labels": [
+      "deepseek_v32",
+      "llama31_8b",
+      "gpt_oss_20b",
+      "qwen3_235b_a22b_2507",
+      "gemma3_27b"
+    ],
+    "lineup_short_labels": [
+      "dsv32",
+      "llama31",
+      "gptoss20",
+      "qwen3235",
+      "gemma327"
+    ],
+    "lineup_kinds": [
+      "llm",
+      "llm",
+      "llm",
+      "llm",
+      "llm"
+    ],
+    "lineup_model_ids": [
+      "deepseek/deepseek-v3.2",
+      "meta-llama/llama-3.1-8b-instruct",
+      "openai/gpt-oss-20b",
+      "qwen/qwen3-235b-a22b-2507",
+      "google/gemma-3-27b-it"
+    ],
+    "lineup_strategies": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "seat_assignment": {
+      "0": "dsv32",
+      "1": "llama31",
+      "2": "gptoss20",
+      "3": "qwen3235",
+      "4": "gemma327"
+    }
+  }
+}

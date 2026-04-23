@@ -1,3 +1,6 @@
+#checks how hard it is for cooperation streaks to be
+# recognized/maintained
+
 from __future__ import annotations
 
 import hashlib
@@ -73,7 +76,7 @@ LLM_SPECS = [
 
 THETA_VALUES = [0.10, 0.25, 0.50, 0.75]
 
-FIXED_M = 2
+FIXED_M = 5
 FIXED_NOISE_P = 0.05
 FIXED_STREAK_LAMBDA = 0.25
 SEEDS = [101]
