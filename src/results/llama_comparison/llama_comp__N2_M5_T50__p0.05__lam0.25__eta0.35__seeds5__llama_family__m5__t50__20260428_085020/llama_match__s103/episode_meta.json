@@ -1,0 +1,59 @@
+{
+  "run_id": "llama_comp__N2_M5_T50__p0.05__lam0.25__eta0.35__seeds5__llama_family__m5__t50__20260428_085020",
+  "episode_id": 0,
+  "schema_v": 2,
+  "config": {
+    "N": 2,
+    "M": 5,
+    "T": 50,
+    "p_perception": 0.05,
+    "payoff": {
+      "B0": 12.0,
+      "C": 8.0,
+      "K": 0.0,
+      "B_min": 9.0,
+      "B_max": 15.0
+    },
+    "drift": {
+      "window_w": 8,
+      "eta": 0.35,
+      "r_star": 0.55
+    },
+    "streak": {
+      "theta": 0.6,
+      "lam": 0.25,
+      "tau": 4.0
+    },
+    "obs": {
+      "history_k": 10,
+      "stats_window": 10
+    },
+    "seed": 103
+  },
+  "total_rewards": [
+    0.0,
+    0.0
+  ],
+  "final_B": 15.0,
+  "final_streak": 3,
+  "num_rounds": 50,
+  "extra_meta": {
+    "match_id": "llama_match__s103",
+    "seed": 103,
+    "N": 2,
+    "M": 5,
+    "T": 50,
+    "player_labels": [
+      "llama31_8b",
+      "llama31_70b"
+    ],
+    "player_model_ids": {
+      "0": "meta-llama/llama-3.1-8b-instruct",
+      "1": "meta-llama/llama-3.1-70b-instruct"
+    },
+    "seat_assignment": {
+      "0": "llama31_8b",
+      "1": "llama31_70b"
+    }
+  }
+}

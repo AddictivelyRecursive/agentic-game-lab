@@ -43,10 +43,16 @@ LLAMA_SPECS = [
         model_name="meta-llama/llama-3.1-8b-instruct",
         backend="openrouter",
     ),
+    # PlayerSpec(
+    #     kind="llm",
+    #     label="llama32_3b",
+    #     model_name="meta-llama/llama-3.2-3b-instruct",
+    #     backend="openrouter",
+    # ),
     PlayerSpec(
         kind="llm",
-        label="llama32_3b",
-        model_name="meta-llama/llama-3.2-3b-instruct",
+        label="llama31_70b",
+        model_name="meta-llama/llama-3.1-70b-instruct",
         backend="openrouter",
     ),
 ]

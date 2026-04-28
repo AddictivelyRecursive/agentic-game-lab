@@ -1,0 +1,54 @@
+{
+  "run_id": "llama_comp__N2_M5_T50__p0.05__lam0.25__eta0.35__seeds5__llama_family__m5__t50__20260428_085020",
+  "match_id": "llama_match__s101",
+  "seed": 101,
+  "N": 2,
+  "M": 5,
+  "T": 50,
+  "players": [
+    {
+      "label": "llama31_8b",
+      "kind": "llm",
+      "model_name": "meta-llama/llama-3.1-8b-instruct",
+      "backend": "openrouter",
+      "strategy": null,
+      "seat": 0
+    },
+    {
+      "label": "llama31_70b",
+      "kind": "llm",
+      "model_name": "meta-llama/llama-3.1-70b-instruct",
+      "backend": "openrouter",
+      "strategy": null,
+      "seat": 1
+    }
+  ],
+  "config": {
+    "N": 2,
+    "M": 5,
+    "T": 50,
+    "p_perception": 0.05,
+    "payoff": {
+      "B0": 12.0,
+      "C": 8.0,
+      "K": 0.0,
+      "B_min": 9.0,
+      "B_max": 15.0
+    },
+    "drift": {
+      "window_w": 8,
+      "eta": 0.35,
+      "r_star": 0.55
+    },
+    "streak": {
+      "theta": 0.6,
+      "lam": 0.25,
+      "tau": 4.0
+    },
+    "obs": {
+      "history_k": 10,
+      "stats_window": 10
+    },
+    "seed": 101
+  }
+}
