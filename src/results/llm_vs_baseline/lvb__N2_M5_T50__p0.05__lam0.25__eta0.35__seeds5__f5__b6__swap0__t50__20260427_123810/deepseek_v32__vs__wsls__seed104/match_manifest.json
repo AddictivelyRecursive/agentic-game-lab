@@ -1,0 +1,67 @@
+{
+  "run_id": "lvb__N2_M5_T50__p0.05__lam0.25__eta0.35__seeds5__f5__b6__swap0__t50__20260427_123810",
+  "match_id": "deepseek_v32__vs__wsls__seed104",
+  "seed": 104,
+  "matchup_type": "focal_vs_baseline",
+  "seat_swapped": false,
+  "focal_seat": 0,
+  "baseline_seat": 1,
+  "focal_player": {
+    "label": "deepseek_v32",
+    "kind": "llm",
+    "model_name": "deepseek/deepseek-v3.2",
+    "backend": "openrouter"
+  },
+  "baseline_player": {
+    "label": "wsls",
+    "kind": "baseline",
+    "strategy": "wsls",
+    "kwargs": {}
+  },
+  "row_player": {
+    "label": "deepseek_v32",
+    "kind": "llm",
+    "model_name": "deepseek/deepseek-v3.2",
+    "backend": "openrouter",
+    "strategy": null,
+    "kwargs": null,
+    "seat": 0
+  },
+  "col_player": {
+    "label": "wsls",
+    "kind": "baseline",
+    "model_name": null,
+    "backend": null,
+    "strategy": "wsls",
+    "kwargs": {},
+    "seat": 1
+  },
+  "config": {
+    "N": 2,
+    "M": 5,
+    "T": 50,
+    "p_perception": 0.05,
+    "payoff": {
+      "B0": 12.0,
+      "C": 8.0,
+      "K": 0.0,
+      "B_min": 9.0,
+      "B_max": 15.0
+    },
+    "drift": {
+      "window_w": 8,
+      "eta": 0.35,
+      "r_star": 0.55
+    },
+    "streak": {
+      "theta": 0.6,
+      "lam": 0.25,
+      "tau": 4.0
+    },
+    "obs": {
+      "history_k": 10,
+      "stats_window": 10
+    },
+    "seed": 104
+  }
+}

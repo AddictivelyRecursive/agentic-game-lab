@@ -2,7 +2,7 @@
 experiments/run_llmvsbaseline.py
 
 Purpose:
-- Paper-style LLM-vs-baseline evaluation for 2-player binary IPD.
+- Paper-style LLM-vs-baseline evaluation for 2-player graded IPD.
 - Each focal LLM plays against a fixed suite of baseline strategies:
   AlwaysCooperate, AlwaysDefect, Random, GradedTFT, GrimTrigger, WSLS.
 - Writes logs with the same general structure as run_crossplay_tournament.py
@@ -33,7 +33,6 @@ try:
 
     load_dotenv()
 except Exception:
-    # Fine if python-dotenv is not installed; env vars can still come from shell.
     pass
 
 from game_engine.agents import (
@@ -68,11 +67,9 @@ class PlayerSpec:
     kind: str  # "llm" or "baseline"
     label: str
 
-    # LLM fields
     model_name: Optional[str] = None
     backend: str = "openrouter"
 
-    # Baseline fields
     strategy: Optional[str] = None
     kwargs: Dict[str, Any] = field(default_factory=dict)
 
@@ -83,45 +80,51 @@ class MatchSpec:
     baseline_spec: PlayerSpec
     row_spec: PlayerSpec
     col_spec: PlayerSpec
-    matchup_type: str  # "focal_vs_baseline"
+    matchup_type: str
     seat_swapped: bool
 
 
 PROMPT_DIR = "AI_Agent/prompts"
 RESULTS_ROOT = os.path.join("results", "llm_vs_baseline")
 
-# Controlled binary IPD setup
+FIXED_M = 5
+FIXED_THETA = 0.6
+FIXED_STREAK_LAMBDA = 0.25
+FIXED_T = 50
+
+SEEDS: List[int] = [101, 102, 103, 104, 105]
+
 BASE_CFG = EnvConfig(
     N=2,
-    M=2,
-    T=100,
-    p_perception=0.00,
+    M=FIXED_M,
+    T=FIXED_T,
+    p_perception=0.05,
     payoff=PayoffConfig(
-        B0=300.0,
-        C=200.0,
+        B0=12.0,
+        C=8.0,
         K=0.0,
-        B_min=300.0,
-        B_max=300.0,
+        B_min=9.0,
+        B_max=15.0,
     ),
     drift=DriftConfig(
-        window_w=10,
-        eta=0.00,
-        r_star=0.5,
+        window_w=8,
+        eta=0.35,
+        r_star=0.55,
     ),
     streak=StreakConfig(
-        theta=0.6,
-        lam=0.00,
-        tau=5.0,
+        theta=FIXED_THETA,
+        lam=FIXED_STREAK_LAMBDA,
+        tau=4.0,
     ),
-    obs=ObservationConfig(history_k=10, stats_window=10),
+    obs=ObservationConfig(
+        history_k=10,
+        stats_window=10,
+    ),
     seed=0,
 )
 
-# One seed for now -> 5 focal models x 6 baselines = 30 matches.
-# If SWAP_SEATS=True, that doubles to 60 matches.
-SEEDS: List[int] = [101]
-
-# Keep False for cheaper runs. Flip to True if you want seat-position control.
+# Five seeds -> 5 focal models x 6 baselines x 5 seeds = 150 matches.
+# If SWAP_SEATS=True, this doubles to 300 matches.
 SWAP_SEATS = False
 
 FOCAL_PLAYER_SPECS: List[PlayerSpec] = [
@@ -193,6 +196,7 @@ def _has_any_llm(specs: Sequence[PlayerSpec]) -> bool:
 def _require_openrouter_key_if_needed(specs: Sequence[PlayerSpec]) -> None:
     if not _has_any_llm(specs):
         return
+
     key = os.getenv("OPENROUTER_API_KEY", "").strip()
     if not key:
         raise EnvironmentError(
@@ -214,7 +218,6 @@ def _iter_matchups(
 
     for focal in focals:
         for baseline in baselines:
-            # Default: LLM in seat 0, baseline in seat 1
             jobs.append(
                 MatchSpec(
                     focal_spec=focal,
@@ -226,7 +229,6 @@ def _iter_matchups(
                 )
             )
 
-            # Optional control: baseline in seat 0, LLM in seat 1
             if swap_seats:
                 jobs.append(
                     MatchSpec(
@@ -305,10 +307,17 @@ def main() -> None:
     _require_openrouter_key_if_needed(FOCAL_PLAYER_SPECS)
 
     assert BASE_CFG.N == 2, "This runner is defined for 2-player games only."
-    assert BASE_CFG.M == 2, "This runner is defined for binary-action games only."
+    assert BASE_CFG.M == FIXED_M, f"Expected M={FIXED_M}, got M={BASE_CFG.M}."
+    assert BASE_CFG.T == FIXED_T, f"Expected T={FIXED_T}, got T={BASE_CFG.T}."
+    assert BASE_CFG.streak.theta == FIXED_THETA, (
+        f"Expected theta={FIXED_THETA}, got {BASE_CFG.streak.theta}."
+    )
+    assert BASE_CFG.streak.lam == FIXED_STREAK_LAMBDA, (
+        f"Expected lambda={FIXED_STREAK_LAMBDA}, got {BASE_CFG.streak.lam}."
+    )
     assert (
         BASE_CFG.payoff.B_min * (1.0 + BASE_CFG.streak.lam) > BASE_CFG.payoff.C
-    ), "PD constraint violated: B_eff may drop <= C"
+    ), "PD constraint violated: B_eff may drop <= C."
 
     all_specs = list(FOCAL_PLAYER_SPECS) + list(BASELINE_SPECS)
     labels = [_spec_label(spec) for spec in all_specs]
@@ -328,9 +337,10 @@ def main() -> None:
             f"F{len(FOCAL_PLAYER_SPECS)}",
             f"B{len(BASELINE_SPECS)}",
             f"swap{int(SWAP_SEATS)}",
-            "T100",
+            f"T{FIXED_T}",
         ],
     )
+
     run_dir = ensure_dir(os.path.join(RESULTS_ROOT, run_id))
 
     manifest = {
@@ -341,6 +351,7 @@ def main() -> None:
         "num_focals": len(FOCAL_PLAYER_SPECS),
         "num_baselines": len(BASELINE_SPECS),
         "num_seeds": len(SEEDS),
+        "seeds": SEEDS,
         "num_match_specs": len(match_list),
         "num_matches_expected": len(match_list) * len(SEEDS),
         "focal_players": [
@@ -363,6 +374,7 @@ def main() -> None:
         ],
         "config": BASE_CFG,
     }
+
     write_json(os.path.join(run_dir, "manifest.json"), manifest)
 
     completed = 0
@@ -384,6 +396,7 @@ def main() -> None:
 
         for seed in SEEDS:
             cfg = replace(BASE_CFG, seed=seed)
+
             match_id = build_match_id(row_label, col_label, seed=seed)
             match_dir = ensure_dir(os.path.join(run_dir, match_id))
             agents_dir = ensure_dir(os.path.join(match_dir, "agents"))
@@ -412,6 +425,7 @@ def main() -> None:
                 "col_player": _player_manifest_obj(col_spec, seat=1),
                 "config": cfg,
             }
+
             write_json(os.path.join(match_dir, "match_manifest.json"), match_manifest)
 
             try:
@@ -510,9 +524,11 @@ def main() -> None:
                         },
                         "row_player": _player_manifest_obj(row_spec, seat=0),
                         "col_player": _player_manifest_obj(col_spec, seat=1),
+                        "config": cfg,
                         "error": repr(e),
                     },
                 )
+
                 print(f"[ERROR] {match_id}: {e}")
 
     print("\nDone.")
