@@ -1,0 +1,7 @@
+baseline,DeepSeek-V3.2,Qwen3-235B,GPT-OSS-20B,Gemma-3-27B,Llama-3.1-8B
+Always Cooperate,0.996,0.984,0.034,0.0,0.0
+Graded TFT,1.0,0.164,0.003,0.0,0.0
+WSLS,0.862,0.537,0.0,0.0,0.0
+Random,0.821,0.328,0.025,0.0,0.0
+Always Defect,0.053,0.026,0.004,0.0,0.0
+Grim Trigger,0.096,0.0,0.0,0.0,0.0

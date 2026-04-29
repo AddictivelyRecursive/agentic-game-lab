@@ -2,26 +2,20 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
 
-# ----------------------------
-# Styling
-# ----------------------------
-
 BG = "#faf7f2"
 PANEL = "#fffdf9"
 GRID = "#d9d3c7"
 TEXT = "#1f2430"
 MUTED = "#6b7280"
-
-BACKBONE = "#27364a"
-RANDOM_HIGHLIGHT = "#f4d58d"
 
 MODEL_COLORS = {
     "DeepSeek-V3.2": "#355070",
@@ -39,6 +33,22 @@ MODEL_MARKERS = {
     "Llama-3.1-8B": "P",
 }
 
+MODEL_LINESTYLES = {
+    "DeepSeek-V3.2": "-",
+    "Qwen3-235B": "-",
+    "GPT-OSS-20B": "-.",
+    "Gemma-3-27B": "--",
+    "Llama-3.1-8B": ":",
+}
+
+ENDPOINT_OFFSETS = {
+    "DeepSeek-V3.2": 0.030,
+    "Qwen3-235B": 0.015,
+    "GPT-OSS-20B": 0.000,
+    "Gemma-3-27B": -0.015,
+    "Llama-3.1-8B": -0.030,
+}
+
 MODEL_SHORT = {
     "deepseek_v32": "DeepSeek-V3.2",
     "qwen3_235b_a22b_2507": "Qwen3-235B",
@@ -47,41 +57,31 @@ MODEL_SHORT = {
     "llama31_8b": "Llama-3.1-8B",
 }
 
-BASELINE_ORDER = [
-    "Always Cooperate",
-    "Graded TFT",
-    "WSLS",
-    "★ Random",
-    "Always Defect",
-    "Grim Trigger",
-]
-
-BASELINE_SHORT = {
-    "Always Cooperate": "Always\nCooperate",
-    "Graded TFT": "Graded\nTFT",
-    "WSLS": "WSLS",
-    "★ Random": "★ Random",
-    "Always Defect": "Always\nDefect",
-    "Grim Trigger": "Grim\nTrigger",
-}
-
-COMMON_RESPONSE_PATTERN = {
-    "always_cooperate": "Cooperate throughout",
-    "always_defect": "Cooperate once, then defect",
-    "graded_tft": "Cooperate throughout",
-    "grim_trigger": "Standard reciprocal / grim-style response",
-    "wsls": "Stable cooperation",
-    "random_uniform": "Mixed / random retaliation",
-}
-
 PRETTY_BASELINE = {
     "always_cooperate": "Always Cooperate",
     "graded_tft": "Graded TFT",
     "wsls": "WSLS",
-    "random_uniform": "★ Random",
+    "random_uniform": "Random",
     "always_defect": "Always Defect",
     "grim_trigger": "Grim Trigger",
 }
+
+MODEL_ORDER = [
+    "DeepSeek-V3.2",
+    "Qwen3-235B",
+    "GPT-OSS-20B",
+    "Gemma-3-27B",
+    "Llama-3.1-8B",
+]
+
+BASELINE_ORDER = [
+    "Always Cooperate",
+    "Graded TFT",
+    "WSLS",
+    "Random",
+    "Always Defect",
+    "Grim Trigger",
+]
 
 plt.rcParams.update(
     {
@@ -94,33 +94,23 @@ plt.rcParams.update(
         "ytick.color": TEXT,
         "text.color": TEXT,
         "axes.titleweight": "bold",
-        "axes.titlesize": 17,
+        "axes.titlesize": 18,
         "axes.labelsize": 13,
         "font.size": 11,
         "legend.frameon": False,
         "axes.spines.top": False,
         "axes.spines.right": False,
-        "axes.grid": False,
     }
 )
 
 
-# ----------------------------
-# CLI
-# ----------------------------
-
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Parse LLM-vs-baseline run outputs and generate a cleaned overlap plot."
-    )
+    parser = argparse.ArgumentParser()
     parser.add_argument("--run-dir", type=str, required=True)
     parser.add_argument("--out-dir", type=str, default=None)
+    parser.add_argument("--rolling-window", type=int, default=5)
     return parser.parse_args()
 
-
-# ----------------------------
-# I/O
-# ----------------------------
 
 def load_json(path: Path) -> dict:
     with open(path, "r", encoding="utf-8") as f:
@@ -128,7 +118,7 @@ def load_json(path: Path) -> dict:
 
 
 def load_jsonl(path: Path) -> List[dict]:
-    rows: List[dict] = []
+    rows = []
     with open(path, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
@@ -136,10 +126,6 @@ def load_jsonl(path: Path) -> List[dict]:
                 rows.append(json.loads(line))
     return rows
 
-
-# ----------------------------
-# Normalization / parsing
-# ----------------------------
 
 def normalize_baseline_label(label: str) -> str:
     s = (label or "").strip().lower().replace("-", "_").replace(" ", "_")
@@ -163,7 +149,28 @@ def normalize_baseline_label(label: str) -> str:
         "random_uniform": "random_uniform",
         "randomagent": "random_uniform",
     }
+
     return aliases.get(s, s)
+
+
+def infer_seed(match_dir: Path, manifest: dict, meta: dict) -> Optional[int]:
+    for obj in [manifest, meta]:
+        for key in ["seed", "rng_seed", "episode_seed"]:
+            if key in obj:
+                try:
+                    return int(obj[key])
+                except Exception:
+                    pass
+
+    m = re.search(r"(?:^|__)s(\d+)(?:__|$)", match_dir.name)
+    if m:
+        return int(m.group(1))
+
+    m = re.search(r"seed[_-]?(\d+)", match_dir.name, flags=re.I)
+    if m:
+        return int(m.group(1))
+
+    return None
 
 
 def infer_focal_and_baseline(manifest: dict) -> Tuple[str, str, int, int]:
@@ -178,7 +185,28 @@ def infer_focal_and_baseline(manifest: dict) -> Tuple[str, str, int, int]:
     )
 
     if focal_label is None or baseline_label is None:
-        raise KeyError("Could not infer focal/baseline labels from match manifest.")
+        players = manifest.get("players", [])
+        if len(players) == 2:
+            llm_idx = 0
+            for i, p in enumerate(players):
+                if str(p.get("kind", "")).lower() == "llm":
+                    llm_idx = i
+                    break
+
+            focal_label = players[llm_idx].get("label")
+            baseline_label = (
+                players[1 - llm_idx].get("label")
+                or players[1 - llm_idx].get("strategy")
+            )
+
+            return (
+                str(focal_label),
+                normalize_baseline_label(str(baseline_label)),
+                llm_idx,
+                1 - llm_idx,
+            )
+
+        raise KeyError("Could not infer focal/baseline labels.")
 
     if "focal_seat" in manifest:
         focal_seat = int(manifest["focal_seat"])
@@ -186,52 +214,66 @@ def infer_focal_and_baseline(manifest: dict) -> Tuple[str, str, int, int]:
         row = manifest.get("row_player", {})
         focal_seat = 0 if row.get("label") == focal_label else 1
 
-    baseline_seat = 1 - focal_seat
-    return str(focal_label), normalize_baseline_label(str(baseline_label)), focal_seat, baseline_seat
+    return (
+        str(focal_label),
+        normalize_baseline_label(str(baseline_label)),
+        focal_seat,
+        1 - focal_seat,
+    )
 
 
-def coop_from_log_row(log_row: dict, seat: int) -> float:
-    if "true_coop" in log_row:
-        return float(log_row["true_coop"][seat])
+def coop_from_row(row: dict, seat: int) -> float:
+    if "true_coop" in row:
+        return float(row["true_coop"][seat])
 
-    if "true_actions" in log_row:
-        action = int(log_row["true_actions"][seat])
+    if "true_actions" in row:
+        action = int(row["true_actions"][seat])
+
+        if "action_semantics" in row:
+            mapping = row["action_semantics"].get("index_to_cooperation")
+            if mapping is not None:
+                return float(mapping[action])
+
+        game_params = row.get("game_parameters", {})
+        semantics = game_params.get("action_semantics", {})
+        mapping = semantics.get("index_to_cooperation")
+        if mapping is not None:
+            return float(mapping[action])
+
         return 1.0 if action == 0 else 0.0
 
-    raise KeyError("Neither true_coop nor true_actions found in log row.")
+    raise KeyError("No true_coop or true_actions found.")
 
 
-def action_from_log_row(log_row: dict, seat: int) -> int:
-    if "true_actions" in log_row:
-        return int(log_row["true_actions"][seat])
-
-    if "true_coop" in log_row:
-        return 0 if float(log_row["true_coop"][seat]) >= 0.5 else 1
-
-    raise KeyError("Neither true_coop nor true_actions found in log row.")
-
-
-def first_defection_round(actions: List[int]) -> float:
-    for i, a in enumerate(actions, start=1):
-        if int(a) == 1:
-            return float(i)
-    return np.nan
-
-
-# ----------------------------
-# Load raw experiment outputs
-# ----------------------------
-
-def load_match_level_dataframe(run_dir: Path) -> pd.DataFrame:
-    rows: List[Dict[str, object]] = []
-
-    for child in sorted(run_dir.iterdir()):
-        if not child.is_dir():
+def reward_from_row(row: dict, seat: int) -> Optional[float]:
+    for key in ["rewards", "reward", "payoffs", "true_rewards"]:
+        if key not in row:
             continue
 
-        manifest_path = child / "match_manifest.json"
-        meta_path = child / "episode_meta.json"
-        logs_path = child / "episode_logs.jsonl"
+        val = row[key]
+
+        if isinstance(val, list):
+            return float(val[seat])
+
+        if isinstance(val, dict):
+            if str(seat) in val:
+                return float(val[str(seat)])
+            if seat in val:
+                return float(val[seat])
+
+    return None
+
+
+def load_run_rounds(run_dir: Path) -> pd.DataFrame:
+    rows: List[Dict[str, Any]] = []
+
+    for match_dir in sorted(run_dir.iterdir()):
+        if not match_dir.is_dir():
+            continue
+
+        manifest_path = match_dir / "match_manifest.json"
+        meta_path = match_dir / "episode_meta.json"
+        logs_path = match_dir / "episode_logs.jsonl"
 
         if not (manifest_path.exists() and meta_path.exists() and logs_path.exists()):
             continue
@@ -240,29 +282,42 @@ def load_match_level_dataframe(run_dir: Path) -> pd.DataFrame:
         meta = load_json(meta_path)
         logs = load_jsonl(logs_path)
 
-        model_label, baseline_label, focal_seat, _ = infer_focal_and_baseline(manifest)
+        model_raw, baseline_raw, focal_seat, _ = infer_focal_and_baseline(manifest)
 
-        coop_series = [coop_from_log_row(r, focal_seat) for r in logs]
-        action_series = [action_from_log_row(r, focal_seat) for r in logs]
+        model = MODEL_SHORT.get(model_raw, model_raw)
+        baseline = PRETTY_BASELINE.get(baseline_raw, baseline_raw)
+        seed = infer_seed(match_dir, manifest, meta)
 
         total_rewards = meta.get("total_rewards", [])
         num_rounds = int(meta.get("num_rounds", len(logs)))
-        llm_total_reward = float(total_rewards[focal_seat]) if len(total_rewards) > focal_seat else np.nan
-        mean_payoff = llm_total_reward / num_rounds if num_rounds > 0 else np.nan
 
-        rows.append(
-            {
-                "match_dir": str(child),
-                "model_raw": model_label,
-                "baseline_raw": baseline_label,
-                "model": MODEL_SHORT.get(model_label, model_label),
-                "baseline": PRETTY_BASELINE.get(baseline_label, baseline_label),
-                "common_response_pattern": COMMON_RESPONSE_PATTERN.get(baseline_label, "—"),
-                "mean_coop": float(np.mean(coop_series)) if coop_series else np.nan,
-                "mean_payoff": mean_payoff,
-                "first_defection_round": first_defection_round(action_series),
-            }
-        )
+        reward_series = [reward_from_row(r, focal_seat) for r in logs]
+
+        if not all(r is not None for r in reward_series):
+            if len(total_rewards) > focal_seat and num_rounds > 0:
+                avg_reward = float(total_rewards[focal_seat]) / num_rounds
+                reward_series = [avg_reward for _ in logs]
+            else:
+                reward_series = [np.nan for _ in logs]
+
+        cumulative_reward = 0.0
+
+        for t, log_row in enumerate(logs, start=1):
+            reward_t = float(reward_series[t - 1])
+            cumulative_reward += 0.0 if np.isnan(reward_t) else reward_t
+
+            rows.append(
+                {
+                    "match_id": match_dir.name,
+                    "model": model,
+                    "baseline": baseline,
+                    "seed": seed,
+                    "round": t,
+                    "coop": coop_from_row(log_row, focal_seat),
+                    "reward": reward_t,
+                    "cumulative_reward": cumulative_reward,
+                }
+            )
 
     if not rows:
         raise FileNotFoundError(f"No valid match folders found under {run_dir}")
@@ -270,294 +325,242 @@ def load_match_level_dataframe(run_dir: Path) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def build_summary_df(match_df: pd.DataFrame) -> pd.DataFrame:
-    summary = (
-        match_df.groupby(
-            ["model", "baseline", "common_response_pattern"],
-            as_index=False,
-        )
-        .agg(
-            mean_coop=("mean_coop", "mean"),
-            mean_payoff=("mean_payoff", "mean"),
-            median_first_defection_round=("first_defection_round", "median"),
-        )
-    )
-
-    order_map = {b: i for i, b in enumerate(BASELINE_ORDER)}
-    summary["baseline_order"] = summary["baseline"].map(order_map)
-    summary = summary.sort_values(["model", "baseline_order"]).reset_index(drop=True)
-    return summary
+def ordered_models(df: pd.DataFrame) -> List[str]:
+    present = set(df["model"].dropna())
+    return [m for m in MODEL_ORDER if m in present] + sorted(present - set(MODEL_ORDER))
 
 
-# ----------------------------
-# Plot helpers
-# ----------------------------
+def ordered_baselines(df: pd.DataFrame) -> List[str]:
+    present = set(df["baseline"].dropna())
+    return [b for b in BASELINE_ORDER if b in present] + sorted(present - set(BASELINE_ORDER))
+
 
 def style_ax(ax) -> None:
     ax.set_facecolor(PANEL)
-    for spine in ax.spines.values():
-        spine.set_color("#d4ccbf")
-    ax.grid(axis="y", color=GRID, linestyle="-", linewidth=0.8, alpha=0.55)
+    ax.grid(axis="y", color=GRID, linewidth=0.9, alpha=0.6)
     ax.tick_params(length=0)
     ax.set_axisbelow(True)
 
 
-def summarize_clusters(random_df: pd.DataFrame) -> List[Tuple[float, int, float]]:
-    grp = (
-        random_df.groupby("mean_coop", as_index=False)
-        .agg(
-            n_models=("model", "count"),
-            payoff=("mean_payoff", "mean"),
-        )
-        .sort_values("mean_coop", ascending=False)
+def save_summary_tables(round_df: pd.DataFrame, out_dir: Path) -> None:
+    baselines = ordered_baselines(round_df)
+    models = ordered_models(round_df)
+
+    coop_table = (
+        round_df
+        .groupby(["baseline", "model"])["coop"]
+        .mean()
+        .reset_index()
+        .pivot(index="baseline", columns="model", values="coop")
+        .reindex(index=baselines, columns=models)
     )
-    return [(float(r["mean_coop"]), int(r["n_models"]), float(r["payoff"])) for _, r in grp.iterrows()]
+
+    reward_table = (
+        round_df
+        .groupby(["baseline", "model"])["reward"]
+        .mean()
+        .reset_index()
+        .pivot(index="baseline", columns="model", values="reward")
+        .reindex(index=baselines, columns=models)
+    )
+
+    coop_table.to_csv(out_dir / "table_average_cooperation_rate.csv")
+    reward_table.to_csv(out_dir / "table_average_reward_per_round.csv")
+
+    coop_table.round(3).to_latex(out_dir / "table_average_cooperation_rate.tex")
+    reward_table.round(3).to_latex(out_dir / "table_average_reward_per_round.tex")
+
+    print("\nAverage cooperation rate:")
+    print(coop_table.round(3))
+
+    print("\nAverage reward per round:")
+    print(reward_table.round(3))
 
 
-# ----------------------------
-# Main plot
-# ----------------------------
+def detect_overlap_groups(final_values: Dict[str, float], tol: float = 0.03) -> List[List[str]]:
+    used = set()
+    groups = []
 
-def plot_consensus_breakout(df: pd.DataFrame, out_path: Path) -> None:
-    fig, ax = plt.subplots(figsize=(12.6, 7.6))
+    for model, val in final_values.items():
+        if model in used:
+            continue
+
+        group = [model]
+        used.add(model)
+
+        for other, other_val in final_values.items():
+            if other in used:
+                continue
+            if abs(val - other_val) <= tol:
+                group.append(other)
+                used.add(other)
+
+        if len(group) >= 2:
+            groups.append(group)
+
+    return groups
+
+
+def plot_one_baseline(
+    round_df: pd.DataFrame,
+    baseline: str,
+    out_path: Path,
+    rolling_window: int,
+) -> None:
+    df = round_df[round_df["baseline"] == baseline].copy()
+
+    df["smooth_coop"] = (
+        df.groupby("match_id")["coop"]
+        .transform(lambda s: s.rolling(rolling_window, min_periods=1).mean())
+    )
+
+    fig, ax = plt.subplots(figsize=(14.8, 7.2))
     style_ax(ax)
 
-    present_baselines = [b for b in BASELINE_ORDER if b in set(df["baseline"])]
-    x_map = {b: i for i, b in enumerate(present_baselines)}
+    models = ordered_models(df)
+    final_values: Dict[str, float] = {}
 
-    if "★ Random" in x_map:
-        xr = x_map["★ Random"]
-        ax.axvspan(xr - 0.40, xr + 0.40, color=RANDOM_HIGHLIGHT, alpha=0.18, zorder=0)
+    for model in models:
+        sub = df[df["model"] == model]
 
-    consensus = (
-        df.groupby("baseline", as_index=False)
-        .agg(
-            mean_coop=("mean_coop", "mean"),
-            min_coop=("mean_coop", "min"),
-            max_coop=("mean_coop", "max"),
-        )
-    )
-    consensus["x"] = consensus["baseline"].map(x_map)
-    consensus = consensus.sort_values("x")
-
-    ax.fill_between(
-        consensus["x"],
-        consensus["min_coop"],
-        consensus["max_coop"],
-        color=BACKBONE,
-        alpha=0.08,
-        zorder=1,
-    )
-
-    ax.plot(
-        consensus["x"],
-        consensus["mean_coop"],
-        color=BACKBONE,
-        linewidth=4.8,
-        marker="o",
-        markersize=8,
-        markerfacecolor=BACKBONE,
-        markeredgecolor="white",
-        markeredgewidth=1.3,
-        solid_capstyle="round",
-        zorder=3,
-    )
-
-    if "★ Random" in x_map:
-        random_df = df[df["baseline"] == "★ Random"].copy().reset_index(drop=True)
-        jitter = np.linspace(-0.09, 0.09, max(len(random_df), 2))
-
-        for j, (_, row) in enumerate(random_df.iterrows()):
-            model = row["model"]
-            x = x_map["★ Random"] + jitter[j]
-            y = row["mean_coop"]
-
-            ax.scatter(
-                x,
-                y,
-                s=145,
-                color=MODEL_COLORS.get(model, "#355070"),
-                marker=MODEL_MARKERS.get(model, "o"),
-                edgecolor="white",
-                linewidth=1.5,
-                zorder=6,
+        agg = (
+            sub.groupby("round", as_index=False)
+            .agg(
+                mean=("smooth_coop", "mean"),
+                std=("smooth_coop", "std"),
             )
+            .fillna({"std": 0.0})
+        )
 
-    cooperative_block = [b for b in ["Always Cooperate", "Graded TFT", "WSLS"] if b in x_map]
-    if cooperative_block:
-        xs = [x_map[b] for b in cooperative_block]
+        x = agg["round"].to_numpy()
+        y = agg["mean"].to_numpy()
+        sd = agg["std"].to_numpy()
+
+        color = MODEL_COLORS.get(model, "#444")
+        marker = MODEL_MARKERS.get(model, "o")
+        linestyle = MODEL_LINESTYLES.get(model, "-")
+
+        final_values[model] = float(y[-1])
+
+        ax.plot(
+            x,
+            y,
+            color=color,
+            linewidth=3.0,
+            linestyle=linestyle,
+            marker=marker,
+            markevery=max(1, len(x) // 8),
+            markersize=7,
+            markeredgecolor="white",
+            markeredgewidth=1.1,
+            label=model,
+            zorder=5,
+        )
+
+        ax.fill_between(
+            x,
+            np.clip(y - sd, 0, 1),
+            np.clip(y + sd, 0, 1),
+            color=color,
+            alpha=0.10,
+            zorder=2,
+        )
+
+        final_x = x[-1]
+        final_y = y[-1] + ENDPOINT_OFFSETS.get(model, 0.0)
+
         ax.text(
-            np.mean(xs),
-            0.91,
-            "5/5 identical",
-            ha="center",
+            final_x + 0.7,
+            np.clip(final_y, 0.025, 1.0),
+            f"{model}: {y[-1]:.2f}",
+            fontsize=9,
+            color=color,
             va="center",
-            fontsize=11.5,
-            color=MUTED,
-            bbox=dict(boxstyle="round,pad=0.24", facecolor=BG, edgecolor="none", alpha=0.96),
-            zorder=7,
+            ha="left",
+            fontweight="bold",
         )
 
-    defect_block = [b for b in ["Always Defect", "Grim Trigger"] if b in x_map]
-    if defect_block:
-        xs = [x_map[b] for b in defect_block]
-        ax.text(
-            np.mean(xs),
-            0.095,
-            "5/5 identical  •  first defect ≈ 2",
-            ha="center",
-            va="center",
-            fontsize=11.2,
-            color=MUTED,
-            bbox=dict(boxstyle="round,pad=0.24", facecolor=BG, edgecolor="none", alpha=0.96),
-            zorder=7,
-        )
+    overlap_groups = detect_overlap_groups(final_values, tol=0.03)
 
-    if "★ Random" in x_map:
-        random_df = df[df["baseline"] == "★ Random"].copy()
-        clusters = summarize_clusters(random_df)
-        xr = x_map["★ Random"]
-
-        if len(clusters) >= 1:
-            coop, n_models, payoff = clusters[0]
-            ax.annotate(
-                f"{n_models} models: coop {coop:.2f}, payoff {payoff:.2f}",
-                xy=(xr, coop),
-                xytext=(xr + 0.52, min(coop + 0.10, 0.60)),
-                fontsize=10.6,
-                color=TEXT,
-                ha="left",
-                va="center",
-                bbox=dict(boxstyle="round,pad=0.28", facecolor=BG, edgecolor="#e5d9c8", alpha=0.98),
-                arrowprops=dict(arrowstyle="-", color="#bfae8b", lw=1.2),
-                zorder=8,
-            )
-
-        if len(clusters) >= 2:
-            coop, n_models, payoff = clusters[1]
-            ax.annotate(
-                f"{n_models} models: coop {coop:.2f}, payoff {payoff:.2f}",
-                xy=(xr, coop),
-                xytext=(xr + 0.52, max(coop - 0.04, 0.08)),
-                fontsize=10.6,
-                color=TEXT,
-                ha="left",
-                va="center",
-                bbox=dict(boxstyle="round,pad=0.28", facecolor=BG, edgecolor="#e5d9c8", alpha=0.98),
-                arrowprops=dict(arrowstyle="-", color="#bfae8b", lw=1.2),
-                zorder=8,
-            )
+    if overlap_groups:
+        msg_parts = []
+        for g in overlap_groups:
+            if len(g) <= 3:
+                msg_parts.append(" + ".join(g))
+            else:
+                msg_parts.append(f"{len(g)} models")
 
         ax.text(
-            xr,
-            0.02,
-            "only baseline showing separation",
-            ha="center",
+            0.985,
+            0.04,
+            "Endpoint overlap: " + " | ".join(msg_parts),
+            transform=ax.transAxes,
+            ha="right",
             va="bottom",
-            fontsize=10.0,
-            color="#9c6b00",
-            zorder=8,
+            fontsize=10,
+            color=MUTED,
+            bbox=dict(
+                boxstyle="round,pad=0.32",
+                facecolor=BG,
+                edgecolor="#e5d9c8",
+                alpha=0.96,
+            ),
         )
 
-    ax.set_xlim(-0.35, len(present_baselines) - 0.20)
-    ax.set_ylim(-0.03, 1.08)
-    ax.set_ylabel("Mean cooperation rate")
-    ax.set_xlabel("Baseline strategy")
-    ax.set_yticks([0.0, 0.25, 0.5, 0.75, 1.0])
-    ax.set_xticks(range(len(present_baselines)))
-    ax.set_xticklabels([BASELINE_SHORT.get(b, b) for b in present_baselines])
+    ax.set_xlim(1, int(df["round"].max()) + 8)
+    ax.set_ylim(-0.03, 1.05)
+    ax.set_xlabel("Round")
+    ax.set_ylabel("Rolling cooperation rate")
+    ax.set_title(f"LLM behavior against {baseline}", pad=28)
 
-    for tick, baseline in zip(ax.get_xticklabels(), present_baselines):
-        if baseline == "★ Random":
-            tick.set_color("#9c6b00")
-            tick.set_fontweight("bold")
-
-    ax.set_title("Consensus and breakout of LLM responses across baselines", pad=36)
     ax.text(
         0.5,
-        1.022,
-        "Models overlap almost perfectly except against Random.",
+        1.02,
+        f"Each line is one model; shaded band shows variation across seeds. Rolling window = {rolling_window}.",
         transform=ax.transAxes,
         ha="center",
         va="bottom",
-        fontsize=12.5,
+        fontsize=12,
         color=MUTED,
     )
 
-    handles = []
-    labels = []
-    ordered_models = [m for m in MODEL_COLORS if m in set(df["model"])]
-    for model in ordered_models:
-        h = plt.Line2D(
-            [0], [0],
-            marker=MODEL_MARKERS.get(model, "o"),
-            color="none",
-            markerfacecolor=MODEL_COLORS.get(model, "#355070"),
-            markeredgecolor="white",
-            markeredgewidth=1.0,
-            markersize=10,
-            label=model,
-        )
-        handles.append(h)
-        labels.append(model)
-
-    fig.legend(
-        handles,
-        labels,
-        ncol=min(5, len(labels)),
+    ax.legend(
+        ncol=5,
         loc="lower center",
-        bbox_to_anchor=(0.5, 0.02),
+        bbox_to_anchor=(0.5, -0.22),
         fontsize=10.5,
     )
 
-    fig.text(
-        0.985,
-        0.065,
-        "Backbone = mean across models",
-        ha="right",
-        va="center",
-        fontsize=9.8,
-        color=MUTED,
-    )
-
-    fig.subplots_adjust(left=0.08, right=0.98, top=0.86, bottom=0.16)
-    fig.savefig(out_path, dpi=280, bbox_inches="tight")
+    fig.subplots_adjust(left=0.08, right=0.86, top=0.86, bottom=0.22)
+    fig.savefig(out_path, dpi=300, bbox_inches="tight")
     plt.close(fig)
 
 
-# ----------------------------
-# Main
-# ----------------------------
-
 def main() -> None:
     args = parse_args()
+
     run_dir = Path(args.run_dir)
-    out_dir = Path(args.out_dir) if args.out_dir else run_dir / "plots_llm_vs_baseline"
+    out_dir = Path(args.out_dir) if args.out_dir else run_dir / "plots_by_baseline"
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    match_df = load_match_level_dataframe(run_dir)
-    summary_df = build_summary_df(match_df)
+    round_df = load_run_rounds(run_dir)
+    round_df.to_csv(out_dir / "round_level_cooperation_reward.csv", index=False)
 
-    summary_csv = out_dir / "llm_vs_baseline_summary.csv"
-    plot_png = out_dir / "llm_overlap_consensus_breakout.png"
+    save_summary_tables(round_df, out_dir)
 
-    summary_df[
-        [
-            "model",
-            "baseline",
-            "common_response_pattern",
-            "mean_coop",
-            "mean_payoff",
-            "median_first_defection_round",
-        ]
-    ].to_csv(summary_csv, index=False)
+    for baseline in ordered_baselines(round_df):
+        safe = baseline.lower().replace(" ", "_")
+        plot_one_baseline(
+            round_df=round_df,
+            baseline=baseline,
+            out_path=out_dir / f"coop_trajectory_vs_{safe}.png",
+            rolling_window=args.rolling_window,
+        )
 
-    plot_consensus_breakout(summary_df, plot_png)
-
-    print(f"Saved summary CSV to: {summary_csv}")
-    print(f"Saved plot to: {plot_png}")
-    print(f"Loaded {len(match_df)} matches.")
-    print(f"Detected {match_df['model'].nunique()} focal models and {match_df['baseline'].nunique()} baselines.")
+    print(f"\nSaved baseline-wise plots and tables to: {out_dir}")
+    print(f"Loaded round rows: {len(round_df)}")
+    print(f"Models: {round_df['model'].nunique()}")
+    print(f"Baselines: {round_df['baseline'].nunique()}")
 
 
 if __name__ == "__main__":

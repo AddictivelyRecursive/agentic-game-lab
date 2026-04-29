@@ -41,3 +41,5 @@ Other scripts:
 - `run_causal_theta.py`
 - `run_causal_N_hetrogeneous.py`
 - `run_causal_NxMxP.py`
+
+python -m src.plots.plot_llmvsbaseline --run-dir "src\results\llm_vs_baseline\lvb__N2_M5_T50__p0.05__lam0.25__eta0.35__seeds5__f5__b6__swap0__t50__20260427_123810"
