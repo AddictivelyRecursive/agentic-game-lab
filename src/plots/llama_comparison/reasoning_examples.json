@@ -1,0 +1,50 @@
+[
+  {
+    "player": "p0__llama31_8b",
+    "round": 1,
+    "action": 4,
+    "reason": "Defecting maximizes short-term payoff, but cooperation is unlikely given recent history and low cooperation frequency."
+  },
+  {
+    "player": "p0__llama31_8b",
+    "round": 10,
+    "action": 1,
+    "reason": "Given the high observed cooperation rate (0.875) and the payoff formula, I should cooperate to maximize my payoff. The action semantics indicate that an action index of 1 corresponds to 0.75 cooperation, which is a reasonable choice given the observed history."
+  },
+  {
+    "player": "p0__llama31_8b",
+    "round": 25,
+    "action": 1,
+    "reason": "Higher cooperation is incentivized by the payoff formula, but recent observed history suggests opponent is less cooperative. Balancing these factors, choosing action 1 is a strategic compromise."
+  },
+  {
+    "player": "p0__llama31_8b",
+    "round": 50,
+    "action": 1,
+    "reason": "Higher cooperation from opponent observed in recent history, but also a high streak of cooperation from opponent. Given the payoff formula, increasing cooperation may increase payoff, but also increases cost term. Considering the action semantics, index 1 corresponds to 0.75 cooperation, which is a moderate level of cooperation. This action balances the trade-off between payoff and cost term, and is consistent with the observed history."
+  },
+  {
+    "player": "p1__llama31_70b",
+    "round": 1,
+    "action": 0,
+    "reason": "Initial round, no observed history. Choose most cooperative action to maximize potential for mutual cooperation and highest long-term average reward."
+  },
+  {
+    "player": "p1__llama31_70b",
+    "round": 10,
+    "action": 1,
+    "reason": "Recent cooperation levels are high (0.75), and the opponent's most recent action was 1, indicating a willingness to cooperate. The payoff formula rewards cooperation when the opponent cooperates, so choosing action 1 (cooperation level 0.75) is likely to maximize long-term average reward."
+  },
+  {
+    "player": "p1__llama31_70b",
+    "round": 25,
+    "action": 1,
+    "reason": "Recent opponent cooperation is high (1.0), and my recent cooperation is also high (1.0). To maintain the streak and increase B_eff, I will choose a cooperative action (1) to maximize long-term average reward."
+  },
+  {
+    "player": "p1__llama31_70b",
+    "round": 50,
+    "action": 1,
+    "reason": "Opponent's recent cooperation is high (1.0), and my recent cooperation is moderate (0.75). To maintain a good streak and maximize long-term average reward, I will choose a moderate cooperation level (0.75) to balance the benefits of cooperation and the costs of exploitation."
+  }
+]
