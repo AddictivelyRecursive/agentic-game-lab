@@ -1,0 +1,42 @@
+{
+  "M=2": {
+    "cl100k_base": {
+      "calls": 100,
+      "system_tokens": 180,
+      "first_round_both": 1960,
+      "round_11_both": 2128,
+      "average_round_both": 2117.76,
+      "input_total_50_rounds": 105888
+    },
+    "o200k_base": {
+      "calls": 100,
+      "system_tokens": 181,
+      "first_round_both": 1958,
+      "round_11_both": 2126,
+      "average_round_both": 2115.76,
+      "input_total_50_rounds": 105788
+    }
+  },
+  "M=5": {
+    "cl100k_base": {
+      "calls": 100,
+      "system_tokens": 180,
+      "first_round_both": 2068,
+      "round_11_both": 2252,
+      "average_round_both": 2243.56,
+      "input_total_50_rounds": 112178
+    },
+    "o200k_base": {
+      "calls": 100,
+      "system_tokens": 181,
+      "first_round_both": 2066,
+      "round_11_both": 2250,
+      "average_round_both": 2241.56,
+      "input_total_50_rounds": 112078
+    }
+  },
+  "saved_valid_outputs": {
+    "files_checked": 151,
+    "responses": 0
+  }
+}

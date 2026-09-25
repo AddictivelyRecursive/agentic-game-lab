@@ -8,6 +8,8 @@ Purpose:
 
 from __future__ import annotations
 
+from game_engine.experiments.settings import ROUNDS, HISTORY_ROUNDS, STATS_ROUNDS, DRIFT_WINDOW
+
 import os
 
 from game_engine.agents import RandomAgent
@@ -28,7 +30,7 @@ def main() -> None:
     cfg = EnvConfig(
         N=2,
         M=2,
-        T=50,
+        T=ROUNDS,
         p_perception=0.10,
         payoff=PayoffConfig(
             B0=2.0,
@@ -38,7 +40,7 @@ def main() -> None:
             B_max=3.0,
         ),
         drift=DriftConfig(
-            window_w=10,
+            window_w=DRIFT_WINDOW,
             eta=0.05,
             r_star=0.5,
         ),
@@ -47,7 +49,7 @@ def main() -> None:
             lam=0.3,
             tau=5.0,
         ),
-        obs=ObservationConfig(history_k=10, stats_window=10),
+        obs=ObservationConfig(history_k=HISTORY_ROUNDS, stats_window=STATS_ROUNDS),
         seed=123,
     )
 

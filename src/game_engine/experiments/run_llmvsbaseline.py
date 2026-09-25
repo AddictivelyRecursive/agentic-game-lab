@@ -24,6 +24,8 @@ results/
 
 from __future__ import annotations
 
+from game_engine.experiments.settings import ROUNDS, HISTORY_ROUNDS, STATS_ROUNDS, DRIFT_WINDOW
+
 import os
 from dataclasses import dataclass, field, replace
 from typing import Any, Dict, List, Optional, Sequence
@@ -34,6 +36,8 @@ try:
     load_dotenv()
 except Exception:
     pass
+
+from AI_Agent.agent.api_guard import APIUnavailableError
 
 from game_engine.agents import (
     AlwaysCooperate,
@@ -84,13 +88,23 @@ class MatchSpec:
     seat_swapped: bool
 
 
+MEMORY_MODE = os.getenv("AGENT_MEMORY_MODE", "history_only")
+if MEMORY_MODE not in ("history_only", "model_memory"):
+    raise ValueError("AGENT_MEMORY_MODE must be history_only or model_memory")
+PREDICT_OPPONENTS = os.getenv("AGENT_PREDICT_OPPONENTS", "0")
+if PREDICT_OPPONENTS not in ("0", "1"):
+    raise ValueError("AGENT_PREDICT_OPPONENTS must be 0 or 1")
+PREDICT_OPPONENTS = PREDICT_OPPONENTS == "1"
+MAX_RETRIES = int(os.getenv("AGENT_MAX_RETRIES", "3"))
+if MAX_RETRIES < 0:
+    raise ValueError("AGENT_MAX_RETRIES must be nonnegative")
 PROMPT_DIR = "AI_Agent/prompts"
 RESULTS_ROOT = os.path.join("results", "llm_vs_baseline")
 
 FIXED_M = 5
 FIXED_THETA = 0.6
 FIXED_STREAK_LAMBDA = 0.25
-FIXED_T = 50
+FIXED_T = ROUNDS
 
 SEEDS: List[int] = [101, 102, 103, 104, 105]
 
@@ -107,7 +121,7 @@ BASE_CFG = EnvConfig(
         B_max=15.0,
     ),
     drift=DriftConfig(
-        window_w=8,
+        window_w=DRIFT_WINDOW,
         eta=0.35,
         r_star=0.55,
     ),
@@ -117,8 +131,8 @@ BASE_CFG = EnvConfig(
         tau=4.0,
     ),
     obs=ObservationConfig(
-        history_k=10,
-        stats_window=10,
+        history_k=HISTORY_ROUNDS,
+        stats_window=STATS_ROUNDS,
     ),
     seed=0,
 )
@@ -256,6 +270,10 @@ def _build_agent(
     if spec.kind == "llm":
         seat_dir = ensure_dir(os.path.join(match_agents_dir, f"p{seat}__{label}"))
         return LLMWrapperAgent(
+            memory_mode=MEMORY_MODE,
+            predict_opponents=PREDICT_OPPONENTS,
+            max_retries=MAX_RETRIES,
+            stop_on_api_failure=True,
             name=f"p{seat}__{label}",
             agent_id=seat,
             env_cfg=cfg,
@@ -347,6 +365,9 @@ def main() -> None:
         "run_id": run_id,
         "experiment_type": "llm_vs_baseline",
         "prompt_dir": PROMPT_DIR,
+        "memory_mode": MEMORY_MODE,
+        "predict_opponents": PREDICT_OPPONENTS,
+        "max_retries": MAX_RETRIES,
         "swap_seats": SWAP_SEATS,
         "num_focals": len(FOCAL_PLAYER_SPECS),
         "num_baselines": len(BASELINE_SPECS),
@@ -530,6 +551,13 @@ def main() -> None:
                 )
 
                 print(f"[ERROR] {match_id}: {e}")
+                if isinstance(e, APIUnavailableError):
+                    write_json(os.path.join(run_dir, "aborted.json"), {
+                        "status": "aborted", "match_id": match_id,
+                        "reason": str(e), "completed_matches": completed,
+                        "valid_for_model_comparison": False,
+                    })
+                    raise
 
     print("\nDone.")
     print("Run dir:", run_dir)

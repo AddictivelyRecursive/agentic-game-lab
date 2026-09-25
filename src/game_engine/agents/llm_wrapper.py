@@ -29,6 +29,7 @@ import time
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
+from AI_Agent.agent.api_guard import GuardedClient
 from AI_Agent.agent.llm_agent import LLMAgent
 from AI_Agent.agent.llm_client import OllamaClient
 from AI_Agent.agent.dummy_llm_client import DummyLLMClient
@@ -145,6 +146,10 @@ class LLMWrapperAgent:
         dummy_force_invalid_first_n6: int = 1,
         prompt_dir: str = "AI_Agent/prompts",
         output_dir: Optional[str] = None,
+        memory_mode: str = "history_only",
+        predict_opponents: bool = False,
+        max_retries: int = 3,
+        stop_on_api_failure: bool = False,
     ) -> None:
         self.name = name
         self.agent_id = agent_id
@@ -179,6 +184,9 @@ class LLMWrapperAgent:
                 f"Unknown LLM backend: {backend!r}. Supported: 'ollama', 'openrouter', 'dummy'."
             )
 
+        if stop_on_api_failure:
+            llm_client = GuardedClient(llm_client)
+
         # ---- Logging isolation (recommended) ----
         logger = None
         if output_dir is not None:
@@ -188,6 +196,9 @@ class LLMWrapperAgent:
         # ---- Construct external agent with injected client ----
         self.llm = LLMAgent(
             llm_client=llm_client,
+            memory_mode=memory_mode,
+            predict_opponents=predict_opponents,
+            max_retries=max_retries,
             model_name=model_name,          # harmless for dummy; used for fallback default path only
             ollama_host=ollama_host,
             prompt_dir=prompt_dir,
@@ -219,8 +230,8 @@ class LLMWrapperAgent:
 
         # Validate
         action_ok = isinstance(a, int) and 0 <= a < obs.M
-        fallback_used = False
-        fallback_reason = None
+        fallback_used = self.llm.last_state.get("fallback_used", False)
+        fallback_reason = "internal_model_failure" if fallback_used else None
 
         if not action_ok:
             fallback_used = True
@@ -232,7 +243,7 @@ class LLMWrapperAgent:
         # NOTE: Keep identity subtle in turn payload; AgentMeta can include name/model safely.
         meta = AgentMeta(
             agent_name=self.name,
-            parse_ok=True,
+            parse_ok=not fallback_used,
             action_ok=action_ok,
             fallback_used=fallback_used,
             fallback_reason=fallback_reason,
@@ -242,6 +253,10 @@ class LLMWrapperAgent:
             raw_hash=None,
             extra={
                 "agent_type": "LLMWrapperAgent",
+                "valid_model_decision": not fallback_used,
+                "memory_mode": self.llm.memory_mode,
+                "predict_opponents": self.llm.predict_opponents,
+                "max_retries": self.llm.max_retries,
                 "backend": self._backend,
                 "model_name": self._model_name,
             },
@@ -284,6 +299,7 @@ class LLMWrapperAgent:
             action_freq_nxm = [[0.0] * obs.M for _ in range(obs.N)]
 
         turn: Dict[str, Any] = {
+            "temporal_context": {"total_rounds": cfg.T, "rounds_remaining_including_current": cfg.T - obs.t + 1},
             "round": int(obs.t),
             "agent_id": int(obs.agent_id),
 

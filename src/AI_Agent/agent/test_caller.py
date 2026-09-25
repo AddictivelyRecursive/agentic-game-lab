@@ -113,7 +113,7 @@ def main():
             print("  final_action:", obj.get("final_action"))
             print("  retries:", obj.get("retries"))
             print("  validation_error:", obj.get("validation_error", None))
-            print("  nodes:", [t["node"] for t in obj.get("trace", [])])
+            print("  stages:", [t["stage"] for t in obj.get("trace", [])])
 
 
 if __name__ == "__main__":

@@ -1,24 +1,3 @@
-TASK: Repair invalid output.
-
-Return valid JSON only.
-
-You must return exactly these keys:
-- "a"
-- "reason"
-- "confidence"
-
-Rules:
-- "a" must be an integer within the valid range.
-- "reason" must be short and strategic.
-- "confidence" must be a number in [0,1].
-- Use only the provided raw evidence.
-- Do NOT assign opponent labels or personalities.
-- Do NOT output markdown.
-- Do NOT output any text outside the JSON object.
-
-Required schema:
-{
-  "a": 0,
-  "reason": "short strategic justification",
-  "confidence": 0.0
-}
+Repair the supplied output into one JSON object with a valid integer action.
+Use the same evidence and objective as the original decision. Preserve a valid action when only formatting needs repair.
+Return no text outside JSON.

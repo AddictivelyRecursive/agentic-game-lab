@@ -58,6 +58,14 @@ def write_episode(
         "final_streak": result.final_streak,
         "num_rounds": len(result.logs),
     }
+    llm_meta = [m for row in result.logs for m in row.agent_meta
+                if m.extra.get("agent_type") == "LLMWrapperAgent"]
+    failures = sum(m.fallback_used for m in llm_meta)
+    meta["model_validity"] = {"llm_decisions": len(llm_meta), "fallback_decisions": failures,
+                              "valid_for_model_comparison": failures == 0,
+                              "memory_conditions": sorted({m.extra.get("memory_mode", "unknown") for m in llm_meta})}
+    meta["model_validity"]["prediction_conditions"] = sorted({m.extra.get("predict_opponents", False) for m in llm_meta})
+    meta["model_validity"]["repair_budgets"] = sorted({m.extra.get("max_retries", 3) for m in llm_meta})
     if extra_meta:
         meta["extra_meta"] = to_jsonable(extra_meta)
 

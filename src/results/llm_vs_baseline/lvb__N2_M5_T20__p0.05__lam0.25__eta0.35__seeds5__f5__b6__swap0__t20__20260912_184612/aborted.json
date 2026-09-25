@@ -1,0 +1,7 @@
+{
+  "status": "aborted",
+  "match_id": "deepseek_v32__vs__always_cooperate__seed101",
+  "reason": "Batch stopped: provider HTTP 401; 1 consecutive API failure(s). Check provider access, credits, and connectivity before rerunning.",
+  "completed_matches": 0,
+  "valid_for_model_comparison": false
+}

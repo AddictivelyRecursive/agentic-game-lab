@@ -11,7 +11,6 @@ class DummyLLMClient:
     - correct JSON
     - malformed output (to trigger repair)
     - wrong action range (to trigger repair/fallback)
-    - proper opponent distributions for N4
 
     Usage:
         llm = DummyLLMClient(mode="mostly_valid", seed=42)
@@ -30,7 +29,7 @@ class DummyLLMClient:
         ----------
         mode : str
             One of:
-            - "always_valid": always returns valid JSON for N4/N6/N8
+            - "always_valid": always returns valid decision JSON
             - "mostly_valid": sometimes returns invalid output (invalid_rate)
             - "always_invalid": always returns invalid output (useful to test fallback)
         seed : Optional[int]
@@ -48,26 +47,7 @@ class DummyLLMClient:
         self._n6_calls = 0
 
     def generate(self, system_prompt: str, user_prompt: str) -> str:
-        """
-        Return a string that mimics an LLM response.
-
-        Heuristic routing:
-        - If prompt asks for "opponent_action_probs" -> return N4 style output
-        - Else if prompt asks for {"a": ...} -> return N6/N8 style output
-        """
-        is_opp_model = "opponent_action_probs" in system_prompt or "opponent_action_probs" in user_prompt
-        is_decision = '"a"' in system_prompt or '"a"' in user_prompt or "{'a':" in user_prompt or "Return strictly" in user_prompt
-
-        if is_opp_model:
-            return self._respond_opponent_model(user_prompt)
-
-        if is_decision:
-            return self._respond_decision(user_prompt)
-
-        # default: safe JSON blob
-        return json.dumps({"ok": True})
-
-    # ---------------- internal helpers ----------------
+        return self._respond_decision(user_prompt)
 
     def _should_be_invalid(self, is_n6: bool = False) -> bool:
         if self.mode == "always_valid":
@@ -82,65 +62,7 @@ class DummyLLMClient:
         return False
 
     def _extract_M(self, text: str) -> int:
-        # best effort: find "Actions: M" or "Valid actions: integers in [0, M-1]"
-        # fallback to 5 (your default)
-        for token in ["Actions:", "Actions:"]:
-            if token in text:
-                try:
-                    after = text.split(token, 1)[1].strip()
-                    m = int(after.split()[0])
-                    return m
-                except Exception:
-                    pass
-        # try "0, {M-1}"
-        if "Valid actions: integers in [0," in text:
-            try:
-                part = text.split("Valid actions: integers in [0,", 1)[1]
-                upper = part.split("]", 1)[0].strip()
-                return int(upper) + 1
-            except Exception:
-                pass
-        return 5
-
-    def _extract_N_and_agent_id(self, text: str):
-        # very light parsing; fallback to N=4 agent_id=0
-        N = 4
-        agent_id = 0
-        if "Players:" in text:
-            try:
-                N = int(text.split("Players:", 1)[1].splitlines()[0].strip())
-            except Exception:
-                pass
-        if "Your agent_id:" in text:
-            try:
-                agent_id = int(text.split("Your agent_id:", 1)[1].splitlines()[0].strip())
-            except Exception:
-                pass
-        if "Agent ID:" in text:
-            try:
-                agent_id = int(text.split("Agent ID:", 1)[1].splitlines()[0].strip())
-            except Exception:
-                pass
-        return N, agent_id
-
-    def _respond_opponent_model(self, user_prompt: str) -> str:
-        N, agent_id = self._extract_N_and_agent_id(user_prompt)
-        M = self._extract_M(user_prompt)
-
-        # For strict tests, always return normalized distributions.
-        opp = {}
-        for i in range(N):
-            if i == agent_id:
-                continue
-            # simple biased distribution: more mass on 4 (defect-ish) for others
-            raw = [0.05] * M
-            raw[-1] = 1.0
-            s = sum(raw)
-            dist = [x / s for x in raw]
-            opp[str(i)] = dist
-
-        obj = {"opponent_action_probs": opp}
-        return json.dumps(obj)
+        return int(json.loads(text)["turn"]["game_parameters"]["M"])
 
     def _respond_decision(self, user_prompt: str) -> str:
         # treat these as N6-like calls

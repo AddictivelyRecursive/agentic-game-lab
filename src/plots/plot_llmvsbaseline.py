@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import warnings
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -280,6 +281,12 @@ def load_run_rounds(run_dir: Path) -> pd.DataFrame:
 
         manifest = load_json(manifest_path)
         meta = load_json(meta_path)
+        validity = meta.get("model_validity", {})
+        if validity.get("valid_for_model_comparison") is False:
+            warnings.warn(f"Excluding invalid model episode: {match_dir.name}")
+            continue
+        if not validity:
+            warnings.warn(f"Legacy episode has no reliable model validity flag; audit traces: {match_dir.name}")
         logs = load_jsonl(logs_path)
 
         model_raw, baseline_raw, focal_seat, _ = infer_focal_and_baseline(manifest)

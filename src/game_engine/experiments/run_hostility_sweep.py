@@ -22,6 +22,8 @@ results/
 
 from __future__ import annotations
 
+from game_engine.experiments.settings import ROUNDS, HISTORY_ROUNDS, STATS_ROUNDS, DRIFT_WINDOW
+
 import os
 from dataclasses import dataclass, field, replace
 from typing import Any, Dict, List, Optional, Sequence
@@ -82,7 +84,7 @@ RESULTS_ROOT = os.path.join("results", "hostility_sweep")
 BASE_CFG = EnvConfig(
     N=2,
     M=2,
-    T=100,
+    T=ROUNDS,
     p_perception=0.00,
     payoff=PayoffConfig(
         B0=2.0,
@@ -92,7 +94,7 @@ BASE_CFG = EnvConfig(
         B_max=2.0,
     ),
     drift=DriftConfig(
-        window_w=10,
+        window_w=DRIFT_WINDOW,
         eta=0.00,
         r_star=0.5,
     ),
@@ -101,7 +103,7 @@ BASE_CFG = EnvConfig(
         lam=0.00,
         tau=5.0,
     ),
-    obs=ObservationConfig(history_k=10, stats_window=10),
+    obs=ObservationConfig(history_k=HISTORY_ROUNDS, stats_window=STATS_ROUNDS),
     seed=0,
 )
 

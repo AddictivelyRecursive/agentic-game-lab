@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from game_engine.experiments.settings import ROUNDS, HISTORY_ROUNDS, STATS_ROUNDS, DRIFT_WINDOW
+
 import os
 from dataclasses import replace
 from datetime import datetime
@@ -78,7 +80,7 @@ FIXED_M = 5
 FIXED_THETA = 0.6
 FIXED_STREAK_LAMBDA = 0.25
 SEEDS = [101]
-FIXED_T = 50
+FIXED_T = ROUNDS
 
 
 BASE_CFG = EnvConfig(
@@ -94,7 +96,7 @@ BASE_CFG = EnvConfig(
         B_max=15.0,
     ),
     drift=DriftConfig(
-        window_w=8,
+        window_w=DRIFT_WINDOW,
         eta=0.35,
         r_star=0.55,
     ),
@@ -104,8 +106,8 @@ BASE_CFG = EnvConfig(
         tau=4.0,
     ),
     obs=ObservationConfig(
-        history_k=10,
-        stats_window=10,
+        history_k=HISTORY_ROUNDS,
+        stats_window=STATS_ROUNDS,
     ),
     seed=0,
 )

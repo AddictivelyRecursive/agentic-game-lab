@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from game_engine.experiments.settings import ROUNDS, HISTORY_ROUNDS, STATS_ROUNDS, DRIFT_WINDOW
+
 import os
 from dataclasses import dataclass, field, replace
 from typing import Any, Dict, List, Optional, Sequence
@@ -58,7 +60,7 @@ RESULTS_ROOT = os.path.join("results", "causal_N_progressive")
 BASE_CFG = EnvConfig(
     N=5,  # replaced per match
     M=5,
-    T=50,
+    T=ROUNDS,
     p_perception=0.05,
     payoff=PayoffConfig(
         B0=12.0,
@@ -68,7 +70,7 @@ BASE_CFG = EnvConfig(
         B_max=15.0,
     ),
     drift=DriftConfig(
-        window_w=8,
+        window_w=DRIFT_WINDOW,
         eta=0.35,
         r_star=0.55,
     ),
@@ -78,8 +80,8 @@ BASE_CFG = EnvConfig(
         tau=4.0,
     ),
     obs=ObservationConfig(
-        history_k=10,
-        stats_window=10,
+        history_k=HISTORY_ROUNDS,
+        stats_window=STATS_ROUNDS,
     ),
     seed=0,
 )
@@ -168,7 +170,7 @@ def _player_manifest_obj(spec: PlayerSpec, seat: int) -> Dict[str, Any]:
 
 
 def _make_cfg(*, N: int) -> EnvConfig:
-    return replace(BASE_CFG, N=int(N), M=5, T=50, seed=0)
+    return replace(BASE_CFG, N=int(N), M=5, T=ROUNDS, seed=0)
 
 
 def _build_agent(
