@@ -112,10 +112,8 @@ Prepare context -> LLM decision -> Validate -> Save memory, return, log
 Context preparation includes the observation-noise rules, including p=0.
 A normal turn makes one LLM call. Repairs use the same evidence and latest failed
 output. The fallback chooses the immediate-payoff action and is explicitly marked
-as a model failure. The old graph runner, schema, node classes, and separate return
-node have been removed. Traces now use descriptive `stage` entries and retain each
-model attempt in `model_calls`. Legacy raw-output keys `N6` and `N8` remain for
-existing analysis scripts.
+as a model failure. Traces use descriptive `stage` entries and retain each model
+attempt in `model_calls`.
 
 ## Experiment settings and provider failures
 

@@ -22,7 +22,7 @@ class DummyLLMClient:
         mode: str = "always_valid",
         seed: Optional[int] = 0,
         invalid_rate: float = 0.3,
-        force_invalid_first_n6: int = 0,
+        force_invalid_first_calls: int = 0,
     ):
         """
         Parameters
@@ -36,27 +36,26 @@ class DummyLLMClient:
             Seed for deterministic randomness.
         invalid_rate : float
             For "mostly_valid", probability of emitting invalid output per call.
-        force_invalid_first_n6 : int
-            Force the first K calls that look like decision calls (N6) to be invalid.
+        force_invalid_first_calls : int
+            Force the first K decision or repair calls to be invalid.
             Helps test repair flow deterministically.
         """
         self.mode = mode
         self.invalid_rate = invalid_rate
         self.rng = random.Random(seed)
-        self.force_invalid_first_n6 = force_invalid_first_n6
-        self._n6_calls = 0
+        self.force_invalid_first_calls = force_invalid_first_calls
+        self._calls = 0
 
     def generate(self, system_prompt: str, user_prompt: str) -> str:
         return self._respond_decision(user_prompt)
 
-    def _should_be_invalid(self, is_n6: bool = False) -> bool:
+    def _should_be_invalid(self) -> bool:
         if self.mode == "always_valid":
             return False
         if self.mode == "always_invalid":
             return True
         if self.mode == "mostly_valid":
-            # deterministic "force invalid for first N6 calls"
-            if is_n6 and self._n6_calls < self.force_invalid_first_n6:
+            if self._calls <= self.force_invalid_first_calls:
                 return True
             return self.rng.random() < self.invalid_rate
         return False
@@ -65,12 +64,11 @@ class DummyLLMClient:
         return int(json.loads(text)["turn"]["game_parameters"]["M"])
 
     def _respond_decision(self, user_prompt: str) -> str:
-        # treat these as N6-like calls
-        self._n6_calls += 1
+        self._calls += 1
         M = self._extract_M(user_prompt)
 
         # decide whether to emit invalid
-        if self._should_be_invalid(is_n6=True):
+        if self._should_be_invalid():
             # cycle through a few failure modes
             mode = self.rng.choice(["non_json", "out_of_range", "wrong_key", "string_a"])
             if mode == "non_json":

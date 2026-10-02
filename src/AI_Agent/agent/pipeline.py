@@ -163,8 +163,6 @@ def call_model(state, context, *, repair=False):
         prompt = "decision_policy_structured"
     else:
         prompt = "decision_policy_system"
-    # Preserve these raw-output keys for existing trace consumers.
-    key = "N8" if repair else "N6"
     attempt = {"stage": "repair" if repair else "decision"}
     state.setdefault("model_calls", []).append(attempt)
     state["last_model_output"] = ""
@@ -175,7 +173,6 @@ def call_model(state, context, *, repair=False):
         )
         state["last_model_output"] = response
         attempt["output"] = response
-        state.setdefault("llm_raw_outputs", {})[key] = response
         start, end = response.find("{"), response.rfind("}")
         if start < 0 or end < start:
             raise ValueError("No JSON object found in model output")
@@ -189,7 +186,6 @@ def call_model(state, context, *, repair=False):
         raise
     except Exception as exc:
         attempt["error"] = str(exc)
-        state.setdefault("llm_raw_outputs", {})[key + "_error"] = str(exc)
         state["decision"] = None
 
 

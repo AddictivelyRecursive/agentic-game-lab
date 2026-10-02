@@ -88,7 +88,7 @@ def main():
     # - always_valid: should pass without retries
     # - mostly_valid: triggers repair sometimes
     # - always_invalid: forces fallback after retries
-    agent.llm_client = DummyLLMClient(mode="mostly_valid", seed=7, invalid_rate=0.6, force_invalid_first_n6=1)
+    agent.llm_client = DummyLLMClient(mode="mostly_valid", seed=7, invalid_rate=0.6, force_invalid_first_calls=1)
 
     # Run single turn
     turn = build_sample_turn()

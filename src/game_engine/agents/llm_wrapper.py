@@ -143,7 +143,7 @@ class LLMWrapperAgent:
         dummy_mode: str = "mostly_valid",
         dummy_seed: int = 7,
         dummy_invalid_rate: float = 0.6,
-        dummy_force_invalid_first_n6: int = 1,
+        dummy_force_invalid_first_calls: int = 1,
         prompt_dir: str = "AI_Agent/prompts",
         output_dir: Optional[str] = None,
         memory_mode: str = "history_only",
@@ -177,7 +177,7 @@ class LLMWrapperAgent:
                 mode=dummy_mode,
                 seed=dummy_seed,
                 invalid_rate=dummy_invalid_rate,
-                force_invalid_first_n6=dummy_force_invalid_first_n6,
+                force_invalid_first_calls=dummy_force_invalid_first_calls,
             )
 
         else:

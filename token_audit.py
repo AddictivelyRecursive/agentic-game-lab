@@ -37,7 +37,8 @@ for run in (ROOT/'src/results/llm_vs_baseline').glob('*202609*'):
         for line in path.read_text(encoding='utf-8').splitlines():
             if not line.startswith('{'): continue
             s=json.loads(line)
-            raw=s.get('llm_raw_outputs',{}).get('N6')
+            raw=next((call.get('output') for call in s.get('model_calls', [])
+                      if call.get('stage') == 'decision' and call.get('output')), None)
             if raw and s.get('valid_model_decision'):
                 outputs.append(raw)
 report['saved_valid_outputs']={'files_checked':files,'responses':len(outputs)}
