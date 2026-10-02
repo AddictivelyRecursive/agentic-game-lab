@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import Any, Optional
 
 from .pipeline import run_turn
@@ -34,15 +35,21 @@ class LLMAgent:
         output_dir: Optional[str] = None,
         memory_mode: str = "history_only",
         predict_opponents: bool = False,
+        reasoning_mode: Optional[str] = None,
         max_retries: int = 3,
     ) -> None:
         if memory_mode not in ("history_only", "model_memory"):
             raise ValueError("Unknown memory condition")
+        if reasoning_mode is None:
+            reasoning_mode = os.getenv("AGENT_REASONING_MODE", "free_form")
+        if reasoning_mode not in ("structured", "free_form"):
+            raise ValueError("reasoning_mode must be structured or free_form")
         if isinstance(max_retries, bool) or not isinstance(max_retries, int) or max_retries < 0:
             raise ValueError("max_retries must be a nonnegative integer")
         self.max_retries = max_retries
         self.predict_opponents = predict_opponents
         self.memory_mode = memory_mode
+        self.reasoning_mode = reasoning_mode
         self.memory = {}
         self.last_state = {}
         # Client injection (preferred)
@@ -72,13 +79,15 @@ class LLMAgent:
             "prompts": self.prompts,
             "memory_mode": self.memory_mode,
             "predict_opponents": self.predict_opponents,
+            "reasoning_mode": self.reasoning_mode,
         }
 
         try:
             final_state = run_turn(initial_state, context, max_retries=self.max_retries)
         except APIUnavailableError as exc:
             initial_state.update(aborted=True, valid_model_decision=False,
-                                 memory_mode=self.memory_mode, api_error=str(exc))
+                                 memory_mode=self.memory_mode,
+                                 reasoning_mode=self.reasoning_mode, api_error=str(exc))
             self.last_state = initial_state
             self.logger.write_trace(initial_state)
             raise
@@ -87,6 +96,7 @@ class LLMAgent:
         final_state["fallback_used"] = fallback
         final_state["memory_mode"] = self.memory_mode
         final_state["predict_opponents"] = self.predict_opponents
+        final_state["reasoning_mode"] = self.reasoning_mode
         final_state["valid_model_decision"] = not fallback
         self.last_state = final_state
         if self.memory_mode == "model_memory" and not fallback:

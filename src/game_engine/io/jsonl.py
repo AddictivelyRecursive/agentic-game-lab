@@ -65,6 +65,7 @@ def write_episode(
                               "valid_for_model_comparison": failures == 0,
                               "memory_conditions": sorted({m.extra.get("memory_mode", "unknown") for m in llm_meta})}
     meta["model_validity"]["prediction_conditions"] = sorted({m.extra.get("predict_opponents", False) for m in llm_meta})
+    meta["model_validity"]["reasoning_conditions"] = sorted({m.extra.get("reasoning_mode", "free_form") for m in llm_meta})
     meta["model_validity"]["repair_budgets"] = sorted({m.extra.get("max_retries", 3) for m in llm_meta})
     if extra_meta:
         meta["extra_meta"] = to_jsonable(extra_meta)

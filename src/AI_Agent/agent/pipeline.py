@@ -109,6 +109,20 @@ def fallback_decision(state):
     return state
 
 
+def rank_actions_by_eu(state):
+    """Rank actions by their action-dependent single-round payoff term."""
+    M = int(state["M"])
+    C = float(state["payoff"]["C"])
+    coop_vals = [float(x) for x in state["index_to_coop"]]
+    # Opponent benefit and K are identical across own actions, so they
+    # cancel in this immediate-payoff ranking. Noise affects observations only.
+    ranking = [
+        {"action": int(a), "score": float(-C * coop_vals[a])}
+        for a in range(M)
+    ]
+    return sorted(ranking, key=lambda item: (-item["score"], item["action"]))
+
+
 def build_payload(state, context):
     """One evidence interface shared by decisions and repairs."""
     payload = {
@@ -117,9 +131,12 @@ def build_payload(state, context):
         "history_order": "Each player's row is newest first; index 0 is the previous round.",
         "output_schema": {
             "a": "integer action index in the supplied action space",
-            "reason": "brief evidence-grounded explanation",
+            "reason": "evidence-grounded explanation of how the current game state and history were weighed",
         },
     }
+    if context.get("reasoning_mode", "free_form") == "structured":
+        state["eu_ranking"] = rank_actions_by_eu(state)
+        payload["expected_utility_ranking"] = state["eu_ranking"]
     if context.get("predict_opponents", False):
         payload["output_schema"]["expectation"] = "brief expectation about opponents' next observed actions and uncertainty"
     if context.get("memory_mode") == "model_memory":
@@ -140,7 +157,12 @@ def call_model(state, context, *, repair=False):
             validation_error=state.get("validation_error", "Invalid decision"),
             previous_invalid_output=state.get("last_model_output", ""),
         )
-    prompt = "repair_system" if repair else "decision_policy_system"
+    if repair:
+        prompt = "repair_system"
+    elif context.get("reasoning_mode", "free_form") == "structured":
+        prompt = "decision_policy_structured"
+    else:
+        prompt = "decision_policy_system"
     # Preserve these raw-output keys for existing trace consumers.
     key = "N8" if repair else "N6"
     attempt = {"stage": "repair" if repair else "decision"}

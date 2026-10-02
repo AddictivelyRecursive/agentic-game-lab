@@ -1,4 +1,5 @@
 Choose one valid action using the supplied evidence and objective.
 Account for immediate rewards and any future consequences justified by the game rules and observed behavior.
 Explain your reasoning, including how you weighed the current game state and history. Include opponent predictions only when requested by the output schema.
+You have been given a pre-computed ranking of actions by expected utility. Consider it alongside your own reasoning; you are not required to choose the top-ranked action.
 The action must be an integer in the supplied action space. Additional reporting fields do not determine action validity.

@@ -148,6 +148,7 @@ class LLMWrapperAgent:
         output_dir: Optional[str] = None,
         memory_mode: str = "history_only",
         predict_opponents: bool = False,
+        reasoning_mode: Optional[str] = None,
         max_retries: int = 3,
         stop_on_api_failure: bool = False,
     ) -> None:
@@ -198,6 +199,7 @@ class LLMWrapperAgent:
             llm_client=llm_client,
             memory_mode=memory_mode,
             predict_opponents=predict_opponents,
+            reasoning_mode=reasoning_mode,
             max_retries=max_retries,
             model_name=model_name,          # harmless for dummy; used for fallback default path only
             ollama_host=ollama_host,
@@ -256,9 +258,15 @@ class LLMWrapperAgent:
                 "valid_model_decision": not fallback_used,
                 "memory_mode": self.llm.memory_mode,
                 "predict_opponents": self.llm.predict_opponents,
+                "reasoning_mode": self.llm.reasoning_mode,
                 "max_retries": self.llm.max_retries,
                 "backend": self._backend,
                 "model_name": self._model_name,
+                **(
+                    {"eu_ranking": self.llm.last_state["eu_ranking"]}
+                    if self.llm.reasoning_mode == "structured"
+                    else {}
+                ),
             },
         )
         return a, meta

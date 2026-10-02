@@ -170,7 +170,7 @@ def _player_manifest_obj(spec: PlayerSpec, seat: int) -> Dict[str, Any]:
 
 
 def _make_cfg(*, N: int) -> EnvConfig:
-    return replace(BASE_CFG, N=int(N), M=5, T=ROUNDS, seed=0)
+    return replace(BASE_CFG, N=int(N), M=5, seed=0)
 
 
 def _build_agent(
@@ -217,7 +217,7 @@ def main() -> None:
             "n2-3-4-5",
             "progressive",
             f"m{5}",
-            f"t{50}",
+            f"t{BASE_CFG.T}",
         ],
     )
     run_dir = ensure_dir(os.path.join(RESULTS_ROOT, run_id))
@@ -229,7 +229,7 @@ def main() -> None:
         "num_matches_expected": len(N_VALUES),
         "N_values": N_VALUES,
         "M": 5,
-        "T": 50,
+        "T": BASE_CFG.T,
         "lineups_by_N": {
             str(N): [
                 {

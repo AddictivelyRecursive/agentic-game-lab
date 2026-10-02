@@ -3,6 +3,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 from AI_Agent.agent.llm_agent import LLMAgent
 from game_engine.experiments.run_sensitivity import make_turn, scenarios
@@ -15,9 +16,11 @@ from game_engine.io.jsonl import write_episode
 class Client:
     def __init__(self, fail=False):
         self.calls=[]
+        self.system_prompts=[]
         self.fail=fail
     def generate(self, system_prompt, user_prompt):
         self.calls.append(json.loads(user_prompt))
+        self.system_prompts.append(system_prompt)
         if self.fail:
             raise RuntimeError('network unavailable')
         return json.dumps({'a': 0, 'memory': {'hypothesis': 'tentative', 'evidence': 'x'*500}, 'expectation': 'uncertain'})
@@ -36,6 +39,45 @@ class AgentTests(unittest.TestCase):
                 self.assertEqual(len(c.calls), 1)
                 self.assertEqual('expectation' in c.calls[0]['output_schema'], enabled)
                 self.assertEqual(a.last_state['predict_opponents'], enabled)
+
+    def test_reasoning_modes_select_prompt_payload_and_trace_fields(self):
+        with tempfile.TemporaryDirectory() as d:
+            free_client = Client()
+            free_agent = self.agent(d, free_client)
+            free_agent.step(make_turn())
+            self.assertEqual(free_agent.last_state['reasoning_mode'], 'free_form')
+            self.assertNotIn('expected_utility_ranking', free_client.calls[0])
+            self.assertNotIn('eu_ranking', free_agent.last_state)
+            self.assertNotIn('brief', free_client.calls[0]['output_schema']['reason'])
+            self.assertNotIn('pre-computed ranking', free_client.system_prompts[0])
+
+            structured_client = Client()
+            structured_agent = self.agent(
+                d, structured_client, reasoning_mode='structured'
+            )
+            structured_agent.step(make_turn())
+            expected = [
+                {'action': 4, 'score': 0.0},
+                {'action': 3, 'score': -2.0},
+                {'action': 2, 'score': -4.0},
+                {'action': 1, 'score': -6.0},
+                {'action': 0, 'score': -8.0},
+            ]
+            self.assertEqual(
+                structured_client.calls[0]['expected_utility_ranking'], expected
+            )
+            self.assertEqual(structured_agent.last_state['eu_ranking'], expected)
+            self.assertIn('pre-computed ranking', structured_client.system_prompts[0])
+
+    def test_reasoning_mode_environment_and_validation(self):
+        with tempfile.TemporaryDirectory() as d:
+            with patch.dict('os.environ', {'AGENT_REASONING_MODE': 'structured'}):
+                agent = self.agent(d, Client())
+                self.assertEqual(agent.reasoning_mode, 'structured')
+                explicit = self.agent(d, Client(), reasoning_mode='free_form')
+                self.assertEqual(explicit.reasoning_mode, 'free_form')
+            with self.assertRaises(ValueError):
+                self.agent(d, Client(), reasoning_mode='invalid')
 
     def test_repair_budget_and_existing_memory_survive_failure(self):
         with tempfile.TemporaryDirectory() as d:
@@ -161,5 +203,25 @@ class AgentTests(unittest.TestCase):
             validity=json.loads(Path(meta).read_text())['model_validity']
             self.assertEqual(validity['fallback_decisions'],2)
             self.assertFalse(validity['valid_for_model_comparison'])
+
+    def test_structured_wrapper_logs_mode_and_ranking_per_round(self):
+        cfg=EnvConfig(N=2,M=5,T=1,p_perception=0,payoff=PayoffConfig(12,8,B_min=9,B_max=15),
+                      drift=DriftConfig(4,0,.55),streak=StreakConfig(.6,0,4))
+        with tempfile.TemporaryDirectory() as d:
+            wrapper=LLMWrapperAgent('test',0,cfg,backend='dummy',output_dir=d,
+                     reasoning_mode='structured',
+                     prompt_dir=str(Path(__file__).resolve().parents[1]/'src/AI_Agent/prompts'))
+            wrapper.llm.llm_client=Client()
+            result=GameSimulator(cfg).run_episode([wrapper,AlwaysCooperate()])
+            extra=result.logs[0].agent_meta[0].extra
+            self.assertEqual(extra['reasoning_mode'],'structured')
+            self.assertEqual(extra['eu_ranking'][0],{'action':4,'score':0.0})
+            meta,logs=write_episode(d,'structured',0,result)
+            validity=json.loads(Path(meta).read_text())['model_validity']
+            self.assertEqual(validity['reasoning_conditions'],['structured'])
+            record=json.loads(Path(logs).read_text().splitlines()[0])
+            logged_extra=record['agent_meta'][0]['extra']
+            self.assertEqual(logged_extra['reasoning_mode'],'structured')
+            self.assertEqual(logged_extra['eu_ranking'][0]['action'],4)
 
 if __name__ == '__main__': unittest.main()
