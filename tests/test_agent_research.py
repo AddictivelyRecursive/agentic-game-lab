@@ -69,6 +69,36 @@ class AgentTests(unittest.TestCase):
             self.assertEqual(structured_agent.last_state['eu_ranking'], expected)
             self.assertIn('pre-computed ranking', structured_client.system_prompts[0])
 
+    def test_structured_repair_preserves_eu_ranking_in_payload_and_logged_trace(self):
+        class RepairClient(Client):
+            def generate(self, system_prompt, user_prompt):
+                self.calls.append(json.loads(user_prompt))
+                self.system_prompts.append(system_prompt)
+                return '{"a": 999}' if len(self.calls) == 1 else '{"a": 2}'
+
+        with tempfile.TemporaryDirectory() as d:
+            client = RepairClient()
+            agent = self.agent(d, client, reasoning_mode='structured')
+            self.assertEqual(agent.step(make_turn()), 2)
+            self.assertEqual(len(client.calls), 2)
+            original_ranking = client.calls[0]['expected_utility_ranking']
+            self.assertTrue(original_ranking)
+            self.assertEqual(client.calls[1]['expected_utility_ranking'], original_ranking)
+            self.assertEqual(client.calls[1]['validation_error'], 'Action out of range: 999')
+            self.assertEqual(
+                client.system_prompts[1],
+                agent.prompts['base_system'] + '\n' + agent.prompts['repair_system'],
+            )
+
+            trace = json.loads((Path(d) / 'agent_traces.jsonl').read_text())
+            self.assertEqual(trace['reasoning_mode'], 'structured')
+            self.assertEqual(trace['eu_ranking'], original_ranking)
+            self.assertEqual(trace['final_action'], 2)
+            self.assertEqual(trace['retries'], 1)
+            self.assertEqual([call['stage'] for call in trace['model_calls']], ['decision', 'repair'])
+            self.assertTrue(trace['valid_model_decision'])
+            self.assertFalse(trace['fallback_used'])
+
     def test_reasoning_mode_environment_and_validation(self):
         with tempfile.TemporaryDirectory() as d:
             with patch.dict('os.environ', {'AGENT_REASONING_MODE': 'structured'}):

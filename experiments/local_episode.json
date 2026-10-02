@@ -1,0 +1,12 @@
+{
+  "environment": {
+    "N": 2, "M": 5, "T": 20, "p_perception": 0.0,
+    "payoff": {"B0": 12.0, "C": 8.0, "K": 0.0, "B_min": 9.0, "B_max": 15.0},
+    "drift": {"window_w": 8, "eta": 0.35, "r_star": 0.55},
+    "streak": {"theta": 0.5, "lam": 0.25, "tau": 4.0},
+    "obs": {"history_k": 10, "stats_window": 10}
+  },
+  "seeds": [101],
+  "agent": {"memory_mode": "history_only", "predict_opponents": false, "reasoning_mode": "free_form", "max_retries": 3},
+  "generation": {"temperature": 0.2, "top_p": 1.0, "max_tokens": 2048, "seed": null}
+}

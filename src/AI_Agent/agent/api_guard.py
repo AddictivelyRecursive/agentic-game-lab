@@ -23,7 +23,7 @@ class GuardedClient:
                 raise APIUnavailableError(
                     f"Batch stopped: provider HTTP {status or 'unavailable'}; "
                     f"{self.consecutive_failures} consecutive API failure(s). "
-                    "Check provider access, credits, and connectivity before rerunning."
+                    "Check the configured endpoint, server logs, access, and connectivity before rerunning."
                 ) from exc
             raise
         self.consecutive_failures = 0

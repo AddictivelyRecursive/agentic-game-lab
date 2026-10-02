@@ -35,6 +35,7 @@ from AI_Agent.agent.llm_client import OllamaClient
 from AI_Agent.agent.dummy_llm_client import DummyLLMClient
 from AI_Agent.agent.logger import AgentLogger
 from AI_Agent.agent.openrouter_client import OpenRouterClient
+from AI_Agent.agent.local_openai_client import LocalOpenAIClient
 from game_engine.env.types import EnvConfig, Observation, AgentMeta
 
 
@@ -137,8 +138,8 @@ class LLMWrapperAgent:
         agent_id: int,
         env_cfg: EnvConfig,
         *,
-        backend: str = "ollama",          # "ollama" | "dummy"
-        model_name: str = "llama3.1:8b",  # used for ollama backend
+        backend: str = "ollama",          # "ollama" | "openrouter" | "local" | "dummy"
+        model_name: Optional[str] = None,
         ollama_host: str = "http://localhost:11434",
         dummy_mode: str = "mostly_valid",
         dummy_seed: int = 7,
@@ -151,6 +152,9 @@ class LLMWrapperAgent:
         reasoning_mode: Optional[str] = None,
         max_retries: int = 3,
         stop_on_api_failure: bool = False,
+        base_url: Optional[str] = None,
+        generation_config: Optional[Dict[str, Any]] = None,
+        timeout_s: Optional[float] = None,
     ) -> None:
         self.name = name
         self.agent_id = agent_id
@@ -158,8 +162,16 @@ class LLMWrapperAgent:
 
         # ---- Switch-case: choose client based on backend ----
         backend_norm = (backend or "").strip().lower()
+        if model_name is None:
+            model_name = os.getenv("LLM_MODEL") if backend_norm == "local" else "llama3.1:8b"
 
-        if backend_norm == "ollama":
+        if backend_norm == "local":
+            llm_client = LocalOpenAIClient(
+                model_name=model_name, base_url=base_url,
+                generation_config=generation_config, timeout_s=timeout_s,
+            )
+
+        elif backend_norm == "ollama":
             llm_client = OllamaClient(model_name=model_name, host=ollama_host)
 
         elif backend_norm == "openrouter":
@@ -182,7 +194,7 @@ class LLMWrapperAgent:
 
         else:
             raise ValueError(
-                f"Unknown LLM backend: {backend!r}. Supported: 'ollama', 'openrouter', 'dummy'."
+                f"Unknown LLM backend: {backend!r}. Supported: 'ollama', 'openrouter', 'local', 'dummy'."
             )
 
         if stop_on_api_failure:

@@ -17,6 +17,9 @@ A modular framework for simulating and analyzing LLM agents in game-theoretic en
 
 ## Setup
 
+For cached Hugging Face models on Sharanga with automatic Slurm/vLLM lifecycle,
+see [cluster/README.md](cluster/README.md). Local inference requires no provider API key.
+
 ```bash
 git clone https://github.com/AddictivelyRecursive/agentic-game-lab
 cd agentic-game-lab
