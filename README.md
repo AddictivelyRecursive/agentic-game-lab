@@ -31,6 +31,11 @@ Add API keys (OpenRouter) in a `.env` file.
 
 ## Running
 
+For the scaling and decision-scaffolding study, see
+[the local experiment workflow](docs/experiment_workflow.md). It covers the six
+root-level Python scripts, dry-run approval gates, external power calculation,
+and human coding. These scripts do not submit cluster jobs.
+
 ```bash
 python -m game_engine.experiments.run_causal_M
 ```

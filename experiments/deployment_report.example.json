@@ -1,0 +1,71 @@
+{
+  "step0_complete": false,
+  "checked_at": "",
+  "models": {
+    "llama-3.1-8b-instruct": {
+      "hf_identifier": "meta-llama/Llama-3.1-8B-Instruct",
+      "reachable": false,
+      "response": "",
+      "base_url": "http://127.0.0.1:18000/v1",
+      "mean_decision_latency_s": null,
+      "gpu_count": null,
+      "evidence_path": ""
+    },
+    "qwen3-8b": {
+      "hf_identifier": "Qwen/Qwen3-8B",
+      "reachable": false,
+      "response": "",
+      "base_url": "http://127.0.0.1:18001/v1",
+      "mean_decision_latency_s": null,
+      "gpu_count": null,
+      "evidence_path": ""
+    },
+    "gemma-3-12b-it": {
+      "hf_identifier": "google/gemma-3-12b-it",
+      "reachable": false,
+      "response": "",
+      "base_url": "http://127.0.0.1:18002/v1",
+      "mean_decision_latency_s": null,
+      "gpu_count": null,
+      "evidence_path": ""
+    },
+    "mistral-small-3.1-24b-instruct": {
+      "hf_identifier": "mistralai/Mistral-Small-3.1-24B-Instruct-2503",
+      "reachable": false,
+      "response": "",
+      "base_url": "http://127.0.0.1:18003/v1",
+      "mean_decision_latency_s": null,
+      "gpu_count": null,
+      "evidence_path": ""
+    },
+    "deepseek-r1-distill-qwen-14b": {
+      "hf_identifier": "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
+      "reachable": false,
+      "response": "",
+      "base_url": "http://127.0.0.1:18004/v1",
+      "mean_decision_latency_s": null,
+      "gpu_count": null,
+      "evidence_path": ""
+    },
+    "gpt-oss-120b": {
+      "hf_identifier": "openai/gpt-oss-120b",
+      "reachable": false,
+      "response": "",
+      "base_url": "http://127.0.0.1:18005/v1",
+      "mean_decision_latency_s": null,
+      "gpu_count": null,
+      "evidence_path": "",
+      "vram_used_gib": null,
+      "quantization": "",
+      "allocation": "separate",
+      "allocation_notes": "",
+      "isolated_smoke": {
+        "N": 2,
+        "T": 5,
+        "completed": false,
+        "fallback_decisions": null,
+        "round_latency_s": []
+      }
+    }
+  }
+}

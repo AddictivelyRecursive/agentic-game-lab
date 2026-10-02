@@ -1,0 +1,7 @@
+{
+  "sample_sha256": "COPY_FROM_PRIVATE_CONDITION_KEY",
+  "coder1_sha256": "SHA256_OF_COMPLETED_CODER1_CSV",
+  "coder2_sha256": "SHA256_OF_COMPLETED_CODER2_CSV",
+  "confirmed_in_conversation": false,
+  "approval_reference": "ACTUAL_USER_CONFIRMATION_OF_INDEPENDENT_HUMAN_CODING"
+}

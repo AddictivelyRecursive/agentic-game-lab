@@ -6,6 +6,7 @@ import argparse
 import json
 import math
 import os
+import time
 from pathlib import Path
 
 from AI_Agent.agent.local_openai_client import LocalOpenAIClient
@@ -66,7 +67,7 @@ def load_config(path):
     return spec, environment
 
 
-def run(spec, environment, *, model, base_url, output):
+def run(spec, environment, *, model, base_url, output, deployment_check=False):
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
     run_id = output.name
@@ -79,6 +80,16 @@ def run(spec, environment, *, model, base_url, output):
     }
     write_json(str(output / "manifest.json"), manifest)
     try:
+        if deployment_check:
+            started = time.perf_counter()
+            response = LocalOpenAIClient(model, base_url, generation_config=spec["generation"]).generate(
+                "You are a helpful assistant.", "Reply with the single word READY.")
+            write_json(str(output / "deployment_probe.json"), {
+                "model": model, "response": response,
+                "latency_s": time.perf_counter() - started, "reachable": bool(response.strip()),
+            })
+            if not response.strip():
+                raise RuntimeError("Deployment probe returned empty text")
         for seed in spec["seeds"]:
             cfg = EnvConfig(**environment, seed=seed)
             episode_dir = output / f"seed_{seed}"
@@ -89,7 +100,22 @@ def run(spec, environment, *, model, base_url, output):
                 prompt_dir=str(Path(__file__).resolve().parents[2] / "AI_Agent" / "prompts"),
                 output_dir=str(episode_dir / "agents" / f"p{seat}"), **spec["agent"],
             ) for seat in range(cfg.N)]
+            decision_latencies = [[] for _ in agents]
+            for seat, agent in enumerate(agents):
+                original_act = agent.act
+                def timed_act(obs, original_act=original_act, seat=seat):
+                    started = time.perf_counter()
+                    try:
+                        return original_act(obs)
+                    finally:
+                        decision_latencies[seat].append(time.perf_counter() - started)
+                agent.act = timed_act
             result = GameSimulator(cfg).run_episode(agents)
+            write_json(str(episode_dir / "round_latency.json"), {
+                "measurement": "Sum of sequential agent decision wall times, including repairs; excludes simulator bookkeeping",
+                "rounds": [{"round": t + 1, "decision_latency_s": sum(values[t] for values in decision_latencies)}
+                           for t in range(cfg.T)],
+            })
             paths = write_episode(str(episode_dir), run_id, seed, result,
                                   extra_meta={"model": model, "generation": spec["generation"]})
             print("Saved:", *paths, flush=True)
@@ -107,6 +133,7 @@ def main():
     parser.add_argument("--base-url", default=os.getenv("LLM_BASE_URL"))
     parser.add_argument("--output", type=Path)
     parser.add_argument("--validate-only", action="store_true")
+    parser.add_argument("--deployment-check", action="store_true")
     args = parser.parse_args()
     spec, environment = load_config(args.config)
     if args.validate_only:
@@ -114,7 +141,8 @@ def main():
         return
     if not args.model or not args.base_url or args.output is None:
         parser.error("--model/LLM_MODEL, --base-url/LLM_BASE_URL and --output are required")
-    run(spec, environment, model=args.model, base_url=args.base_url, output=args.output)
+    run(spec, environment, model=args.model, base_url=args.base_url, output=args.output,
+        deployment_check=args.deployment_check)
 
 
 if __name__ == "__main__":

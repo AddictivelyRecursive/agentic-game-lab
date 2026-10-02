@@ -1,0 +1,8 @@
+{
+  "seeds_per_cell": null,
+  "variance_estimates_path": "output/pilot_variance/variance_estimates.json",
+  "variance_sha256": "SHA256_OF_VARIANCE_ESTIMATES_FILE",
+  "rationale": "EXTERNAL_HUMAN_CALCULATION_EFFECT_SIZES_TARGET_POWER_AND_ASSUMPTIONS",
+  "confirmed_in_conversation": false,
+  "approval_reference": "ACTUAL_USER_CONFIRMATION_OF_POWER_RESULT"
+}

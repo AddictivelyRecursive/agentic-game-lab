@@ -54,7 +54,11 @@ run_job() {
         die "Run through sbatch with a GPU allocation; no login-node inference"
     [[ "${SLURM_JOB_NUM_NODES:-1}" == 1 ]] || die "This launcher supports one node only"
     cd "$REPO_ROOT"
-    echo "Git commit: $(git rev-parse HEAD)"
+    # Capture provenance before conda can shadow the system git executable.
+    export AGL_GIT_COMMIT AGL_GIT_STATUS
+    AGL_GIT_COMMIT=$(git rev-parse HEAD) || die "Cannot capture repository commit"
+    AGL_GIT_STATUS=$(git status --porcelain --untracked-files=no) || die "Cannot capture repository status"
+    echo "Git commit: $AGL_GIT_COMMIT"
     echo "Host: $(hostname); job: $SLURM_JOB_ID; partition: ${SLURM_JOB_PARTITION:-unknown}"
 
     # Conda activation hooks reference unset variables: enable nounset afterward.
@@ -164,8 +168,8 @@ for name in ('vllm','torch','transformers','requests'):
     except md.PackageNotFoundError: packages[name] = None
 root = pathlib.Path(os.environ['RUN_DIR'])
 manifest = dict(environment={k: os.environ.get(k) for k in keys}, hostname=socket.gethostname(),
-    git_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
-    git_status=subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],text=True),
+    git_commit=os.environ['AGL_GIT_COMMIT'],
+    git_status=os.environ['AGL_GIT_STATUS'],
     packages=packages, vllm_command=['vllm',*sys.argv[1:]],
     gpu_inventory=(root/'gpus.csv').read_text(),
     experiment=json.loads((root/'experiment_config.json').read_text()))
@@ -179,8 +183,11 @@ PY
     setsid vllm "${serve_args[@]}" > "$VLLM_LOG" 2>&1 &
     VLLM_PID=$!
     wait_for_vllm
+    local -a probe_args=()
+    [[ "$kind" != smoke ]] || probe_args+=(--deployment-check)
     setsid python -m game_engine.experiments.run_local_episode \
         --config "$RUN_DIR/experiment_config.json" --output "$RUN_DIR/episodes" \
+        "${probe_args[@]}" \
         > "$RUN_DIR/experiment.log" 2>&1 &
     EXPERIMENT_PID=$!
     local experiment_status=0
