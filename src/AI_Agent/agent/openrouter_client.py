@@ -57,7 +57,8 @@ class OpenRouterClient:
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            "temperature": float(temperature) if temperature is not None else 0.2,
+            "temperature": 0.7,
+            "top_p": 1.0,
         }
 
         resp = requests.post(url, headers=headers, json=payload, timeout=self.timeout_s)

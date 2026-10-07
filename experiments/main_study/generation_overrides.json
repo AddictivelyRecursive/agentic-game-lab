@@ -1,0 +1,5 @@
+{
+  "deepseek-r1-distill-qwen-14b": {
+    "max_tokens": 8192
+  }
+}

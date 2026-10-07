@@ -27,15 +27,29 @@ class LocalInferenceTests(unittest.TestCase):
         response = Mock(status_code=200)
         response.json.return_value = {"choices": [{"message": {"content": '{"a": 2}'}}]}
         with patch.object(client.session, "post", return_value=response) as post:
-            self.assertEqual(client.generate("system unchanged", "history unchanged"), '{"a": 2}')
+            self.assertEqual(client.generate("system unchanged", "history unchanged", temperature=0.1), '{"a": 2}')
         post.assert_called_once_with("http://localhost:18765/v1/chat/completions", json={
             "model": "qwen3-8b", "messages": [
                 {"role": "system", "content": "system unchanged"},
                 {"role": "user", "content": "history unchanged"}],
-            "temperature": .3, "top_p": .9, "max_tokens": 1000, "seed": 42,
+            "temperature": .7, "top_p": 1.0, "max_tokens": 1000, "seed": 42,
         }, timeout=75, allow_redirects=False)
         self.assertFalse(client.session.trust_env)
         self.assertNotIn("Authorization", client.session.headers)
+
+    def test_other_transports_enforce_fixed_sampling(self):
+        from AI_Agent.agent.llm_client import OllamaClient
+        from AI_Agent.agent.openrouter_client import OpenRouterClient
+        response = Mock()
+        response.json.return_value = {"response": "ok", "choices": [{"message": {"content": "ok"}}]}
+        for client, nested in ((OllamaClient(), True),
+                               (OpenRouterClient("test", api_key="offline-test"), False)):
+            with self.subTest(client=type(client).__name__), patch("requests.post", return_value=response) as post:
+                client.generate("s", "u", temperature=0.0)
+                payload = post.call_args.kwargs["json"]
+                settings = payload["options"] if nested else payload
+                self.assertEqual(settings["temperature"], 0.7)
+                self.assertEqual(settings["top_p"], 1.0)
 
     def test_external_urls_and_redirects_are_rejected(self):
         for url in ("https://api.example.org/v1", "http://example.org/v1", "http://localhost.evil/v1",

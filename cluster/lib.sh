@@ -56,8 +56,15 @@ run_job() {
     cd "$REPO_ROOT"
     # Capture provenance before conda can shadow the system git executable.
     export AGL_GIT_COMMIT AGL_GIT_STATUS
-    AGL_GIT_COMMIT=$(git rev-parse HEAD) || die "Cannot capture repository commit"
-    AGL_GIT_STATUS=$(git status --porcelain --untracked-files=no) || die "Cannot capture repository status"
+    if command -v git >/dev/null; then
+        AGL_GIT_COMMIT=$(git rev-parse HEAD) || die "Cannot capture repository commit"
+        AGL_GIT_STATUS=$(git status --porcelain --untracked-files=no) || die "Cannot capture repository status"
+    else
+        [[ -n "${AGL_SUBMIT_GIT_COMMIT:-}" ]] || die "Git unavailable; submit with cluster/submit.sh"
+        AGL_GIT_COMMIT="$AGL_SUBMIT_GIT_COMMIT"
+        AGL_GIT_STATUS="${AGL_SUBMIT_GIT_STATUS:-}"
+        echo "Git unavailable on node; using submission-time provenance"
+    fi
     echo "Git commit: $AGL_GIT_COMMIT"
     echo "Host: $(hostname); job: $SLURM_JOB_ID; partition: ${SLURM_JOB_PARTITION:-unknown}"
 
@@ -105,7 +112,15 @@ run_job() {
     [[ "$allocated_gpus" == "$TP_SIZE" ]] || die "Allocated GPUs=$allocated_gpus but TP_SIZE=$TP_SIZE; match --gres=gpu:$TP_SIZE"
     export ALLOCATED_GPUS="$allocated_gpus"
     local hub_dir="${HF_HOME}/hub/models--${MODEL_REPO//\//--}"
-    [[ -d "$hub_dir" ]] || die "Selected model is not present in: $hub_dir. Prefetch it manually before submitting."
+    # An explicit verified snapshot avoids offline Hub revision lookup while
+    # preserving the canonical model identity in the manifest.
+    export MODEL_PATH="${MODEL_PATH:-$MODEL_REPO}"
+    if [[ "$MODEL_PATH" != "$MODEL_REPO" ]]; then
+        [[ "$MODEL_PATH" == /* && -d "$MODEL_PATH" && -f "$MODEL_PATH/config.json" ]] ||
+            die "MODEL_PATH must be an existing absolute snapshot directory with config.json"
+    else
+        [[ -d "$hub_dir" ]] || die "Selected model is not present in: $hub_dir. Prefetch it manually before submitting."
+    fi
     command -v vllm >/dev/null || die "vllm missing from conda environment $CONDA_ENV"
     command -v setsid >/dev/null || die "setsid is required for job-scoped cleanup"
     command -v curl >/dev/null || die "curl is required for health checks"
@@ -134,7 +149,7 @@ with socket.socket() as sock:
     except OSError as exc: sys.exit(f'Port {sys.argv[1]} unavailable: {exc}; override PORT')
 PY
     local -a serve_args extra_args
-    serve_args=(serve "$MODEL_REPO" --served-model-name "$SERVED_NAME"
+    serve_args=(serve "$MODEL_PATH" --served-model-name "$SERVED_NAME"
         --host 127.0.0.1 --port "$PORT" --tensor-parallel-size "$TP_SIZE"
         --max-model-len "$MAX_MODEL_LEN" --gpu-memory-utilization "$GPU_MEM_UTIL"
         --generation-config vllm)
@@ -160,7 +175,7 @@ PY
     python - "${serve_args[@]}" <<'PY'
 import importlib.metadata as md, json, os, pathlib, socket, subprocess, sys
 keys = ('SLURM_JOB_ID','SLURM_JOB_PARTITION','ALLOCATED_GPUS','CUDA_VISIBLE_DEVICES',
-        'MODEL','MODEL_REPO','SERVED_NAME','TP_SIZE','PORT','MAX_MODEL_LEN','GPU_MEM_UTIL',
+        'MODEL','MODEL_REPO','MODEL_PATH','SERVED_NAME','TP_SIZE','PORT','MAX_MODEL_LEN','GPU_MEM_UTIL',
         'HEALTH_WAIT_MIN','EXTRA_SERVE_ARGS','CONDA_ENV','HF_HOME','LLM_BASE_URL','LOCAL_TIMEOUT')
 packages = {}
 for name in ('vllm','torch','transformers','requests'):
@@ -185,10 +200,19 @@ PY
     wait_for_vllm
     local -a probe_args=()
     [[ "$kind" != smoke ]] || probe_args+=(--deployment-check)
-    setsid python -m game_engine.experiments.run_local_episode \
+    if [[ "$kind" == pilot ]]; then
+        setsid python "$REPO_ROOT/run_pilot.py" \
+            --models llama-3.1-8b-instruct qwen3-8b gemma-3-12b-it mistral-small-3.1-24b-instruct deepseek-r1-distill-qwen-14b gpt-oss-120b \
+            --config "$EXPERIMENT_CONFIG" --deployment-report "${PILOT_DEPLOYMENT_REPORT:?}" \
+            --generation-overrides "${PILOT_GENERATION_OVERRIDES:?}" --output "${PILOT_OUTPUT:?}" \
+            --approval "${PILOT_APPROVAL:?}" --execute-model "$MODEL" \
+            > "$RUN_DIR/experiment.log" 2>&1 &
+    else
+        setsid python -m game_engine.experiments.run_local_episode \
         --config "$RUN_DIR/experiment_config.json" --output "$RUN_DIR/episodes" \
         "${probe_args[@]}" \
         > "$RUN_DIR/experiment.log" 2>&1 &
+    fi
     EXPERIMENT_PID=$!
     local experiment_status=0
     wait "$EXPERIMENT_PID" || experiment_status=$?

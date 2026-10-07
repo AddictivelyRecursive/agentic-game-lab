@@ -149,6 +149,36 @@ def build_payload(state, context):
     return payload
 
 
+JSON_EXTRACTION_VERSION = "final_decision_v2"
+
+
+def extract_decision_json(response):
+    """Read a unique decision object after reasoning; never repair truncated JSON."""
+    text = response
+    if "</think>" in text:
+        text = text.rsplit("</think>", 1)[1]
+    elif "<think>" in text:
+        raise ValueError("Unterminated reasoning block")
+    decoder = json.JSONDecoder()
+    candidates = []
+    offset = 0
+    while offset < len(text):
+        start = text.find("{", offset)
+        if start < 0:
+            break
+        try:
+            value, end = decoder.raw_decode(text, start)
+        except json.JSONDecodeError:
+            offset = start + 1
+            continue
+        if isinstance(value, dict) and "a" in value:
+            candidates.append(value)
+        offset = end
+    if len(candidates) != 1:
+        raise ValueError("Expected exactly one complete decision JSON object")
+    return candidates[0]
+
+
 def call_model(state, context, *, repair=False):
     payload = build_payload(state, context)
     if repair:
@@ -173,12 +203,8 @@ def call_model(state, context, *, repair=False):
         )
         state["last_model_output"] = response
         attempt["output"] = response
-        start, end = response.find("{"), response.rfind("}")
-        if start < 0 or end < start:
-            raise ValueError("No JSON object found in model output")
-        data = json.loads(response[start:end + 1])
-        if not isinstance(data, dict):
-            raise ValueError("Model output must be a JSON object")
+        attempt["json_extraction_version"] = JSON_EXTRACTION_VERSION
+        data = extract_decision_json(response)
         state["decision"] = {k: data[k] for k in
                              ("a", "reason", "confidence", "memory", "expectation") if k in data} or None
     except APIUnavailableError as exc:

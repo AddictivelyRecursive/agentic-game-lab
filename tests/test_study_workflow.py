@@ -45,6 +45,7 @@ def fixture_plan(phase="main", seeds=3):
 def synthetic_data(path, phase="main", seeds=3, uniform=False, fallback=False):
     plan = fixture_plan(phase, seeds)
     records = [{"record_type": "manifest", "plan": plan, "plan_sha256": common.digest(plan)}]
+    horizon = plan["configuration"]["environment"]["T"]
     rng = random.Random(501)
     for cell in plan["cells"]:
         m = common.ROSTER.index(cell["model"])
@@ -54,14 +55,14 @@ def synthetic_data(path, phase="main", seeds=3, uniform=False, fallback=False):
             if cell["reasoning_mode"] == "free_form":
                 target += .035*(n-2) - .02
             target += 0 if uniform else rng.uniform(-.025, .025)
-            units = round(target * n * 50 * 4)
-            base, remainder = divmod(units, n*50)
-            values = [(base + (i < remainder)) / 4 for i in range(n*50)]
+            units = round(target * n * horizon * 4)
+            base, remainder = divmod(units, n*horizon)
+            values = [(base + (i < remainder)) / 4 for i in range(n*horizon)]
             decisions = [{"round": t, "seat": seat, "reasoning_text": "synthetic reasoning",
                           "raw_response": "synthetic", "first_parse_ok": True, "repair_used": False,
                           "fallback_used": fallback, "latency_s": 1}
-                         for t, seat in itertools.product(range(1,51), range(n))]
-            rounds = [{"t": t, "true_coop": values[(t-1)*n:t*n]} for t in range(1,51)]
+                         for t, seat in itertools.product(range(1,horizon+1), range(n))]
+            rounds = [{"t": t, "true_coop": values[(t-1)*n:t*n]} for t in range(1,horizon+1)]
             records.append({"record_type": "episode", "episode_id": f"{cell['model']}__{cell['reasoning_mode']}__n{n}__seed{seed}",
                             "model": cell["model"], "reasoning_mode": cell["reasoning_mode"], "N": n,
                             "seed": seed, "status": "completed", "cooperation": sum(values)/len(values),
@@ -71,6 +72,34 @@ def synthetic_data(path, phase="main", seeds=3, uniform=False, fallback=False):
 
 
 class StudyWorkflowTests(unittest.TestCase):
+    def test_model_token_override_is_frozen_and_used_by_actual_pipeline(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            common.write_json(root / "deployment.json", deployment())
+            common.write_json(root / "overrides.json", {"deepseek-r1-distill-qwen-14b": {"max_tokens": 8192}})
+            config = common.read_json(ROOT / "experiments/study_config.json")
+            config["environment"]["T"] = 30
+            common.write_json(root / "config.json", config)
+            args = argparse.Namespace(models=list(common.ROSTER), deployment_report=root / "deployment.json",
+                config=root / "config.json", seed_start=101, generation_overrides=root / "overrides.json")
+            plan = common.make_plan(args, "pilot")
+            self.assertEqual(plan["decision_count"], 25200)
+            cell = next(c for c in plan["cells"] if c["model"] == "deepseek-r1-distill-qwen-14b" and c["N"] == 2)
+            self.assertEqual(cell["generation"]["max_tokens"], 8192)
+            self.assertEqual(plan["cells"][0]["generation"]["max_tokens"], 2048)
+            def response(client, *a, **kw):
+                self.assertEqual(client.generation_config["max_tokens"], 8192)
+                return '{"a":4,"reason":"synthetic"}'
+            with patch.object(common.LocalOpenAIClient, "generate", response):
+                row = common.execute_episode(plan, cell, 101, root / "episode")
+            self.assertEqual(row["status"], "completed")
+            self.assertEqual(len(row["rounds"]), 30)
+            self.assertEqual(len(row["decisions"]), 60)
+            raw = root / "pilot.jsonl"
+            raw.write_text(json.dumps({"record_type": "manifest", "plan": plan, "plan_sha256": common.digest(plan)}) + "\n" + json.dumps(row) + "\n")
+            self.assertEqual(len(common.read_study(raw, "pilot")[1]), 1)
+            self.assertTrue(all(g["max_tokens"] == 8192 for g in row["generation_by_seat"]))
+
     def test_dry_run_is_offline_exact_grid_and_hash_gate(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -83,7 +112,7 @@ class StudyWorkflowTests(unittest.TestCase):
                     common.run_cli("pilot", argv)
             plan = common.read_json(root/"pilot/run_plan.json")
             self.assertEqual(plan["episode_count"], 240)
-            self.assertEqual(plan["decision_count"], 42000)
+            self.assertEqual(plan["decision_count"], 25200)
             self.assertEqual(len(plan["cells"]), 48)
             gpt = [c for c in plan["cells"] if c["model"] == "gpt-oss-120b"]
             self.assertTrue(all(c["estimated_seconds"] == 2*c["decisions"] for c in gpt))
@@ -113,7 +142,7 @@ class StudyWorkflowTests(unittest.TestCase):
             row = common.execute_episode(plan, cell, 101, directory)
             self.assertEqual(row["status"], "completed", row.get("error"))
             self.assertEqual(row["cooperation"], .5)
-            self.assertEqual(len(row["decisions"]), 100)
+            self.assertEqual(len(row["decisions"]), 60)
             self.assertTrue(row["decisions"][0]["repair_used"])
             self.assertFalse(row["decisions"][0]["first_parse_ok"])
             self.assertEqual(row["decisions"][0]["reasoning_text"], "group size matters")
@@ -151,6 +180,34 @@ class StudyWorkflowTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 common.read_study(data, "main")
 
+    def test_twelve_percent_tolerance_and_30_round_variance(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            raw = root / "pilot.jsonl"
+            records = synthetic_data(raw, "pilot")
+            # N=2 cell: 5 seeds * 30 rounds * 2 seats = 300 decisions.
+            target = [r for r in records[1:] if common.cell_key(r) == common.cell_key(records[1])]
+            decisions = [d for r in target for d in r["decisions"]]
+            for d in decisions[:36]:
+                d["fallback_used"] = True
+            raw.write_text("\n".join(json.dumps(r) for r in records) + "\n")
+            result = variance_analyze(raw, root / "allowed")
+            self.assertTrue(result["ready_for_power_calculation"])
+            self.assertEqual(result["rounds_per_episode"], 30)
+            self.assertEqual(result["cells"][0]["fallback_rate"], 0.12)
+            self.assertIn("FALLBACK_CONTAMINATION", result["cells"][0]["flags"])
+            means = [r["cooperation"] for r in target]
+            import statistics
+            self.assertAlmostEqual(result["cells"][0]["variance"], statistics.variance(means))
+            common.require_complete(records[0], records[1:])
+            decisions[36]["fallback_used"] = True
+            raw.write_text("\n".join(json.dumps(r) for r in records) + "\n")
+            result = variance_analyze(raw, root / "blocked")
+            self.assertFalse(result["ready_for_power_calculation"])
+            self.assertIn("FALLBACK_RATE_GT_0.12", result["cells"][0]["flags"])
+            with self.assertRaises(ValueError):
+                common.require_complete(records[0], records[1:])
+
     def test_main_completion_and_power_gate(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -181,7 +238,7 @@ class StudyWorkflowTests(unittest.TestCase):
             raw = root/"main.jsonl"
             synthetic_data(raw, seeds=1)
             count = sample(raw, root/"sample")
-            self.assertEqual(count, 6*2*(2+5)*50)
+            self.assertEqual(count, 6*2*(2+5)*common.read_json(ROOT/"experiments/study_config.json")["environment"]["T"])
             with (root/"sample/coding_sheet.csv").open(newline="", encoding="utf-8") as stream:
                 reader = csv.DictReader(stream)
                 self.assertEqual(reader.fieldnames, ["row_id", "reasoning_text", "code"])
@@ -253,8 +310,12 @@ class StudyWorkflowTests(unittest.TestCase):
             results = analyze(raw, root/"analysis")
             self.assertEqual(results["primary_status"], "converged")
             self.assertLess(results["H1"]["coefficient"], -.03)
-            self.assertGreater(results["H4"]["coefficient"], .02)
-            self.assertLess(results["H4"]["p_two_sided"], .05)
+            self.assertEqual(len(results['H4']['per_model']),6)
+            for effect in results['H4']['per_model']:
+                self.assertGreater(effect['endpoint_interaction'],.06)
+                self.assertLess(effect['p_two_sided'],.05)
+            self.assertEqual(results['H4']['heterogeneity']['status'],'estimated')
+            self.assertIn('pooled_power_limitation',results)
             self.assertGreater(results["H2"]["delta_aic_flat_minus_dilution"], 0)
             exploratory = (root/"analysis/exploratory_results_summary.md").read_text()
             self.assertIn("non-pre-registered", exploratory)

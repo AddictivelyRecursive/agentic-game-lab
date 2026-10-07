@@ -7,8 +7,9 @@ commands.txt
 /output/
 /tmp/
 
-# Generated Sharanga results and Slurm stdout (retain locally)
-/results/sharanga/
+# Generated results and Slurm stdout (retain locally)
+/results/
+/agl_pilot_*.out
 /agl_smoke_*.out
 /agl_run_*.out
 /slurm-*.out

@@ -25,7 +25,8 @@ class OllamaClient:
             "prompt": f"<system>\n{system_prompt}\n</system>\n<user>\n{user_prompt}\n</user>",
             "stream": False,
             "options": {
-                "temperature": float(temperature) if temperature is not None else 0.2,
+                "temperature": 0.7,
+                "top_p": 1.0,
             },
         }
 

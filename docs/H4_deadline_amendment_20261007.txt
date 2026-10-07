@@ -1,0 +1,70 @@
+H4 compute-deadline amendment - 2026-10-07 - REVIEW PENDING
+
+This supersedes the uniform-40 and target-first margin-adjusted allocation
+proposals. H4 remains six separate named-model primary interaction tests.
+H1/H2 retain their existing analysis definitions; unequal model replication
+must be disclosed when interpreting pooled analyses. Heterogeneity Q/I^2
+uses each model's actual estimate and standard error, not target precision.
+
+The original 10-percentage-point target is infeasible within the hard
+compute/timeline constraint. The revised planning target is a LARGER
+15-percentage-point structured-versus-free_form endpoint slope interaction.
+This is a compute-driven change, made before main data collection, not a
+claim of statistical convenience. Design and Limitations must explicitly
+report the original target, reason for substitution, allocated replication,
+and each model's prospective power against the revised target.
+
+Using the existing Welch noncentral-t approximation at two-sided alpha .05,
+90% marginal power, and each pilot q_m multiplied by 1.25:
+Model                         Raw 15pt requirement   Margin target
+llama-3.1-8b-instruct                      17                  20
+qwen3-8b                                   4                   4
+gemma-3-12b-it                             10                  11
+mistral-small-3.1-24b-instruct              3                   3
+deepseek-r1-distill-qwen-14b               19                  23
+gpt-oss-120b                               2                   2
+The 25% variance uplift is a planning margin, not a confidence bound on
+variance estimated from five pilot seeds. These are marginal, unadjusted
+per-model power estimates, not 90% simultaneous/Holm-adjusted power.
+Parser changes also make transport of pilot variance uncertain.
+
+No original-parser Llama/Qwen/Gemma/Mistral/DeepSeek pilot episodes will be
+merged into main confirmatory data. Fresh v2 data start at zero for these
+models. GPT receives ZERO credit in this proposal: matching installed
+package versions and source settings does not complete the independent
+full inference-stack and pilot-reuse review. Historical weight hashes and
+a fully frozen future main stack were not independently established.
+
+User clarified: submission is 12th AoE; finish experiments by 11th, roughly
+3.5-4 days. Calculation uses collection windows of 84 and 96 hours, with
+six hours operational reserve, leaving 78/90 productive hours. Analysis,
+human coding and writing follow collection before submission. Neither an
+exact collection cutoff nor sufficiency of that post-collection period is
+certified by this calculation.
+
+Scheduler snapshot on 2026-10-07: ZERO new free GPUs in validated H100/H200
+partitions and no allocations reserved. One free A100 and one free V100
+are not counted without stack/throughput validation. Generic-GPU account
+limits nominally permit two H100 and two H200 jobs, but typed-resource
+limits, existing jobs, scheduling and availability can constrain this.
+These limits do not reserve capacity. No job or resource request changed.
+
+Conditional illustrations assume TWO H100 workers plus ONE H200 worker
+are secured for the productive window. Cheap-model targets are funded
+first; remaining H100 hours fund heavy models by a common fraction of
+their targets, integer-rounded with a six-seed minimum. All eight cells
+within a model have identical replication. This is the requested fairness
+rule, not a claim of globally optimal allocation for an unspecified utility.
+
+84-hour collection window: fresh seeds/cell Llama14 Qwen4 Gemma8 Mistral3
+DeepSeek16 GPT2; 376 new episodes; 157.3574 estimated GPU-hours.
+96-hour collection window: fresh seeds/cell Llama17 Qwen4 Gemma9 Mistral3
+DeepSeek19 GPT2; 432 new episodes; 181.7913 estimated GPU-hours.
+These require sharding DeepSeek episodes across isolated worker outputs
+and validated consolidation; this execution support has not been prepared
+or approved here. Capacity lower bounds are not validated schedules.
+No allocation is finalized while real GPU availability is unconfirmed.
+
+NO new dry-run, no real runs, no job cancellation, no main configuration
+changes. Review is required before execution preparation. Existing traces,
+power reports and the old unapproved dry-run are preserved.

@@ -15,6 +15,8 @@ export TP_SIZE="${TP_SIZE:-$registry_tp}"
 default_partition=gpu_h200_8
 [[ "$KIND" != smoke ]] || default_partition=gpu_a100_8
 cd "$REPO_ROOT"
+export AGL_SUBMIT_GIT_COMMIT="$(git rev-parse HEAD)"
+export AGL_SUBMIT_GIT_STATUS="$(git status --porcelain --untracked-files=no)"
 exec sbatch --export=ALL --partition="${PARTITION:-$default_partition}" \
     --gres="gpu:$TP_SIZE" --cpus-per-task="${CPUS_PER_TASK:-$((4 * TP_SIZE))}" \
     "$@" "$REPO_ROOT/cluster/sharanga_${KIND}.sbatch"

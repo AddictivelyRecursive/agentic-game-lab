@@ -1,0 +1,44 @@
+2026-10-07 — H4 estimand and analysis amendment (user authorized)
+
+Original H4: a pooled N × reasoning-mode interaction interpreted through a
+Gaussian model-group mixed model across six models. Pilot model-specific
+interactions were heterogeneous; the model-cluster power review found a
+non-shrinking between-model variance component and low-precision six-cluster
+power ceilings. More episode seeds alone do not resolve population inference.
+
+New PRIMARY H4 estimand: separately for each of the six named models, the
+free_form-minus-structured difference in fitted cooperation changes from
+N=2 to N=5 (three times the difference of linear N slopes). Estimate and test
+each against that model's own episode data and within-model variance. No
+pooled population/random-effects interaction is the primary H4 analysis.
+
+Add Cochran's Q, its chi-square p-value, and I^2 across the six interactions,
+using their model-specific episode-based standard errors. This quantifies
+heterogeneity rather than asserting it from differing point estimates.
+Main-data q_m values are re-estimated; pilot q_m values are power inputs only.
+
+The pooled random-effects interaction remains SECONDARY/DESCRIPTIVE,
+explicitly underpowered for population claims. Report its prior normal
+power ceilings (18.46%, 56.14%, 88.72% at 5/10/15 points), the df=5 sensitivity,
+and the main heterogeneity test. A significant Q indicates effect
+heterogeneity; it is not itself a proof of insufficient power. The measured
+between-model variance and six-model design underpin that power limitation.
+
+H1 and H2 retain their existing pooled implementation and inference.
+H1's existing N coefficient is the structured-mode slope in the pooled
+N × mode model; H2 fits only structured observations. Do not silently
+replace H1 with a new structured-only fit under this amendment.
+
+E1 remains exploratory. Additionally describe interaction directions by
+reasoning-tuned status without promoting that association to confirmation.
+
+Power target: >=90% marginal power for EACH model at a 10-percentage-point
+endpoint interaction, with uniform seeds/cell from the worst required
+model. Also report 5/10/15-point requirements. This does not promise 90%
+probability of detecting all six effects simultaneously. Retain the plan's
+two-sided alpha=.05 per test; report Holm-adjusted H4 p-values additionally
+for transparency, without claiming family-wise 90% power.
+
+This note supersedes the pooled-primary H4 and prior run-size requests.
+It precedes confirmatory code changes. Main execution remains prohibited
+until the new dry-run receives explicit conversational sign-off.

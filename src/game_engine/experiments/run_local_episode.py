@@ -64,6 +64,8 @@ def load_config(path):
         raise ValueError("Explicit generation temperature, top_p, max_tokens, seed (or null) required")
     # Validate transport-independent generation settings without issuing any request.
     LocalOpenAIClient("validation", "http://127.0.0.1:1/v1", generation_config=spec["generation"])
+    # Record the same fixed sampling parameters that the transport sends.
+    spec["generation"].update(temperature=0.7, top_p=1.0)
     return spec, environment
 
 

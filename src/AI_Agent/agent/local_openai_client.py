@@ -21,7 +21,7 @@ class LocalOpenAIClient:
         self.timeout_s = float(timeout_s if timeout_s is not None else os.getenv("LOCAL_TIMEOUT", "600"))
         if not math.isfinite(self.timeout_s) or self.timeout_s <= 0:
             raise ValueError("Local timeout must be positive and finite")
-        self.generation_config = {"temperature": 0.2, "top_p": 1.0, "max_tokens": 2048}
+        self.generation_config = {"temperature": 0.7, "top_p": 1.0, "max_tokens": 2048}
         supplied = dict(generation_config or {})
         if supplied.keys() - {"temperature", "top_p", "max_tokens", "seed"}:
             raise ValueError("Supported generation parameters: temperature, top_p, max_tokens, seed")
@@ -32,6 +32,8 @@ class LocalOpenAIClient:
                 raise ValueError(f"Invalid generation parameter {key}")
         if self.generation_config["top_p"] == 0:
             raise ValueError("top_p must be greater than zero")
+        # Fixed study sampling policy overrides valid caller/model defaults.
+        self.generation_config.update(temperature=0.7, top_p=1.0)
         tokens = self.generation_config["max_tokens"]
         if isinstance(tokens, bool) or not isinstance(tokens, int) or tokens < 1:
             raise ValueError("max_tokens must be a positive integer")
@@ -44,8 +46,8 @@ class LocalOpenAIClient:
 
     def generate(self, system_prompt, user_prompt, temperature=None):
         generation = dict(self.generation_config)
-        if temperature is not None:
-            generation["temperature"] = float(temperature)
+        # Enforce on every request, including repairs and per-call overrides.
+        generation.update(temperature=0.7, top_p=1.0)
         payload = {
             "model": self.model_name,
             "messages": [

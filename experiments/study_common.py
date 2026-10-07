@@ -29,6 +29,7 @@ N_LEVELS = (2, 3, 4, 5)
 TRAINING_NOTE = ("DeepSeek-R1-Distill-Qwen-14B is a DeepSeek-trained distillation on a Qwen base, "
                  "representing an independent training process/organization. Model behavior is empirical.")
 SCHEMA = "scaling_scaffolding_v1"
+MAX_FALLBACK_RATE = 0.12  # User-approved per-cell tolerance, 2026-10-06.
 
 
 def read_json(path):
@@ -77,6 +78,8 @@ def code_fingerprint():
     paths += list((ROOT / "src/AI_Agent/prompts").glob("*.txt"))
     paths += [ROOT / "src/game_engine/agents/llm_wrapper.py", Path(__file__),
               ROOT / "run_pilot.py", ROOT / "run_main.py",
+              ROOT / "fit_glmm_and_curve.py", ROOT / "calculate_h4_per_model_power.py",
+              ROOT / "docs/H4_amendment_20261007.txt",
               ROOT / "src/game_engine/experiments/run_local_episode.py"]
     return digest({str(p.relative_to(ROOT)): file_digest(p) for p in sorted(set(paths))})
 
@@ -109,14 +112,93 @@ def validate_deployment(report, models):
         positive(latency, "GPT-OSS round latency")
 
 
+def variance_ready_for_reviewed_power(variance, power):
+    """Accept empirical readiness or an explicitly externally reviewed zero-variance rule.
+
+    Raw variances/flags stay unchanged. The exception only supplies a positive
+    working variance for planning; completeness and fallback gates still apply.
+    """
+    if power.get('allocation_method') == 'deadline_budget_20261007':
+        cells = variance.get('cells', [])
+        counts = power.get('model_seed_targets', {})
+        return (power.get('working_endpoint_effect') == .15
+                and power.get('variance_margin') == 1.25
+                and power.get('amendment_sha256') == file_digest(ROOT/'docs/H4_deadline_amendment_20261007.txt')
+                and power.get('accept_lower_power') is True
+                and set(counts) == set(ROSTER)
+                and all(type(n) is int and n >= 2 for n in counts.values())
+                and len(cells) == 48 and len({cell_key(c) for c in cells}) == 48
+                and all(c.get('completed') == 5 and c.get('failed') == 0
+                        and type(c.get('variance')) in (int, float)
+                        and math.isfinite(c['variance']) and c['variance'] >= 0
+                        and c.get('fallback_rate') is not None
+                        and 0 <= c['fallback_rate'] <= MAX_FALLBACK_RATE for c in cells))
+    if power.get('H4_estimand') == 'six_named_model_interactions':
+        from calculate_h4_per_model_power import model_power
+        cells=variance.get('cells',[])
+        if (len(cells)!=48 or len({cell_key(c) for c in cells})!=48
+                or power.get('working_endpoint_effect')!=.10 or power.get('target_power')!=.9
+                or power.get('amendment_sha256')!=file_digest(ROOT/'docs/H4_amendment_20261007.txt')
+                or type(power.get('seeds_per_cell')) is not int or power['seeds_per_cell']<2):
+            return False
+        for c in cells:
+            if (c.get('completed')!=5 or c.get('target')!=5 or c.get('failed')!=0
+                    or type(c.get('variance')) not in (int,float) or not math.isfinite(c['variance']) or c['variance']<0
+                    or c.get('fallback_rate') is None or not 0<=c['fallback_rate']<=MAX_FALLBACK_RATE):return False
+        powers=[]
+        for model in variance['models']:
+            subset=[c for c in cells if c['model']==model]
+            if {(c['reasoning_mode'],c['N']) for c in subset}!=set(itertools.product(MODES,N_LEVELS)):return False
+            terms=[(.6*(c['N']-3.5))**2*c['variance'] for c in subset]
+            q=math.fsum(terms)
+            if q<=0:return False
+            factor=q*q/math.fsum(x*x for x in terms)
+            powers.append(model_power(.10,q,factor,power['seeds_per_cell']))
+        return all(p>=.9 for p in powers)
+    if variance.get("ready_for_power_calculation") is True:
+        return True
+    treatment = power.get("zero_variance_treatment", {})
+    if not isinstance(treatment, dict) or treatment.get("method") != "common_max_observed_cell_variance":
+        return False
+    if (power.get("confirmed_in_conversation") is not True or not power.get("approval_reference")
+            or not power.get("rationale") or treatment.get("raw_variances_retained") is not True):
+        return False
+    cells = variance.get("cells", [])
+    expected = set(itertools.product(variance.get("models", []), MODES, N_LEVELS))
+    if len(cells) != 48 or {cell_key(c) for c in cells} != expected:
+        return False
+    for c in cells:
+        v, rate = c.get("variance"), c.get("fallback_rate")
+        if (c.get("target") != 5 or c.get("completed") != 5 or c.get("failed") != 0
+                or type(v) not in (int, float) or not math.isfinite(v) or v < 0
+                or type(rate) not in (int, float) or not math.isfinite(rate)
+                or not 0 <= rate <= MAX_FALLBACK_RATE):
+            return False
+    working = treatment.get("planning_variance")
+    maximum = max(c["variance"] for c in cells)
+    return (maximum > 0 and type(working) in (int, float) and math.isfinite(working)
+            and math.isclose(working, maximum, rel_tol=1e-12, abs_tol=0))
+
+
 def make_plan(args, phase):
     validate_models(args.models)
     deployment = read_json(args.deployment_report)
     validate_deployment(deployment, args.models)
     spec, _ = load_config(args.config)
+    overrides = read_json(args.generation_overrides) if getattr(args, "generation_overrides", None) else {}
+    if not isinstance(overrides, dict) or set(overrides) - set(args.models):
+        raise ValueError("Generation overrides must map study aliases to generation settings")
+    generation_by_model = {}
+    for alias in args.models:
+        override = overrides.get(alias, {})
+        if not isinstance(override, dict) or set(override) - {"max_tokens"}:
+            raise ValueError("Per-model overrides support only max_tokens")
+        generation = dict(spec["generation"], **override)
+        LocalOpenAIClient(alias, deployment["models"][alias]["base_url"], generation_config=generation)
+        generation_by_model[alias] = generation
     env = spec["environment"]
-    if (env["M"], env["p_perception"], env["streak"]["theta"], env["T"]) != (5, 0, .5, 50):
-        raise ValueError("Study requires M=5, p=0, theta=0.50, T=50")
+    if (env["M"], env["p_perception"], env["streak"]["theta"]) != (5, 0, .5) or env["T"] != 30:
+        raise ValueError("Require M=5, p=0, theta=0.50; pilot and main T=30")
     if spec["agent"]["memory_mode"] != "history_only" or spec["agent"]["predict_opponents"]:
         raise ValueError("This study freezes history_only memory and no opponent prediction")
     count = 5 if phase == "pilot" else args.seeds_per_cell
@@ -128,37 +210,47 @@ def make_plan(args, phase):
         if (power.get("seeds_per_cell") != count or power.get("confirmed_in_conversation") is not True
                 or not power.get("approval_reference") or not power.get("rationale")
                 or power.get("variance_sha256") != file_digest(variance_path)
-                or variance.get("ready_for_power_calculation") is not True):
-            raise ValueError("Main requires an explicitly confirmed external power calculation bound to ready pilot variance estimates")
+                or not variance_ready_for_reviewed_power(variance, power)):
+            raise ValueError("Main requires an explicitly confirmed external power calculation bound to ready pilot variance estimates or the reviewed zero-variance treatment")
         if variance.get("configuration") != spec or variance.get("models") != args.models:
             raise ValueError("Main configuration/model order differs from the pilot used for power; review the design before proceeding")
     seeds = list(range(args.seed_start, args.seed_start + count))
+    counts_by_model = power.get('model_seed_targets') if power else None
+    if counts_by_model and max(counts_by_model.values()) != count:
+        raise ValueError('Scalar seed count must equal maximum model-specific target')
     if args.seed_start < 0:
         raise ValueError("seed-start must be nonnegative")
     cells = []
     for model, mode, n in itertools.product(args.models, MODES, N_LEVELS):
+        model_count = counts_by_model[model] if counts_by_model else count
+        model_seeds = seeds[:model_count]
         measurement = deployment["models"][model]
         seconds = measurement["mean_decision_latency_s"]
         if model == "gpt-oss-120b":
             seconds = statistics.mean(measurement["isolated_smoke"]["round_latency_s"]) / 2
-        decisions = n * 50 * count
-        cells.append({"model": model, "reasoning_mode": mode, "N": n, "seeds": seeds,
-                      "episodes": count, "decisions": decisions, "estimated_seconds": seconds * decisions,
+        decisions = n * env["T"] * model_count
+        cells.append({"model": model, "reasoning_mode": mode, "N": n, "seeds": model_seeds,
+                      "episodes": model_count, "decisions": decisions, "generation": generation_by_model[model], "estimated_seconds": seconds * decisions,
                       "estimated_gpu_hours": seconds * decisions * measurement["gpu_count"] / 3600})
     return {"schema": SCHEMA, "phase": phase, "models": args.models, "seeds_per_cell": count,
-            "seeds": seeds, "configuration": spec, "cells": cells, "episode_count": 48 * count,
+            "seeds": seeds, "configuration": spec, "cells": cells, "episode_count": sum(c['episodes'] for c in cells),
             "decision_count": sum(c["decisions"] for c in cells), "deployment": deployment,
             "power_calculation": power, "code_sha256": code_fingerprint(),
             "lineup": "All N seats use the cell's model, with separate agent state; no heterogeneous opponents",
-            "analysis_unit": "Episode mean normalized true cooperation across all seats and 50 rounds",
-            "analysis_choices": {"primary_family": "Gaussian", "primary_link": "identity", "estimation": "ML",
-                                 "primary_formula": "cooperation ~ N * free_mode", "reference_mode": "structured",
-                                 "random_effects": "model intercept plus N slope if usable convergence, otherwise intercept",
-                                 "inference": "95% Wald CI, two-sided asymptotic p-values, alpha=0.05 per test, unadjusted",
+            "analysis_unit": f"Episode mean normalized true cooperation across all seats and {env['T']} rounds",
+            "analysis_choices": {"primary_family": "Gaussian", "primary_link": "identity", "estimation": "H4 per-model OLS; H1 and pooled secondary H4 ML",
+                                 "primary_formula": "H4: cooperation ~ N * free_mode separately within each named model", "reference_mode": "structured",
+                                 "random_effects": "H1/secondary pooled H4 only: model intercept plus N slope if usable convergence, otherwise intercept",
+                                 "inference": "H4: cell-based Welch t intervals/tests; H1 unchanged Wald; alpha=0.05 per test",
+                                 "H4_primary": "Six separate named-model fixed-effects endpoint interactions; cell episode variances, Welch t; alpha=.05 marginal, supplemental Holm p",
+                                 "H4_heterogeneity": "Cochran Q chi-square df=5 and I^2 across six main-data interaction SEs",
+                                 "H4_secondary": "Pooled mixed-model interaction descriptive/underpowered; prior pilot power ceilings inline",
+                                 "H1_unchanged": "Structured-reference slope in existing pooled mixed model; no structured-only refit",
+                                 "amendment": "docs/H4_amendment_20261007.txt",
                                  "H2": "pooled structured episode Gaussian ML, intercept vs intercept + b/(N-1)",
                                  "H5": "coder-specific rates and N differences after kappa>=0.7; no unspecified inferential test"},
             "generation_seed_policy": "SHA256 of phase/model/mode/N/episode-seed/seat; first 32 bits, used for every request in that seat",
-            "fallback_policy": "Retain all trajectories and flag; downstream inference requires zero fallback or a separately reviewed revision",
+            "fallback_policy": "Retain all trajectories and flag; allow at most 12% fallback per model/mode/N cell",
             "training_note": TRAINING_NOTE}
 
 
@@ -175,6 +267,8 @@ def plan_text(plan):
              "", "| Model | Mode | N | Seeds | Episodes | Decision hours |", "|---|---|---:|---|---:|---:|"]
     for c in plan["cells"]:
         lines.append(f"| {c['model']} | {c['reasoning_mode']} | {c['N']} | {','.join(map(str, c['seeds']))} | {c['episodes']} | {c['estimated_seconds']/3600:.3f} |")
+    lines += ["", "## Effective generation by model", "```json",
+              json.dumps({c["model"]: c.get("generation", plan["configuration"]["generation"]) for c in plan["cells"]}, indent=2), "```"]
     lines += ["", "## Frozen configuration", "```json", json.dumps(plan["configuration"], indent=2), "```",
               "", "## Analysis choices for review", "```json", json.dumps(plan["analysis_choices"], indent=2), "```", "", TRAINING_NOTE]
     return "\n".join(lines) + "\n"
@@ -202,11 +296,13 @@ def read_study(path, phase):
     if phase == "pilot" and plan["seeds_per_cell"] != 5:
         raise ValueError("Pilot requires exactly five seeds per cell")
     for c in plan["cells"]:
-        if (c["episodes"] != plan["seeds_per_cell"] or len(c["seeds"]) != c["episodes"]
-                or len(set(c["seeds"])) != c["episodes"] or c["seeds"] != plan["seeds"]):
+        counts = (plan.get('power_calculation') or {}).get('model_seed_targets', {})
+        expected_count = counts.get(c['model'], plan['seeds_per_cell'])
+        if (c["episodes"] != expected_count or len(c["seeds"]) != c["episodes"]
+                or len(set(c["seeds"])) != c["episodes"] or c["seeds"] != plan["seeds"][:expected_count]):
             raise ValueError("Invalid per-cell seed plan")
     env = plan["configuration"]["environment"]
-    if (env["M"], env["T"], env["p_perception"], env["streak"]["theta"]) != (5, 50, 0, .5):
+    if (env["M"], env["p_perception"], env["streak"]["theta"]) != (5, 0, .5) or env["T"] not in (30, 50):
         raise ValueError("Wrong fixed study environment")
     expected = {(c["model"], c["reasoning_mode"], c["N"], s) for c in plan["cells"] for s in c["seeds"]}
     seen = set()
@@ -227,10 +323,10 @@ def read_study(path, phase):
             if any(type(d[k]) is not bool for k in ("first_parse_ok", "repair_used", "fallback_used")):
                 raise ValueError("Reliability flags must be booleans")
         if row["status"] == "completed":
-            wanted = set(itertools.product(range(1, 51), range(row["N"])))
-            if set(keys) != wanted or len(row["rounds"]) != 50:
+            wanted = set(itertools.product(range(1, env["T"] + 1), range(row["N"])))
+            if set(keys) != wanted or len(row["rounds"]) != env["T"]:
                 raise ValueError("Completed episode is missing rounds/seats")
-            if [r["t"] for r in row["rounds"]] != list(range(1, 51)):
+            if [r["t"] for r in row["rounds"]] != list(range(1, env["T"] + 1)):
                 raise ValueError("Invalid round ordering")
             for r in row["rounds"]:
                 if len(r["true_coop"]) != row["N"] or any(
@@ -260,6 +356,8 @@ def summarize_cells(plan, rows):
             flags.append("INCOMPLETE")
         if rate is not None and rate > .1:
             flags.append("FALLBACK_RATE_GT_0.1")
+        if rate is not None and rate > MAX_FALLBACK_RATE:
+            flags.append("FALLBACK_RATE_GT_0.12")
         if fallback:
             flags.append("FALLBACK_CONTAMINATION")
         if uniform:
@@ -282,7 +380,9 @@ def cell_table(cells):
 
 
 def ready(cells):
-    return all(not c["flags"] and c["variance"] is not None for c in cells)
+    return all(c["completed"] == c["target"] and not c["uniform"]
+               and c["variance"] is not None and c["fallback_rate"] is not None
+               and c["fallback_rate"] <= MAX_FALLBACK_RATE for c in cells)
 
 
 def reliability(rows):
@@ -305,13 +405,14 @@ def write_run_summary(output, plan, rows):
     lines = [f"# {phase.title()} run summary", cell_table(cells), "", "## Reliability", reliability(rows),
              "", "First-call parse means a JSON object was parsed; it does not imply a valid action.",
              "Repair rate is the fraction of decisions using one or more repair calls.",
-             "Fallbacks are retained and flagged, never silently treated as model behavior."]
+             "Fallbacks are retained and flagged, never silently treated as model behavior.",
+             "Readiness allows at most 12% fallback per model/mode/N cell."]
     if phase == "pilot":
         lines += [f"ready for power calculation: {'yes' if ready(cells) else 'no'}",
                   "Variance estimation only. No hypothesis tests were performed."]
     else:
         complete = all(c["completed"] == c["target"] for c in cells)
-        valid = complete and all(c["fallback_rate"] == 0 for c in cells)
+        valid = complete and all(c["fallback_rate"] is not None and c["fallback_rate"] <= MAX_FALLBACK_RATE for c in cells)
         lines += [f"All target seed counts complete: {'yes' if complete else 'no'}",
                   f"Ready for analysis and coding: {'yes' if valid else 'no'}"]
     lines += [TRAINING_NOTE]
@@ -328,7 +429,7 @@ def first_parse_ok(calls):
         return False
 
 
-def execute_episode(plan, cell, seed, output):
+def execute_episode(plan, cell, seed, output, runtime_base_url=None):
     from game_engine.agents.llm_wrapper import LLMWrapperAgent
     from game_engine.env.simulator import GameSimulator
     from game_engine.env.types import EnvConfig, PayoffConfig, DriftConfig, StreakConfig, ObservationConfig
@@ -371,11 +472,11 @@ def execute_episode(plan, cell, seed, output):
     try:
         agents = []
         for seat in range(cfg.N):
-            generation = dict(spec["generation"], seed=int(digest([plan["phase"], episode_id, seat])[:8], 16))
+            generation = dict(cell.get("generation", spec["generation"]), seed=int(digest([plan["phase"], episode_id, seat])[:8], 16))
             row["generation_by_seat"].append(generation)
             agents.append(RecordingAgent(
                 name=f"p{seat}", agent_id=seat, env_cfg=cfg, backend="local", model_name=cell["model"],
-                base_url=plan["deployment"]["models"][cell["model"]]["base_url"], generation_config=generation,
+                base_url=runtime_base_url or plan["deployment"]["models"][cell["model"]]["base_url"], generation_config=generation,
                 output_dir=str(episode_dir / "agents" / f"p{seat}"), prompt_dir=str(ROOT / "src/AI_Agent/prompts"),
                 stop_on_api_failure=True, **dict(spec["agent"], reasoning_mode=cell["reasoning_mode"])))
         result = GameSimulator(cfg).run_episode(agents)
@@ -395,17 +496,28 @@ def run_cli(phase, argv=None):
     parser.add_argument("--models", nargs=6, required=True)
     parser.add_argument("--config", type=Path, default=ROOT / "experiments/study_config.json")
     parser.add_argument("--deployment-report", type=Path, required=True)
+    parser.add_argument("--generation-overrides", type=Path, help="JSON model alias to max_tokens overrides; frozen in each plan cell")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--seed-start", type=int, default=101)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--approval", type=Path, help="Human approval receipt bound to the saved dry-run plan")
     parser.add_argument("--execute-model", choices=ROSTER, help="Optional serial shard; full grid is still planned and reported")
+    parser.add_argument('--execute-seeds', nargs='+', type=int, help='Disjoint execution shard; full approved plan retained')
+    parser.add_argument('--runtime-base-url', help='Job-local loopback endpoint; generation and seed settings unchanged')
     if phase == "main":
         parser.add_argument("--seeds-per-cell", "--seeds_per_cell", type=positive_int, required=True)
         parser.add_argument("--power-report", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
         plan = make_plan(args, phase)
+        if args.runtime_base_url:
+            from urllib.parse import urlsplit
+            endpoint = urlsplit(args.runtime_base_url)
+            if endpoint.scheme != 'http' or endpoint.hostname != '127.0.0.1' or endpoint.path != '/v1' or not endpoint.port or endpoint.username:
+                raise ValueError('Runtime endpoint must be http://127.0.0.1:PORT/v1')
+        if args.execute_seeds and (not args.execute_model or len(set(args.execute_seeds)) != len(args.execute_seeds)
+                or not set(args.execute_seeds).issubset(next(set(c['seeds']) for c in plan['cells'] if c['model'] == args.execute_model))):
+            raise ValueError('Execution seeds must uniquely belong to the selected model')
         if args.dry_run:
             output = new_output(args.output)
             write_json(output / "run_plan.json", plan)
@@ -441,9 +553,11 @@ def run_cli(phase, argv=None):
                 if args.execute_model and cell["model"] != args.execute_model:
                     continue
                 for seed in cell["seeds"]:
+                    if args.execute_seeds and seed not in args.execute_seeds:
+                        continue
                     if (*cell_key(cell), seed) in completed:
                         continue
-                    row = execute_episode(plan, cell, seed, args.output)
+                    row = execute_episode(plan, cell, seed, args.output, args.runtime_base_url) if args.runtime_base_url else execute_episode(plan, cell, seed, args.output)
                     with raw.open("a", encoding="utf-8") as stream:
                         stream.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n")
                     rows.append(row)
@@ -462,6 +576,6 @@ def run_cli(phase, argv=None):
 
 def require_complete(manifest, rows):
     cells = summarize_cells(manifest["plan"], rows)
-    if any(c["completed"] != c["target"] or c["fallback_rate"] != 0 for c in cells):
-        raise ValueError("Main data must contain all 48 cells at their target seed counts and zero fallback; inspect main_run_summary.md")
+    if any(c["completed"] != c["target"] or (c["fallback_rate"] is None or c["fallback_rate"] > MAX_FALLBACK_RATE) for c in cells):
+        raise ValueError("Main data must contain all 48 cells at their target seed counts and at most 12% fallback per cell; inspect main_run_summary.md")
     return cells

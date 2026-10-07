@@ -1,0 +1,62 @@
+2026-10-07 — Model-specific seed sizing and proposed pilot reuse
+
+This supersedes the uniform-40 seed rule in H4_amendment_20261007.txt.
+H4 remains six separate named-model interactions; each model's eight
+N × mode cells must be balanced, but seed counts may differ across models.
+
+At a 10-percentage-point endpoint interaction and 90% marginal power:
+model                         raw requirement    target at variance x1.25
+llama-3.1-8b-instruct                    35                    44
+qwen3-8b                                5                     6
+gemma-3-12b-it                          18                    22
+mistral-small-3.1-24b-instruct           5                     6
+deepseek-r1-distill-qwen-14b            40                    50
+gpt-oss-120b                            2                     2
+
+Targets use the existing model-specific q_m and Welch t approximation,
+recomputed with all within-model cell variances multiplied by 1.25.
+Uniform scaling leaves the Welch df factor unchanged. This is a planning
+sensitivity margin, not a confidence bound or guaranteed achieved power;
+five pilot seeds give uncertain variance estimates.
+
+Pilot reuse is proposed only after identical generation conditions and
+serving configuration are established and inference implications reviewed.
+For an approved model, retain all five pilot episodes per cell, including
+when the target is only two. In that case the actual final count is five,
+not a selectively chosen subset of two. Collect only max(0,target-5) new
+episodes per cell. Explicitly state this in the paper's Design subsection.
+
+Audit finding: the selected original Llama, Qwen, Gemma, Mistral and
+DeepSeek pilot data use original JSON extraction; proposed main uses
+final_decision_v2. These selected pilot records are NOT silently credited
+or combined with v2 trajectories. GPT pilot frozen inference sources,
+prompts, environment and guard match current sources after CRLF/LF
+normalization; future serving details are not fully filled in yet.
+GPT reuse is therefore a candidate, not a completed merge or approval.
+The separate frozen-parser-v2 Llama rerun also supplies five balanced
+seeds (106-110). It is an alternate source candidate, not a silently
+substituted original pilot. Qwen v2 currently has 35/40 completed episodes
+and does not yet supply five balanced seeds across every cell.
+
+Draft Design wording, conditional on reuse approval:
+"Replication was balanced across N and reasoning mode within each named
+model, with model-specific targets determined from pilot episode variance
+inflated by 25%. For models whose generation protocol was unchanged and
+whose pilot reuse was approved, all five pilot episodes per cell were
+included in the final dataset and credited toward the target. Models with
+changed generation protocols were not combined without an explicit
+version-specific decision. Pilot results had been inspected before these
+amendments; the reuse and adaptation are disclosed."
+
+The inspected pilot also informed the H4 reframing. Identical generation
+settings alone do not make its reuse independent fresh confirmatory
+evidence. Combined-data adaptive inference needs review; disclose the
+adaptation and consider appropriate calibration or fresh-data validation.
+No claim of automatic nominal error control is made for pilot-only GPT.
+
+Analysis caveat: the existing runner currently encodes uniform counts.
+Model-specific plans and ingestion of credited pilot episodes must be
+implemented and reviewed after these numbers/eligibility decisions are
+approved. No new dry-run has been generated and no seed map has been
+passed to run_main.py. Earlier uniform-40 dry-runs are superseded for
+planning, not amended or approved for execution.
