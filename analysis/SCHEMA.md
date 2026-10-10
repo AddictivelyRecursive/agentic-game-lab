@@ -1,0 +1,9 @@
+# POST-HOC / EXPLORATORY — verified schema
+
+Canonical input and SHA256: see results/source_manifest.json. JSONL includes manifest and episode records; only completed episode records enter analysis. All 376 episodes / 48 cells / 39,480 decisions verified; seed counts 14/4/8/3/16/2 per model-mode-N cell. Unique episode_id and (model,mode,N,seed); exactly 30*N distinct seat-round decisions per episode. No pilots included.
+
+Episode fields: model (mapped explicitly to short name), reasoning_mode (structured/free_form), N, seed, episode_id, status. Decision fields: round (1–30), seat (0–N−1), repair_used (bool), repair_calls (0–3), fallback_used (bool), reasoning_text, first_parse_ok (historical proxy), model_calls, aborted. Submitted action is absent directly on decision: join by round to rounds[t].true_actions[seat]. Verified integer 0–4 and c=1−a/4 against true_coop and stored episode cooperation. Every fallback action is 4. No aborted decisions.
+
+Use original repair_used/fallback_used flags exactly as Table 5; never proxy these from action or call count. Recompute first_parse and first_valid from first model_calls output using the saved v2 extractor and validate_decision, allowing digit strings, excluding booleans, requiring integer 0–4. Extraction success alone does not imply action validity. Retain historical first_parse_ok separately. Parser versions and call stages are listed in the manifest. Explanation is reasoning_text; empty means whitespace-only. Missing required fields, duplicate joins or source hash mismatch raise an error before results.
+
+Unit of inference: episode. Model-mode outcome means average four N-cell episode means equally. Seat-decision repair/fallback rates are descriptive. Cooperation is stored internally in fractions, reported as percent/pp. No new model inference.

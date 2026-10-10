@@ -1,0 +1,19 @@
+{
+  "input": "C:\\Users\\HP\\Documents\\agentic-game-lab\\results\\server_copies\\final_main_20261010\\main_complete_20261010\\main.jsonl",
+  "sha256": "149ac53f8a19286b429d1de83939ae91028845b0b35a18e1dc8dd5cc0468b778",
+  "record_types": {
+    "manifest": 1,
+    "episode": 376
+  },
+  "parser_versions": [
+    "None",
+    "final_decision_v2"
+  ],
+  "call_stages": [
+    "decision",
+    "repair"
+  ],
+  "episodes": 376,
+  "decisions": 39480,
+  "seed": 20261010
+}
