@@ -1,0 +1,481 @@
+\documentclass[11pt]{article}
+\usepackage[review]{acl}
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{inconsolata}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{placeins}
+\graphicspath{{figures/}}
+\title{Evaluating Cooperation in LLM Agents: Level, Group-Size Response, and Persistence}
+\author{Anonymous submission}
+\begin{document}
+\maketitle
+\begin{abstract}
+Evaluations of LLM-agent cooperation can conflate how much agents cooperate, how behavior changes with group size, and whether cooperation persists. We evaluate six models in 376 episodes of repeated homogeneous self-play, crossing two decision scaffolds with group sizes $N=2,3,4,5$. Three findings distinguish these measurements. Scaffold-associated group-size responses vary across models, with Llama the only individual interaction surviving Holm correction. Cooperation-level gaps need not imply supported slope differences: Mistral averages 80.24\% cooperation in free-form play versus 6.75\% under the structured scaffold, while its slope interaction remains uncertain. Early cooperation need not persist: DeepSeek's free-form cooperation falls from 39.87\% in rounds 1--5 to 2.79\% in rounds 26--30. This empirical case study motivates evaluating cooperation through separate measures of level, group-size response, and persistence, alongside model-specific uncertainty and execution reliability.
+\end{abstract}
+
+\section{Introduction}
+Evaluating cooperation in LLM agents requires deciding what cooperation means as a measurement. An episode average measures cooperation level, but does not show how behavior responds to group size or whether initial cooperation persists. For LLM agents in repeated social dilemmas, cooperation level, group-size response, and persistence over rounds are distinct measurements; pooled means can hide model- and scaffold-specific differences.
+
+This distinction matters because strategic behavior depends on the environment and its presentation. Classical group-size effects vary with benefit scaling \citep{scirep2015groupsize,plos2015curvilinear}, and state representation affects LLM behavior in strategic environments \citep{goodyear2025state}. A cooperation score therefore characterizes a model operating through a specified decision pipeline, rather than an intrinsic cooperative disposition.
+
+We present an empirical evaluation case study of six named models in a repeated graded cooperation game. Across 376 fresh episodes, we cross $N\in\{2,3,4,5\}$ with two scaffolds. Both conditions provide the same state, histories, long-term reward objective, and output schema. The structured condition additionally supplies a constant ranking of immediate action payoffs favoring defection; free-form omits this ranking. The contrast concerns the salience of immediate incentives, not structured reasoning in general or chain-of-thought versus no reasoning. Episodes use homogeneous self-play and have no inter-agent communication channel.
+
+The results distinguish scaffold-associated differences in cooperation level, group-size response, and persistence, with Llama the only individual interaction surviving Holm correction. The pooled H1/H2 tests provide no support for a simple universal scaling-defection account, one finding within this broader evaluation. Execution reliability qualifies what can be inferred from the observed trajectories.
+
+Our contributions are (i) a controlled group-size-by-scaffold evaluation with episode-level uncertainty; (ii) a model-resolved decomposition of cooperation level, group-size response, and persistence; and (iii) an execution-reliability analysis identifying where pipeline failures limit behavioral interpretation. Pilot outcomes inform planning and are excluded from the main dataset. The evaluation targets measurement of agent behavior, rather than a universal scaling law or a communication mechanism.
+
+\input{tables/measurement_grid}
+
+\section{Related Work}
+\label{sec:related}
+\paragraph{Group size and social dilemmas.}
+Classical work shows that cooperation need not decline monotonically with group size: the relationship depends on benefit scaling and saturation \citep{scirep2015groupsize,plos2015curvilinear}. Spatial public-goods games and reinforcement-learning settings extend the study of group-size effects to different interaction structures \citep{szolnoki2012spatial,rsos2024rlpgg}. These studies motivate specifying the payoff aggregation before interpreting a group-size response. Here, benefits depend on the average cooperation of others, rather than their summed contributions; the evaluation concerns this particular repeated environment.
+
+\paragraph{Cooperation among LLM agents.}
+\citet{piatti2024cooperate} study sustainable cooperation in societies of LLM agents, while \citet{piedrahita2025corrupted} examine free-riding by reasoning-focused models in public-goods games with costly sanctioning. These works locate cooperation within interacting agent populations. Our case study focuses on measurement within a fixed environment: separating episode-mean levels, scaffold-associated group-size responses, and round trajectories. The purposive model roster supports comparisons among the tested checkpoints, rather than a general taxonomy of reasoning capabilities.
+
+\paragraph{Representation and behavioral evidence.}
+\citet{goodyear2025state} study how state representation affects LLM-agent behavior in dynamic routing games. Our intervention instead adds an immediate-payoff ranking while retaining state information, histories, objectives, and the requested output schema. We measure its association with levels and group-size responses separately.
+
+\section{The Environment}
+\label{sec:env}
+
+We use a repeated $N$-player graded cooperation game with endogenous
+payoff dynamics and an optional perception-noise mechanism. The present
+experiment fixes perception noise to zero. At each round $t$, every player $i$
+simultaneously selects an action $a^t_i \in \{0, \dots, M-1\}$, mapped to
+a cooperation level
+\begin{equation}
+  c^t_i = 1 - \frac{a^t_i}{M-1},
+\end{equation}
+so that $a=0$ is full cooperation and $a=M-1$ is full defection, with
+$M-2$ graded intermediate levels. Player $i$'s reward in round $t$ is
+\begin{equation}
+  u^t_i = B^t_{\text{eff}} \cdot \bar{c}^t_{-i} - C \cdot c^t_i + K,
+\end{equation}
+where $\bar{c}^t_{-i} = \frac{1}{N-1}\sum_{j \neq i} c^t_j$ is the
+\emph{average} cooperation of the other $N-1$ players. This averaging,
+rather than summing, is the structural property that places this game on
+the constant-benefit side of the classical group-size literature
+(Section~\ref{sec:related}): a given player's own cooperation never
+directly increases their own payoff, and the benefit available from
+others does not grow with $N$, so each player's ability to influence the
+shared outcome is diluted as the group grows.
+
+Two endogenous mechanisms shape $B^t_{\text{eff}}$: a public cooperation
+streak amplifies the benefit through a saturating bonus when group
+cooperation exceeds $\theta$, and a slower drift process adjusts the base
+benefit using recent cooperation. The engine supports perception noise,
+but this study fixes $p=0$, so observed and true actions coincide.
+Section~\ref{sec:design} gives the fixed parameters.
+
+
+\section{Experimental Design}
+\label{sec:design}
+\subsection{Questions and Planned Tests}
+H1 tests a negative structured-condition cooperation slope over $N$,
+pooled across models. H2 compares a flat response with $a+b/(N-1)$ in
+structured play. Amended H4 tests the mode-by-$N$ interaction separately
+within each model and tests heterogeneity across the six estimates.
+Pooled H4 is secondary/descriptive. H1/H2 retain their implemented definitions.
+
+
+An inspected pilot informed the design and replication allocation
+(see Appendix~\ref{sec:appendix-amendment}). Before main data collection,
+the primary H4 analysis was amended on 7 October 2026; this is an internal
+dated record, not an external preregistration
+(see Appendix~\ref{sec:appendix-amendment}).
+
+\subsection{Models, Conditions and Replication}
+We test Llama-3.1-8B-Instruct, Qwen3-8B, Gemma-3-12B-IT,
+Mistral-Small-3.1-24B-Instruct, DeepSeek-R1-Distill-Qwen-14B and
+GPT-OSS-120B. The purposive roster spans developers, not a controlled
+parameter-scale sweep or independent training lineages: DeepSeek's
+checkpoint is distilled onto a Qwen base. DeepSeek and GPT-OSS form the
+designated exploratory reasoning group. Qwen3 also supports thinking
+\citep{qwen32025}, so this split is not a comprehensive capability taxonomy.
+
+All seats in an episode share model and condition. The 48 cells cross
+six models, four group sizes and two modes, with $M=5$, noise $p=0$,
+threshold $\theta=.50$, and $T=30$. Fresh seeds per cell are unequal (2--16):
+14/4/8/3/16/2 in the roster order, balanced across each model's eight cells:
+376 episodes and 39,480 seat-round decisions. Main seeds start at 1001.
+Pilot episodes are excluded, including GPT-OSS's pilot.
+See Appendix~\ref{sec:appendix-amendment} for the pilot-informed allocation,
+power calculations and their limits.
+
+The environment fixes $B_0=12$, $C=8$, $K=0$, $B_t\in[9,15]$,
+drift window 8, $\eta=.35$, reference cooperation .55, streak threshold
+.50, bonus scale $\lambda=.25$ and saturation parameter $\tau=4$.
+Observation and summary histories contain at most ten prior rounds.
+Agents use history-only memory and no opponent-prediction output. When the pipeline returns no valid decision, it supplies a fallback action.
+There is no inter-agent communication channel.
+
+Both prompts ask agents to maximize their own long-term average reward,
+consider immediate and future consequences, and return the same JSON
+schema. Structured play additionally receives a ranking by
+\begin{equation}
+\mathrm{score}(a)=-C\,c(a).
+\end{equation}
+The opponent-benefit term cancels when comparing one's own actions.
+Thus the ranking is always $[4,3,2,1,0]$, with scores $[0,-2,-4,-6,-8]$;
+it does not depend on $N$, state or history. Agents are explicitly free
+to reject the top-ranked action. Future streak and drift benefits are
+not included in this ranking, although both modes receive their rules.
+The contrast tests repeated salience of immediate defection incentives,
+not an optimal repeated-game policy.
+
+Serving configuration, hardware assignments, and output ceilings are reported in Appendix~\ref{sec:execution}.
+
+\subsection{Metrics and Analysis}
+
+We analyze episode-mean cooperation and estimate how the free-form versus
+structured group-size response differs within each model. The measurements are reported separately in Section~\ref{sec:results}.
+
+The primary outcome is the mean normalized cooperation across every seat
+and all 30 rounds of an episode. An episode is the behavioral analysis
+unit. Reward, terminal streak and terminal benefit are secondary summaries;
+first-attempt parse and fallback rates are separate reliability metrics.
+
+H1 uses the structured-reference $N$ coefficient in the pooled Gaussian
+identity-link mixed model $\bar C\sim N*\mathrm{free}$, fit to both modes
+by maximum likelihood. Model identity supplies a random intercept and
+$N$ slope, with an intercept-only alternative if no usable converged fit is
+obtained. No episode random intercept is added to an episode-mean outcome.
+H2 fits structured episodes only, comparing Gaussian flat
+$\bar C=a$ and dilution $\bar C=a+b/(N-1)$ models by AIC/BIC.
+Unequal replication affects the weighting of both pooled analyses.
+
+Within each model, H4 estimates the free-form-minus-structured difference
+in linear cooperation change from $N=2$ to $N=5$, using all four group
+sizes, cell-specific variance estimates and Welch uncertainty; we report
+marginal and six-model Holm-adjusted tests and an inverse-variance
+heterogeneity test (see Appendix~\ref{sec:analysis-details}).
+
+The existing pooled mixed-model interaction is secondary and descriptive;
+it has no random $N$-by-mode interaction slope. Its estimate is distinct
+from a population-power calculation that allows such heterogeneity.
+The pooled fit converged using L-BFGS with the planned random intercept
+and $N$ slope; an MLE boundary warning remains. No fitted prediction lies
+outside $[0,1]$. We report these diagnostics and retain the planned specification without
+post-hoc respecification.
+
+\section{Results}
+\label{sec:results}
+\subsection{Cooperation Level}
+All 376 planned episodes completed and enter the primary analysis. Ten of 48 cells have zero observed episode variance; these floors constrain detection without establishing deterministic policies.
+
+\textbf{Pooled means obscure model- and scaffold-specific differences in level, group-size response, and persistence.}
+Full descriptive outcomes appear in Appendix~\ref{sec:outcomes};
+Table~\ref{tab:main-h4} anchors levels alongside interactions.
+Free-form mean cooperation exceeds structured mean cooperation in all
+six models descriptively, but a level difference is not H4's slope
+interaction. Mistral illustrates the distinction: cooperation averages
+80.24\% free-form versus 6.75\% structured, yet its interaction is uncertain
+($-6.81$ points, 95\% CI $[-16.93,3.31]$).
+Mean per-seat reward is 6.57 versus .13 in structured
+self-play. This compares whole interacting populations, not the payoff
+of switching one agent against fixed opponents.
+
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{main_cooperation.pdf}
+\caption{Complete main cooperation by group size and scaffold. Points are
+cell episode means; bars are one standard error across independent episodes.
+Seats and rounds are not treated as independent replicates. Floor values
+and non-monotonic responses qualify a universal scaling-decline account.}
+\label{fig:main-coop}
+\end{figure*}
+
+\subsection{Group-Size Response}
+\textbf{Scaffold effects on group-size responses vary across models.}
+We estimated an endpoint-scale interaction for each model and tested their
+heterogeneity. Only Llama survives six-model Holm correction
+(Table~\ref{tab:main-h4}).
+\input{tables/main_results_anchor}
+The six interactions reject the approximate shared-effect null:
+$Q(5)=18.23$, $p=.0027$, $I^2=72.6\%$. This supports heterogeneity of
+scaffold-associated group-size responses within the named roster.
+
+Llama's endpoint-scale interaction is $+14.02$ percentage points
+(95\% CI $[4.67,23.37]$, marginal $p=.004$, Holm $p=.024$).
+Its free-form cooperation rises from 10.42\% at $N=2$ to 26.10\% at $N=5$,
+while structured cooperation changes from 4.37\% to 5.54\%.
+This positive interaction contradicts a uniform larger-group defection
+narrative. Other individual intervals include zero.
+
+GPT-OSS's interval is uninformative: two seeds per cell yield Welch degrees
+of freedom 1.02 and an untruncated interval of $[-116.99,101.24]$ points.
+Its main contrast variance coefficient is .01638 versus .0000934 in the
+pilot. Pilot-based precision did not transport to this small main sample;
+we do not use the realized effect to choose additional replication.
+
+The secondary pooled mixed-model interaction is $+4.04$ endpoint-scale
+points (95\% CI $[-2.72,10.80]$, $p=.242$).
+It is descriptive and lacks a model-specific random interaction slope.
+See Appendix~\ref{sec:appendix-amendment} for pilot-based population power
+ceilings and their distinction from the current fit. Heterogeneity limits
+the scientific interpretation of pooling.
+
+\paragraph{Pooled tests.}
+H1 is not supported: the structured-reference $N$ coefficient is
+$-0.040$ percentage points per added player (95\% CI $[-1.764,1.684]$,
+$p=.964$). Figure~\ref{fig:main-coop} shows substantial structured floors,
+including zero cooperation in every Gemma structured episode.
+This result concerns the prespecified pooled linear slope.
+
+H2 is also not supported. The flat model has AIC $-602.03$ and BIC
+$-595.56$, versus $-600.29$ and $-590.58$ for dilution: flat-minus-dilution
+$\Delta$AIC $=-1.74$ and $\Delta$BIC $=-4.98$.
+The dilution coefficient $b=-.00616$ has the opposite sign to the proposed
+decline. Together, H1/H2 provide no support for a simple universal scaling-defection account.
+
+\subsection{Persistence}
+\label{sec:persistence}
+Mistral's free-form cooperation persists from 78.08\% in rounds 1--5 to 80.30\% in rounds 26--30. The summary grid places these existing early/late measurements alongside levels and interactions (Table~\ref{tab:measurement-grid}).
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{main_dynamics.pdf}
+\caption{Descriptive cooperation trajectories, averaged equally across
+four group sizes. Shading is one standard error of the stratified mean
+computed from episode trajectories. Early cooperative play need not
+persist. Group-size-specific trajectories appear in the appendix.}
+\label{fig:dynamics}
+\end{figure*}
+
+Qwen's free-form opening-round cooperation is 59.11\%, yet every free-form
+episode has zero cooperation throughout rounds 26--30; GPT-OSS also has
+zero cooperation throughout those last five rounds in every episode.
+DeepSeek's free-form average falls from 39.87\% in rounds 1--5 to 2.79\%
+in rounds 26--30. These descriptive within-episode patterns separate early cooperation from persistence.
+Gemma instead exhibits non-monotonic free-form means across $N$:
+14.53\%, 6.63\%, 30.91\%, and 0\%. Aggregated slopes can conceal this
+shape and seed-dependent emergence.
+
+\subsection{Execution Reliability}
+
+\textbf{Execution reliability is necessary to interpret cooperation.} Every one of the 48 cells passes the 12\% fallback ceiling
+fixed before main collection (maximum observed cell rate 7\%), and the
+primary analysis retains fallback-affected trajectories. Table~\ref{tab:main-reliability} reports first-attempt parse and fallback rates. The fallback action is full defection
+(action~4; Appendix~\ref{sec:env-recurrences}), so fallbacks bias the affected
+decisions toward defection rather than acting as a neutral default.
+
+For Qwen, fallbacks occur on 0/1,680 structured and 100/1,680 free-form decisions (6.0\% free-form). A post-hoc saved-log check finds no fallbacks in its final five free-form rounds (0/280 decisions), all of which have zero cooperation. Thus late defection is not the direct substitution of fallback actions. Earlier fallback-affected histories still qualify strategic interpretation (Appendix~\ref{sec:qwen-log-check}). Gemma has no fallback, so its 3,360
+structured defections cannot be attributed to the fallback rule.
+DeepSeek has 0.03\%/0.10\% structured/free-form fallback. Llama has 0.4\%/1.3\% fallback and GPT-OSS
+0.0\%/0.7\%. These rates characterize the tested pipeline, not intrinsic
+strategic ability. Existing post-hoc first-attempt-valid and episode-filter checks for Qwen are summarized in Appendix~\ref{sec:qwen-log-check}; they do not replace the full-pipeline primary analysis.
+
+Exploratory E1 shows no clean reasoning-group separation of interaction directions (Appendix~\ref{sec:e1}).
+\FloatBarrier
+
+\section{Discussion}
+This case study evaluates cooperation as a set of measurements conditioned on a model, scaffold, and execution pipeline. The level, response, and persistence results answer different questions. Their distinction is the contribution, rather than a universal law of scaling-induced defection.
+
+The immediate-payoff ranking repeatedly highlights a unilateral incentive to defect while omitting future streak and drift benefits from its scores. Both conditions nevertheless receive the rules governing those benefits. The comparison therefore evaluates this particular scaffold and cannot identify an effect of structured reasoning generally.
+
+Group size changes a player's marginal contribution to others' mean cooperation, aggregate histories, and threshold dynamics. Without frozen-benefit or opponent-composition controls, the responses cannot isolate diluted accountability, reciprocity, threshold coordination, or horizon reasoning. These remain possible interpretations rather than identified mechanisms. Qwen's late zero cooperation occurs without late fallbacks, but earlier fallback-affected histories prevent a clean separation of strategy from execution.
+
+\begin{center}
+\fbox{\begin{minipage}{0.92\columnwidth}
+\textbf{Recommendations for evaluating agent cooperation.}
+Report the exact scaffold and payoff representation, because the evaluated contrast changes decision presentation. Report per-model level and response estimates with uncertainty, because level gaps and slope interactions differ and replication is unequal. Report round trajectories, because early cooperation can disappear. Report fallback rates and the fallback action, because execution contributes to observed behavior.
+\end{minipage}}
+\end{center}
+
+\section{Conclusion}
+Cooperation evaluation should distinguish level, group-size response, and persistence. This six-model case study illustrates why these measurements require model-specific uncertainty, a specified scaffold, trajectories, and execution audits. The evidence supports a bounded evaluation contribution, rather than a universal account of scaling-induced defection.
+
+\section*{Limitations}
+
+The six purposively selected checkpoints are not a random sample of a
+defined model population; training lineages overlap, and parameter count
+is confounded with architecture, training and serving. The approximate
+$Q$ test has only five heterogeneity degrees of freedom and uncertain
+estimated variances. Welch uncertainty is particularly weak for GPT-OSS.
+The Gaussian pooled model has floor-heavy outcomes and a boundary
+warning; convergence and in-range predictions do not validate its
+distributional assumptions. H1/H2 use unequal episode weighting across
+models.
+
+The pilot informed the design and variance-based budget. A hard compute
+constraint made the original 10-point target infeasible; 15 points and a
+25\% variance uplift were substituted before fresh collection. Several
+models remain below 90\% prospective marginal power, and this uplift is
+not a confidence bound. Null individual results do not exclude smaller
+effects, and non-significant individual effects do not establish
+equivalence. Planned marginal power is not family-wise power. Main and
+pilot parsers differ for five models; no pilot outcomes are merged, but
+variance transport remains uncertain. The amended primary family reports
+both marginal and six-model Holm $p$-values; the additional heterogeneity
+test is not included in that six-test correction.
+
+Section~\ref{sec:results} and Appendix~\ref{sec:qwen-log-check} report pipeline reliability and post-hoc saved-log checks; first-attempt-valid subsets condition on successful generation and retain the observed histories. Passing the fallback gate does not remove fallback influence. Parse success does not guarantee action validity, and inference hardware and output-token ceilings vary across models.
+
+This single English-language game uses homogeneous self-play, $N \le 5$,
+30 rounds, one temperature, no communication and no human baseline. The
+ranking is constant and myopic. There is no frozen-benefit or
+opponent-matching ablation. Returned explanations are not hidden
+reasoning. Temporal
+observations are descriptive, not new confirmatory claims. Heterogeneity
+does not establish every pairwise model difference or opposite causal
+mechanisms. These limits preclude broad claims about morality, universal
+reasoning-model behavior or the causal mechanism behind cooperation.
+
+\section*{Ethical Considerations}
+The experiment uses simulated agent interactions and no human game
+participants or personal data. Cooperation and defection are operational
+action labels, not moral judgments or evidence of real-world intent.
+The computational results do not establish general trustworthiness.
+
+\bibliography{custom}
+\appendix
+\section{Pilot-Informed Design Amendments}
+\label{sec:appendix-amendment}
+The 240-episode pilot has five seeds per cell, $T=30$, temperature .7 and
+top-$p=1.0$. Eleven cells have zero observed variance. The original
+extractor applies to five pilot models; GPT-OSS uses final-decision v2.
+All fresh main data use v2 and no pilot outcomes are credited.
+On 7 October 2026, an internal amendment made within-model interactions
+and heterogeneity primary for H4; pooled H4 became secondary/descriptive.
+H1/H2 were unchanged. A compute amendment replaced a 10-point/90\%
+marginal-power proposal with a 15-point target, a 25\% variance margin
+and the allocation below. The 29-chunk schedule changes ownership of
+execution only. These are dated internal records, not an external
+preregistration claim.
+The compute-constrained allocation replaced a 10-point interaction target
+with a 15-point target and a 25\% pilot-variance margin; it does not imply
+90\% power for every model or simultaneous detection of all six effects.
+\input{tables/allocation}
+\input{tables/pilot_comparison}
+The six pilot fitted interactions have sample variance .0134210
+(squared proportion units), based on only five variance degrees of
+freedom. A population sensitivity gives a non-shrinking variance floor
+of $.0134210/6$. Infinite-seed normal power ceilings are 18.46\%, 56.14\%
+and 88.72\% at 5/10/15 points; a noncentral-$t$ sensitivity with five
+degrees of freedom gives 13.95\%, 40.27\% and 71.85\%.
+These low-precision planning calculations are not main-data achieved
+power and do not match a fitter lacking random interaction heterogeneity.
+The pooled fit's power limitation additionally depends on the noisy
+between-model variance and six-model coverage.
+
+\section{Execution and Reliability}
+\label{sec:execution}
+Local vLLM endpoints use temperature .7 and top-$p=1.0$ for all generations. DeepSeek's output ceiling is 8,192 tokens;
+all others use 2,048. Context limit is 16,384 and tensor parallelism one.
+Jobs use H100/H200 GPUs; GPT-OSS uses H200 with MXFP4 weights.
+Appendix~\ref{sec:execution} reports actual serving and reliability.
+The 29 single-GPU chunks consumed 141.29 allocated GPU-hours
+(132.38 hours of recorded episode execution). Collection spanned
+58.17 hours from first allocation start to last finish.
+
+All 29 scheduled study jobs completed. Worker logs record vLLM 0.25.1,
+PyTorch 2.11.0 and Transformers 5.14.1. Activation dtype is bfloat16;
+GPT-OSS weights use MXFP4. GPU inventory was recorded, but peak VRAM
+was not measured. Latencies below cover the complete decision pipeline and reflect actual
+hardware assignments, not a standardized inference-speed benchmark.
+\input{tables/main_serving}
+\input{tables/main_reliability}
+First-parse rates are recomputed with the actual v2 extractor; the raw
+historical proxy flags remain preserved. JSON extraction success does
+not guarantee action validity. Among Qwen's 3,664 extraction errors,
+3,417 contain an unterminated thinking block. This is consistent with
+an output-budget bottleneck, but the client did not retain finish reasons
+or token usage, so truncation cannot be established for every case.
+
+\section{Analysis Details}
+\label{sec:analysis-details}
+Within each model, H4 uses a linear-in-$N$ regression with mode and their
+interaction. Define the endpoint-scale estimand
+\begin{equation}
+ D_m=3\bigl(\beta_{\mathrm{free},m}-\beta_{\mathrm{struct},m}\bigr).
+\end{equation}
+Here $\beta_{\mathrm{free},m}$ and $\beta_{\mathrm{struct},m}$ are the respective linear-in-$N$ slopes. Positive $D_m$ means the free-form condition changes more positively, or
+declines less, between $N=2$ and $N=5$. All four $N$ levels contribute;
+this is not the literal two-endpoint difference. With cell episode
+variance $v_{m,r,N}$ and $s_m$ seeds per cell,
+\begin{equation}
+ \begin{aligned}
+ q_m&=\sum_{r,N}[0.6(N-3.5)]^2v_{m,r,N},\\
+ \mathrm{Var}(\widehat D_m)&=q_m/s_m.
+ \end{aligned}
+\end{equation}
+The endpoint multiplier gives weights $3(N-3.5)/5=0.6(N-3.5)$; the mode contrast has opposite signs, which disappear on squaring in Eq.~(5). The implementation combines OLS point estimates with cell-specific
+variances and Welch--Satterthwaite $t$ uncertainty. Main-data variances
+are re-estimated; pilot variances are planning inputs only. Report
+two-sided marginal $p$-values at $\alpha=.05$ and supplemental Holm-adjusted
+$p$-values; planned marginal power is not family-wise power.
+
+H4 heterogeneity uses inverse-variance weights $w_m$ and
+$Q=\sum_m w_m(\widehat D_m-\bar D_w)^2$; report the approximate
+$\chi^2_5$ reference and $I^2=\max(0,(Q-5)/Q)$ (zero when $Q=0$).
+Six models and estimated standard errors limit calibration. Significant
+$Q$ indicates heterogeneity, not a proof of inadequate power.
+
+\section{Complete Descriptive Outcomes}
+\label{sec:outcomes}
+Table~\ref{tab:main-outcomes} preserves all cooperation, early/late and
+reward summaries, including the columns omitted from the main results anchor.
+\input{tables/main_outcomes}
+
+\section{Exploratory Reasoning-Group Comparison}
+\label{sec:e1}
+The designated reasoning group shows no clean separation of interaction
+directions: DeepSeek is positive, GPT-OSS negative; Llama is positive
+and the other three models negative. The exploratory status--direction
+correlation is .25 (Fisher exact $p=1.0$). This small, confounded grouping
+cannot identify an effect of reasoning training.
+
+\section{Environment Recurrences and Execution Seeds}
+\label{sec:env-recurrences}
+Let $g_t=N^{-1}\sum_i c_i^t$, $s_0=0$ and $B_1=12$.
+The current payoff uses
+\begin{equation}
+ B_{\mathrm{eff}}^t=B_t[1+.25\tanh(s_{t-1}/4)].
+\end{equation}
+After actions, $s_t=s_{t-1}+1$ if $g_t\geq.5$ and zero otherwise.
+Let $r_t$ be the average of the available $g$ values over the last eight
+rounds including $t$. Drift updates
+\begin{equation}
+ B_{t+1}=\mathrm{clip}_{[9,15]}[B_t+.35(r_t-.55)].
+\end{equation}
+With zero perception noise these observed cooperation means are true means.
+The base benefit is bounded by 15; the streak-amplified effective benefit
+can exceed 15. Observations expose current benefit, streak, rolling state,
+prior ten-round action histories and action frequencies, never simultaneous
+current opponent actions. Generation seeds are derived from phase,
+episode identity (including condition) and seat, so equal episode seed
+labels across modes do not imply paired random generations.
+Fallback maximizes $-C\,c(a)$ with a cooperative tie-break; at $C=8$ its
+unique choice is action~4 (full defection).
+
+\section{Additional Main Visualizations}
+The following figure separates trajectories by group size and scaffold,
+complementing the group-size-averaged main-text trajectories.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.9\textwidth]{main_trajectory_by_N.pdf}
+\caption{Descriptive cell-mean trajectories by group size and mode.
+Curves average episodes within a cell across all 30 rounds. Group-size
+responses and persistence differ across models and scaffolds; these
+descriptive trajectories introduce no new tests.}
+\end{figure*}
+
+\section{Qwen Saved-Log Checks and Dataset Provenance}
+\label{sec:qwen-log-check}
+The primary Qwen results use 32 fresh main episodes, seeds 1001--1004, with four episodes in each mode-by-$N$ cell. The complete cluster main export matches the local paper input byte for byte. The separate parser-v2 rerun, seeds 106--110, contains 35 pilot episodes (20 structured, 15 free-form), rather than a complete replacement main grid; it is not merged into the primary dataset.
+
+These post-hoc checks use the saved main actions and original fallback flags, not new inference. Qwen free-form has 100 fallbacks among 1,680 decisions overall, but none among the 280 decisions in rounds 26--30. All 280 late decisions have zero cooperation. This rules out direct fallback substitution as the source of late zero cooperation, without ruling out effects of earlier fallbacks on subsequent histories.
+
+The existing first-attempt-valid check recomputes validity from each initial response with the v2 extractor and action validator. It reports free-form cooperation of 60.42\% in rounds 1--5 and 0.00\% in rounds 26--30, averaging eligible decisions within episodes and equally across the four group sizes. These conditional summaries retain the observed pipeline-generated histories; they are not trajectories from an intervention restricted to first-attempt decisions. Only one free-form episode has no fallbacks. The missing retained cells prevent a complete filtered comparison. The saved-log checks therefore clarify fallback timing without establishing robustness across fallback-free episodes.
+
+\input{prompt_templates_full}
+\end{document}

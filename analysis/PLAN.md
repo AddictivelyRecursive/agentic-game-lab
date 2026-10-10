@@ -1,5 +1,7 @@
 # POST-HOC / EXPLORATORY analysis plan
 
+Current status (2026-10-10): post-hoc tasks have been executed; see RESULTS.md and server_verification.json. The separately authorized prospective reviewer-response plan is [experiments/reviewer_revision_20261010/PLAN.md](../experiments/reviewer_revision_20261010/PLAN.md). Its initial diagnostic jobs are 388834 and 388835, at most two GPUs and four allocated GPU-hours total. The original planning text below is retained as a historical record.
+
 Prepared 2026-10-10. Status: planned, not executed. Deployment means copying this plan to Sharanga; it does not launch analysis, episodes, inference, vLLM, or GPU jobs. No optional judge is authorized. Implement and execute tasks strictly 0 → 1 → 2 → 3 → 4, subject to the Task 0 gate.
 
 ## Scope and immutable inputs
