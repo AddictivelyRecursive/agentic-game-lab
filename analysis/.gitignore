@@ -1,0 +1,7 @@
+__pycache__/
+.venv*/
+*.zip
+*.log
+logs/
+qa/
+explanation_export_20261010/

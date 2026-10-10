@@ -27,11 +27,12 @@ def rng(name):
 
 def table(df, name):
     df.to_csv(HERE/'results'/f'{name}.csv', index=False)
-    tex = df.to_latex(index=False, escape=True, float_format=lambda x: f'{x:.2f}', na_rep='not estimable')
+    formatters={c:(lambda x: f'{x:.4f}') for c in df.columns if c in ['p','holm','p_fourpoint','p_endpoint','holm_fourpoint','holm_endpoint','mc_se']}
+    tex = df.to_latex(index=False, escape=True, float_format=lambda x: f'{x:.2f}', formatters=formatters, na_rep='not estimable',longtable=len(df)>40)
     (HERE/'results/latex'/f'{name}.tex').write_text('% POST-HOC / EXPLORATORY\n'+tex, encoding='utf-8')
 
 def load(path=DEFAULT_INPUT):
-    from src.AI_Agent.agent.pipeline import extract_decision_json, validate_decision
+    from frozen_parser_v2 import extract_decision_json, validate_decision
     path = Path(path)
     digest = hashlib.sha256(path.read_bytes()).hexdigest()
     if digest != SOURCE_HASH:
@@ -87,7 +88,7 @@ def load(path=DEFAULT_INPUT):
     assert set(ep.status)=={'completed'},set(ep.status)
     rates=dd.groupby('episode_id')[['repair','fallback']].mean()
     ep=ep.merge(rates,left_on='episode_id',right_index=True,validate='one_to_one')
-    meta=dict(input=str(path),sha256=digest,record_types=record_types,parser_versions=sorted(parsers),call_stages=sorted(stages),episodes=len(ep),decisions=len(dd),seed=SEED)
+    meta=dict(input=str(path),sha256=digest,record_types=record_types,parser_versions=sorted(parsers),call_stages=sorted(stages),episodes=len(ep),decisions=len(dd),seed=SEED,frozen_parser_sha256=hashlib.sha256((HERE/'frozen_parser_v2.py').read_bytes()).hexdigest())
     (HERE/'results/source_manifest.json').write_text(json.dumps(meta,indent=2),encoding='utf-8')
     return ep,dd,rr
 

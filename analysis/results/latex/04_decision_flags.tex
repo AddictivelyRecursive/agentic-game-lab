@@ -1,8 +1,19 @@
 % POST-HOC / EXPLORATORY
-\begin{tabular}{lllrrrrrrrrrrl}
+\begin{longtable}{lllrrrrrrrrrrl}
 \toprule
 episode\_id & model & mode & N & seed & round & seat & action & R1 & R2 & R3 & R4 & any\_rule & evidence \\
 \midrule
+\endfirsthead
+\toprule
+episode\_id & model & mode & N & seed & round & seat & action & R1 & R2 & R3 & R4 & any\_rule & evidence \\
+\midrule
+\endhead
+\midrule
+\multicolumn{14}{r}{Continued on next page} \\
+\midrule
+\endfoot
+\bottomrule
+\endlastfoot
 llama-3.1-8b-instruct\_\_structured\_\_n2\_\_seed1001 & Llama & structured & 2 & 1001 & 1 & 0 & 4 & True & False & False & False & True & \{"R1": ["most cooperative action (4)"], "R2": [], "R3": [], "R4": []\} \\
 llama-3.1-8b-instruct\_\_structured\_\_n2\_\_seed1001 & Llama & structured & 2 & 1001 & 1 & 1 & 4 & False & False & False & False & False & \{"R1": [], "R2": [], "R3": [], "R4": []\} \\
 llama-3.1-8b-instruct\_\_structured\_\_n2\_\_seed1001 & Llama & structured & 2 & 1001 & 2 & 0 & 0 & False & False & False & False & False & \{"R1": [], "R2": [], "R3": [], "R4": []\} \\
@@ -15576,5 +15587,4 @@ deepseek-r1-distill-qwen-14b\_\_free\_form\_\_n5\_\_seed1009 & DeepSeek & free\_
 deepseek-r1-distill-qwen-14b\_\_free\_form\_\_n5\_\_seed1009 & DeepSeek & free\_form & 5 & 1009 & 1 & 4 & 2 & False & False & False & False & False & \{"R1": [], "R2": [], "R3": [], "R4": []\} \\
 deepseek-r1-distill-qwen-14b\_\_free\_form\_\_n5\_\_seed1009 & DeepSeek & free\_form & 5 & 1009 & 2 & 0 & 0 & False & False & False & False & False & \{"R1": [], "R2": [], "R3": [], "R4": []\} \\
 ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... \\
-\bottomrule
-\end{tabular}
+\end{longtable}

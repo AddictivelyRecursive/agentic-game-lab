@@ -3,8 +3,8 @@
 \toprule
 method & draws & valid\_draws & invalid\_draws & observed\_Q & p & mc\_se & note & low & high & fraction \\
 \midrule
-parametric\_normal & 20000 & 20000 & 0 & 18.23 & 0.00 & 0.00 & Fixed observed SE; t uses SE as scale and df>=2, not unit-variance t & not estimable & not estimable & not estimable \\
-parametric\_t & 20000 & 20000 & 0 & 18.23 & 0.09 & 0.00 & Fixed observed SE; t uses SE as scale and df>=2, not unit-variance t & not estimable & not estimable & not estimable \\
+parametric\_normal & 20000 & 20000 & 0 & 18.23 & 0.0024 & 0.0003 & Fixed observed SE; t uses SE as scale and df>=2, not unit-variance t & not estimable & not estimable & not estimable \\
+parametric\_t & 20000 & 20000 & 0 & 18.23 & 0.0851 & 0.0020 & Fixed observed SE; t uses SE as scale and df>=2, not unit-variance t & not estimable & not estimable & not estimable \\
 episode\_bootstrap\_Q & 5000 & 4855 & 145 & not estimable & not estimable & not estimable & Percentile CI CONDITIONAL on all six positive SEs; unconditional interval not estimable if invalid draws occur & 9.72 & 219.12 & not estimable \\
 episode\_bootstrap\_I2 & 5000 & 4855 & 145 & not estimable & not estimable & not estimable & Percentile CI CONDITIONAL on all six positive SEs; unconditional interval not estimable if invalid draws occur & 48.56 & 97.72 & not estimable \\
 episode\_bootstrap\_Llama\_Holm & 5000 & 4855 & 145 & not estimable & not estimable & not estimable & fraction conditional on estimable six-model Holm; low/high bound unconditional fraction by unresolved draws & 0.63 & 0.66 & 0.65 \\

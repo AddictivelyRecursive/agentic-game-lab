@@ -15,5 +15,6 @@
   ],
   "episodes": 376,
   "decisions": 39480,
-  "seed": 20261010
+  "seed": 20261010,
+  "frozen_parser_sha256": "0326da53a7240e50195a259d5878a81fa94b6896fd5cef8750a14305c482f0d6"
 }

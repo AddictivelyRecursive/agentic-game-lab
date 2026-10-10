@@ -1,8 +1,19 @@
 % POST-HOC / EXPLORATORY
-\begin{tabular}{llllrrrrrr}
+\begin{longtable}{llllrrrrrr}
 \toprule
 decision\_id & model & mode & episode\_id & round & seat & detector\_flag & stratum\_population & stratum\_sample & sampling\_weight \\
 \midrule
+\endfirsthead
+\toprule
+decision\_id & model & mode & episode\_id & round & seat & detector\_flag & stratum\_population & stratum\_sample & sampling\_weight \\
+\midrule
+\endhead
+\midrule
+\multicolumn{10}{r}{Continued on next page} \\
+\midrule
+\endfoot
+\bottomrule
+\endlastfoot
 b02ed9502200560aa36a23e52c207f3f & Llama & structured & llama-3.1-8b-instruct\_\_structured\_\_n5\_\_seed1004 & 20 & 2 & True & 668 & 15 & 44.53 \\
 039651d05e87e40ce70019c154ccd14f & Llama & structured & llama-3.1-8b-instruct\_\_structured\_\_n2\_\_seed1006 & 29 & 1 & True & 668 & 15 & 44.53 \\
 dabb0537ca0007279631410d69c8bd80 & Llama & structured & llama-3.1-8b-instruct\_\_structured\_\_n5\_\_seed1002 & 6 & 4 & True & 668 & 15 & 44.53 \\
@@ -153,5 +164,4 @@ a9bb0eee1b1e31b79231863f0c40f7e6 & GPT-OSS & structured & gpt-oss-120b\_\_struct
 b28aec3919fab4a35e334667be855fd6 & GPT-OSS & free\_form & gpt-oss-120b\_\_free\_form\_\_n2\_\_seed1001 & 29 & 0 & False & 832 & 12 & 69.33 \\
 738e98185fc4b26e67e592510beafe5b & GPT-OSS & structured & gpt-oss-120b\_\_structured\_\_n5\_\_seed1002 & 6 & 3 & False & 832 & 12 & 69.33 \\
 db04df70bfb63e73a774a82da2e7f33f & GPT-OSS & structured & gpt-oss-120b\_\_structured\_\_n5\_\_seed1002 & 5 & 2 & False & 832 & 12 & 69.33 \\
-\bottomrule
-\end{tabular}
+\end{longtable}

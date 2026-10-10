@@ -1,8 +1,19 @@
 % POST-HOC / EXPLORATORY
-\begin{tabular}{lrrrr}
+\begin{longtable}{lrrrr}
 \toprule
 quantity & published & recomputed & abs\_diff & pass \\
 \midrule
+\endfirsthead
+\toprule
+quantity & published & recomputed & abs\_diff & pass \\
+\midrule
+\endhead
+\midrule
+\multicolumn{5}{r}{Continued on next page} \\
+\midrule
+\endfoot
+\bottomrule
+\endlastfoot
 Llama structured level & 6.52 & 6.52 & 0.00 & True \\
 Llama structured decisions & 5880.00 & 5880.00 & 0.00 & True \\
 Llama structured repair \% & 4.50 & 4.46 & 0.04 & True \\
@@ -100,5 +111,4 @@ total episodes & 376.00 & 376.00 & 0.00 & True \\
 total decisions & 39480.00 & 39480.00 & 0.00 & True \\
 explanation export scope & 19740.00 & 19740.00 & 0.00 & True \\
 empty explanations N2/5 & 274.00 & 274.00 & 0.00 & True \\
-\bottomrule
-\end{tabular}
+\end{longtable}

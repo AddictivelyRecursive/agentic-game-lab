@@ -43,6 +43,7 @@ def main():
     for _,r in grid.iterrows():
         ax.scatter(r.level_gap_pp,r.D,marker='v' if r.persistence_class=='decays' else 'o',s=65)
         ax.annotate(r.model,(r.level_gap_pp,r.D),xytext=(5,5),textcoords='offset points',fontsize=8)
+    ax.margins(x=.12,y=.18)
     ax.axhline(0,color='gray',ls=':'); ax.set_xlabel('Level gap F − S (pp)'); ax.set_ylabel('Four-point interaction D (pp)'); ax.set_title('POST-HOC / EXPLORATORY\nCircle: persists; triangle: decays (sign of late − early)'); fig.tight_layout(); fig.savefig(HERE/'figures/03_level_slope_persistence.pdf'); plt.close(fig)
     text='All uncertainty resamples episodes within model-mode-N cells (5,000 draws), averaging four N cells equally. Slopes are episode OLS slopes on rounds 1–30, then averaged. Zero-late means every late-round seat action is 4. Crossing is strictly below half the opening mean; zero opening yields a zero threshold and never. Never bootstrap outcomes are reported separately from finite-crossing quantiles.\n\n'
     text+=grid[['model','level_gap_pp','D','late_minus_early','late_minus_early_low','late_minus_early_high','fraction_zero_late','half_opening_round']].to_string(index=False)+'\n\n'

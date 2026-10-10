@@ -1,0 +1,61 @@
+filter,model,mode,episodes,Early / late (%),"D (95% CI), pp"
+unfiltered,DeepSeek,free_form,64,39.87 / 2.79,"+5.73 [-3.32, 14.78]"
+unfiltered,DeepSeek,structured,64,4.23 / 0.60,"+5.73 [-3.32, 14.78]"
+unfiltered,GPT-OSS,free_form,8,12.54 / 0.00,"-7.87 [-116.99, 101.24]"
+unfiltered,GPT-OSS,structured,8,1.56 / 0.00,"-7.87 [-116.99, 101.24]"
+unfiltered,Gemma,free_form,32,13.53 / 17.02,"-5.79 [-16.11, 4.52]"
+unfiltered,Gemma,structured,32,0.00 / 0.00,"-5.79 [-16.11, 4.52]"
+unfiltered,Llama,free_form,56,23.41 / 21.94,"+14.02 [4.67, 23.37]"
+unfiltered,Llama,structured,56,9.27 / 5.63,"+14.02 [4.67, 23.37]"
+unfiltered,Mistral,free_form,12,78.08 / 80.30,"-6.81 [-16.93, 3.31]"
+unfiltered,Mistral,structured,12,6.04 / 5.39,"-6.81 [-16.93, 3.31]"
+unfiltered,Qwen,free_form,16,22.57 / 0.00,"-3.91 [-8.54, 0.73]"
+unfiltered,Qwen,structured,16,0.81 / 0.00,"-3.91 [-8.54, 0.73]"
+no_fallback,DeepSeek,free_form,57,39.40 / 3.06,"+3.31 [-6.45, 13.07]"
+no_fallback,DeepSeek,structured,62,4.26 / 0.61,"+3.31 [-6.45, 13.07]"
+no_fallback,GPT-OSS,free_form,6,0.67 / 0.00,not estimable
+no_fallback,GPT-OSS,structured,8,1.56 / 0.00,not estimable
+no_fallback,Gemma,free_form,32,13.53 / 17.02,"-5.79 [-16.11, 4.52]"
+no_fallback,Gemma,structured,32,0.00 / 0.00,"-5.79 [-16.11, 4.52]"
+no_fallback,Llama,free_form,21,24.24 / 30.20,"+20.56 [6.36, 34.76]"
+no_fallback,Llama,structured,44,8.64 / 3.61,"+20.56 [6.36, 34.76]"
+no_fallback,Mistral,free_form,12,78.08 / 80.30,"-6.81 [-16.93, 3.31]"
+no_fallback,Mistral,structured,12,6.04 / 5.39,"-6.81 [-16.93, 3.31]"
+no_fallback,Qwen,free_form,1,not estimable,not estimable
+no_fallback,Qwen,structured,16,0.81 / 0.00,not estimable
+repair_le_25,DeepSeek,free_form,64,39.87 / 2.79,"+5.73 [-3.32, 14.78]"
+repair_le_25,DeepSeek,structured,64,4.23 / 0.60,"+5.73 [-3.32, 14.78]"
+repair_le_25,GPT-OSS,free_form,5,not estimable,not estimable
+repair_le_25,GPT-OSS,structured,8,1.56 / 0.00,not estimable
+repair_le_25,Gemma,free_form,32,13.53 / 17.02,"-5.79 [-16.11, 4.52]"
+repair_le_25,Gemma,structured,32,0.00 / 0.00,"-5.79 [-16.11, 4.52]"
+repair_le_25,Llama,free_form,55,23.73 / 22.03,"+13.30 [3.82, 22.78]"
+repair_le_25,Llama,structured,56,9.27 / 5.63,"+13.30 [3.82, 22.78]"
+repair_le_25,Mistral,free_form,12,78.08 / 80.30,"-6.81 [-16.93, 3.31]"
+repair_le_25,Mistral,structured,12,6.04 / 5.39,"-6.81 [-16.93, 3.31]"
+repair_le_25,Qwen,free_form,0,not estimable,not estimable
+repair_le_25,Qwen,structured,0,not estimable,not estimable
+repair_le_10,DeepSeek,free_form,64,39.87 / 2.79,"+5.73 [-3.32, 14.78]"
+repair_le_10,DeepSeek,structured,64,4.23 / 0.60,"+5.73 [-3.32, 14.78]"
+repair_le_10,GPT-OSS,free_form,4,not estimable,not estimable
+repair_le_10,GPT-OSS,structured,7,0.00 / 0.00,not estimable
+repair_le_10,Gemma,free_form,32,13.53 / 17.02,"-5.79 [-16.11, 4.52]"
+repair_le_10,Gemma,structured,32,0.00 / 0.00,"-5.79 [-16.11, 4.52]"
+repair_le_10,Llama,free_form,31,24.73 / 21.79,"+15.55 [-1.02, 32.12]"
+repair_le_10,Llama,structured,53,9.12 / 5.71,"+15.55 [-1.02, 32.12]"
+repair_le_10,Mistral,free_form,12,78.08 / 80.30,"-6.81 [-16.93, 3.31]"
+repair_le_10,Mistral,structured,12,6.04 / 5.39,"-6.81 [-16.93, 3.31]"
+repair_le_10,Qwen,free_form,0,not estimable,not estimable
+repair_le_10,Qwen,structured,0,not estimable,not estimable
+first_attempt_valid,DeepSeek,free_form,64,39.91 / 2.68,not estimable
+first_attempt_valid,DeepSeek,structured,64,4.17 / 0.62,not estimable
+first_attempt_valid,GPT-OSS,free_form,8,13.51 / 0.00,not estimable
+first_attempt_valid,GPT-OSS,structured,8,6.25 / 0.00,not estimable
+first_attempt_valid,Gemma,free_form,32,13.53 / 17.02,not estimable
+first_attempt_valid,Gemma,structured,32,0.00 / 0.00,not estimable
+first_attempt_valid,Llama,free_form,56,23.40 / 21.44,not estimable
+first_attempt_valid,Llama,structured,56,9.56 / 5.74,not estimable
+first_attempt_valid,Mistral,free_form,12,77.98 / 80.38,not estimable
+first_attempt_valid,Mistral,structured,12,6.10 / 5.42,not estimable
+first_attempt_valid,Qwen,free_form,16,60.42 / 0.00,not estimable
+first_attempt_valid,Qwen,structured,16,0.00 / 0.00,not estimable

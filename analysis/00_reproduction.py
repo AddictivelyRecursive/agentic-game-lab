@@ -16,9 +16,18 @@ Episode fields: model (mapped explicitly to short name), reasoning_mode (structu
 
 Use original repair_used/fallback_used flags exactly as Table 5; never proxy these from action or call count. Recompute first_parse and first_valid from first model_calls output using the saved v2 extractor and validate_decision, allowing digit strings, excluding booleans, requiring integer 0–4. Extraction success alone does not imply action validity. Retain historical first_parse_ok separately. Parser versions and call stages are listed in the manifest. Explanation is reasoning_text; empty means whitespace-only. Missing required fields, duplicate joins or source hash mismatch raise an error before results.
 
+**Saved-call anomaly:** 238 error-only call records contain stage/error but no returned output or parser version: 118 DeepSeek repair calls, 96 GPT-OSS initial calls, 24 GPT-OSS repair calls. The manifest's parser-version None refers to these failures. Submitted actions and original repair/fallback flags are fully present. Error-only first calls fail first-attempt extraction/validity; they are never treated as successful empty responses. Their exclusion from conditional valid subsets is explicit.
+
 Unit of inference: episode. Model-mode outcome means average four N-cell episode means equally. Seat-decision repair/fallback rates are descriptive. Cooperation is stored internally in fractions, reported as percent/pp. No new model inference.
 ''',encoding='utf-8')
-    table(ep,'00_episode_outcomes'); table(ep.groupby(['model','mode','N']).agg(episodes=('c','size'),mean=('c','mean'),variance=('c','var')).reset_index(),'00_cells')
+    reported=ep.copy()
+    for col in ['c','early','late','opening','slope','repair','fallback']:
+        reported[col]*=100
+    reported=reported.rename(columns={'c':'cooperation_percent','early':'early_percent','late':'late_percent','opening':'opening_percent','slope':'slope_pp_per_round','repair':'repair_percent','fallback':'fallback_percent'})
+    table(reported,'00_episode_outcomes')
+    cells=ep.groupby(['model','mode','N']).agg(episodes=('c','size'),mean=('c','mean'),variance=('c','var')).reset_index()
+    cells['mean']*=100; cells['variance']*=10000
+    table(cells.rename(columns={'mean':'cooperation_percent','variance':'variance_pp_squared'}),'00_cells')
     effects=contrast(ep); table(effects,'00_effects'); h=heterogeneity(effects); table(pd.DataFrame([h]),'00_heterogeneity')
     rows=[]
     def check(q,pub,value,tol): rows.append(dict(quantity=q,published=pub,recomputed=value,abs_diff=abs(pub-value),**{'pass':abs(pub-value)<=tol+1e-10}))

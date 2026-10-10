@@ -18,6 +18,7 @@ def main():
     ap=argparse.ArgumentParser(); ap.add_argument('labels',type=Path); ap.add_argument('--key',type=Path,default=Path(__file__).parent/'private_validation_key.csv'); a=ap.parse_args()
     labels=pd.read_csv(a.labels,keep_default_na=False); key=pd.read_csv(a.key)
     assert labels.decision_id.is_unique
+    if not labels.decision_id.isin(key.decision_id).all(): raise ValueError('Labeled file contains unknown decision IDs')
     labels.human_label=labels.human_label.str.strip().str.upper()
     if not labels.human_label.isin(['','INCONSISTENT','CONSISTENT','UNCLEAR']).all(): raise ValueError('Unknown human label')
     data=key.merge(labels[['decision_id','human_label']],on='decision_id',how='left',validate='one_to_one'); data.human_label=data.human_label.fillna('')

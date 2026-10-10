@@ -1,8 +1,19 @@
 % POST-HOC / EXPLORATORY
-\begin{tabular}{lllrrrr}
+\begin{longtable}{lllrrrr}
 \toprule
 filter & model & mode & N & retained & total & below\_two \\
 \midrule
+\endfirsthead
+\toprule
+filter & model & mode & N & retained & total & below\_two \\
+\midrule
+\endhead
+\midrule
+\multicolumn{7}{r}{Continued on next page} \\
+\midrule
+\endfoot
+\bottomrule
+\endlastfoot
 unfiltered & DeepSeek & free\_form & 2 & 16 & 16 & False \\
 unfiltered & DeepSeek & free\_form & 3 & 16 & 16 & False \\
 unfiltered & DeepSeek & free\_form & 4 & 16 & 16 & False \\
@@ -195,5 +206,4 @@ repair\_le\_10 & Qwen & structured & 2 & 0 & 4 & True \\
 repair\_le\_10 & Qwen & structured & 3 & 0 & 4 & True \\
 repair\_le\_10 & Qwen & structured & 4 & 0 & 4 & True \\
 repair\_le\_10 & Qwen & structured & 5 & 0 & 4 & True \\
-\bottomrule
-\end{tabular}
+\end{longtable}

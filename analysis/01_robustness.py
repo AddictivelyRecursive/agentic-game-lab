@@ -10,7 +10,10 @@ def main():
     ep,dd,rr=load(a.input)
     rate=dd.groupby(['model','mode','round']).agg(decisions=('c','size'),fallback_rate=('fallback','mean'),repair_rate=('repair','mean')).reset_index()
     coop=rr.groupby(['model','mode','N','round']).c.mean().groupby(['model','mode','round']).mean().reset_index(name='cooperation')
-    rate=rate.merge(coop); table(rate,'01_fallback_by_round')
+    rate=rate.merge(coop)
+    reported=rate.copy()
+    for col in ['fallback_rate','repair_rate','cooperation']: reported[col]*=100
+    table(reported.rename(columns={c:c+'_percent' for c in ['fallback_rate','repair_rate','cooperation']}),'01_fallback_by_round')
     for (m,mode),s in rate.groupby(['model','mode']):
         fig,ax=plt.subplots(1,2,figsize=(9,3)); ax[0].plot(s['round'],100*s.fallback_rate,label='Fallback'); ax[0].plot(s['round'],100*s.repair_rate,label='Repair'); ax[0].legend()
         ax[1].plot(s['round'],100*s.cooperation); ax[0].set_ylabel('Seat-decision rate (%)'); ax[1].set_ylabel('Cooperation (%)')
