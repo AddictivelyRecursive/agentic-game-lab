@@ -1,0 +1,13 @@
+model,mode,decisions,empty_explanations
+DeepSeek,free_form,3360,43
+DeepSeek,structured,3360,17
+GPT-OSS,free_form,420,5
+GPT-OSS,structured,420,0
+Gemma,free_form,1680,0
+Gemma,structured,1680,0
+Llama,free_form,2940,101
+Llama,structured,2940,33
+Mistral,free_form,630,0
+Mistral,structured,630,0
+Qwen,free_form,840,67
+Qwen,structured,840,8

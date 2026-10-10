@@ -86,3 +86,37 @@ level_gap_pp late_minus_early  6 0.142857 n=6, descriptive only; no generalizati
 
 Verdict: level, N scaling and temporal persistence describe different behavior. Mistral has high sustained cooperation; Qwen and GPT-OSS have zero late cooperation in every episode, and DeepSeek shows a large mean decline. Llama has a small descriptive decline, while Gemma rises on average. The figure classes use only the sign of late-minus-early and do not imply a significant change; consult bootstrap CIs. Rank correlations involve only six named models and are descriptive only.
 
+## Task 4 — explanation mismatch audit
+
+Frozen four-rule detector (SHA256 828a912f5d83158318cdc9bbec68e313325b151d04c904da13187e5a845bdf2f) audited 19,466 nonempty explanations from 19,740 N=2/5 decisions. The 274 empty explanations were excluded and reported separately. Flags: 2,230/19,466 (11.46%). Both known examples were caught, as documented in 04_known_examples.csv. Export identity, explanation text hashes and canonical decision linkage all verified.
+
+   model       mode            scope  decisions  flagged   percent  wilson_low  wilson_high  cluster_low  cluster_high
+DeepSeek  free_form     all_nonempty       3317       66  1.989750    1.567089     2.523485     1.506024      2.501526
+DeepSeek  free_form valid_unrepaired       3285       64  1.948250    1.528689     2.480062     1.459410      2.462025
+DeepSeek structured     all_nonempty       3343       53  1.585402    1.214154     2.067790     1.138406      2.090800
+DeepSeek structured valid_unrepaired       3329       52  1.562031    1.193190     2.042532     1.141141      2.040204
+ GPT-OSS  free_form     all_nonempty        415        1  0.240964    0.042549     1.352122     0.000000      0.487805
+ GPT-OSS  free_form valid_unrepaired        351        1  0.284900    0.050310     1.595907     0.000000      0.625000
+ GPT-OSS structured     all_nonempty        420        2  0.476190    0.130686     1.719407     0.000000      0.952381
+ GPT-OSS structured valid_unrepaired        388        1  0.257732    0.045511     1.445260     0.000000      0.534759
+   Gemma  free_form     all_nonempty       1680      715 42.559524   40.214845    44.938151    39.702381     45.358631
+   Gemma  free_form valid_unrepaired       1680      715 42.559524   40.214845    44.938151    39.761905     45.476190
+   Gemma structured     all_nonempty       1680      680 40.476190   38.153358    42.842478    37.083333     43.870536
+   Gemma structured valid_unrepaired       1680      680 40.476190   38.153358    42.842478    37.023810     43.869048
+   Llama  free_form     all_nonempty       2839      278  9.792180    8.752632    10.940393     7.722144     12.008536
+   Llama  free_form valid_unrepaired       2594      258  9.946029    8.852886    11.157629     7.771374     12.371565
+   Llama structured     all_nonempty       2907      390 13.415893   12.225098    14.703248    11.712022     15.104802
+   Llama structured valid_unrepaired       2823      376 13.319164   12.115462    14.622559    11.444595     15.072410
+ Mistral  free_form     all_nonempty        630        3  0.476190    0.162077     1.390592     0.158730      0.793651
+ Mistral  free_form valid_unrepaired        625        3  0.480000    0.163375     1.401640     0.160256      0.797448
+ Mistral structured     all_nonempty        630       28  4.444444    3.092622     6.348455     2.698413      6.349206
+ Mistral structured valid_unrepaired        624       28  4.487179    3.122532     6.408769     2.720000      6.420546
+    Qwen  free_form     all_nonempty        773        6  0.776197    0.356209     1.683005     0.511509      1.158338
+    Qwen  free_form valid_unrepaired         55        0  0.000000    0.000000     6.528490     0.000000      0.000000
+    Qwen structured     all_nonempty        832        8  0.961538    0.488016     1.885815     0.241255      1.682692
+    Qwen structured valid_unrepaired        258        1  0.387597    0.068453     2.162461     0.000000      1.158301
+
+Verdict: these are **rates of detectable inconsistencies under a rule-based detector**, not misunderstanding. Prevalence is exploratory and limited to N=2/5. Explicit local assertions improve specificity but miss paraphrases and complicated semantics; no aggregate outcome tuning was performed. R1 may flag an incorrect action-map assertion even if it describes prior play. Wilson intervals are requested descriptive binomial intervals and do not account for dependence; episode-stratified bootstrap intervals accompany them. Repairs and fallback exclusions yield a conditional, potentially selected subset.
+
+Validation: 150 blinded decisions, 75 flagged and 75 unflagged, stratified across models, exported with blank labels. The private key records unequal sampling fractions. No labels or precision/recall results were fabricated. score_validation.py requires real supplied labels; weighted recall corrects the case-control sampling ratio, with approximate effective-sample Wilson intervals. Human validation is pending. Optional LLM judge skipped: no API access or explicit judge authorization was supplied.
+
