@@ -34,3 +34,37 @@ unfiltered: 12.54/0.00% (n=8); no_fallback: 0.67/0.00% (n=6); repair_le_25: nan/
 
 Interpretation: no-fallback and low-repair restrictions select episodes and can change their composition. A sign-only SURVIVES verdict does not establish a mechanism; NOT ESTIMABLE is not evidence against decay. Constant late outcomes make several dose-response correlations undefined. For Gemma and Mistral, DOES NOT SURVIVE denotes absence of baseline decay, not a filtering-induced reversal.
 
+## Task 2 — heterogeneity robustness
+
+Inverse-variance leave-one-model-out analysis: **Heterogeneity robust to leaving out Llama? no.** Excluding Llama gives Q(4)=5.41083, p=0.24768, I²=26.07%. The more defensible claim is that one model differs; omnibus significance depends on Llama.
+
+excluded         Q        p        I2  significant
+   Llama  5.410833 0.247679 26.074229        False
+    Qwen 15.456945 0.003842 74.121664         True
+   Gemma 17.492055 0.001551 77.132475         True
+ Mistral 16.614876 0.002296 75.925190         True
+DeepSeek 15.003393 0.004694 73.339364         True
+ GPT-OSS 17.776652 0.001364 77.498575         True
+
+Parametric null simulated p: Normal 0.00245 (MC SE 0.00035), t-scale 0.08510 (MC SE 0.00197); 20,000 draws each. The t version uses scale=observed SE and Welch df floored at 2, so it deliberately has heavier variance. Observed Q is 18.22517000 (rounded 18.23).
+
+                      method  draws  valid_draws  invalid_draws  observed_Q        p    mc_se                                                                                                           note       low       high  fraction
+           parametric_normal  20000        20000              0    18.22517 0.002450 0.000350                                           Fixed observed SE; t uses SE as scale and df>=2, not unit-variance t       NaN        NaN       NaN
+                parametric_t  20000        20000              0    18.22517 0.085096 0.001973                                           Fixed observed SE; t uses SE as scale and df>=2, not unit-variance t       NaN        NaN       NaN
+         episode_bootstrap_Q   5000         4855            145         NaN      NaN      NaN Percentile CI CONDITIONAL on all six positive SEs; unconditional interval not estimable if invalid draws occur  9.719821 219.123148       NaN
+        episode_bootstrap_I2   5000         4855            145         NaN      NaN      NaN Percentile CI CONDITIONAL on all six positive SEs; unconditional interval not estimable if invalid draws occur 48.558714  97.718178       NaN
+episode_bootstrap_Llama_Holm   5000         4855            145         NaN      NaN      NaN    fraction conditional on estimable six-model Holm; low/high bound unconditional fraction by unresolved draws  0.631400   0.660400  0.650257
+
+**Bootstrap limitation:** 145/5000 resamples have at least one zero/nonfinite model SE. No floors or silent deletions were used. Listed finite Q/I² intervals are conditional sensitivity summaries, not unconditional 95% intervals. Six-model Holm is estimable in 4855/5000 draws; conditional Llama significance fraction 0.6503, unconditional bounds [0.6314, 0.6604]. Per-draw results are saved.
+
+Literal endpoints and four-point contrasts have these estimates (pp):
+   model  D_fourpoint  low_fourpoint  high_fourpoint  D_endpoint  low_endpoint  high_endpoint
+   Llama    14.019940       4.674071       23.365810   14.517857      4.823182      24.212533
+    Qwen    -3.907292      -8.543097        0.728513   -4.000000     -9.173986       1.173986
+   Gemma    -5.794271     -16.105064        4.516522  -14.531250    -24.473938      -4.588562
+ Mistral    -6.812500     -16.933474        3.308474   -5.277778    -16.577539       6.021984
+DeepSeek     5.728906      -3.317602       14.775414    6.239583     -3.234912      15.714078
+ GPT-OSS    -7.870833    -116.986400      101.244734   -8.791667   -130.168059     112.584725
+
+Verdict: distinguish model sensitivity of the omnibus test from an assertion that all models differ. Endpoint and four-point definitions need not agree in magnitude because intermediate N cells contribute only to the latter. The pooled forest marker uses a normal fixed-weight CI and is descriptive; six estimated model SEs and sparse GPT-OSS cells limit chi-square and bootstrap calibration.
+
