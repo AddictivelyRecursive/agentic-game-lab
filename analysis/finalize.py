@@ -1,6 +1,7 @@
 """POST-HOC / EXPLORATORY: real-number paper inserts and artifact manifest."""
 import importlib.metadata as metadata
 import platform
+import re
 from common import *
 
 def main():
@@ -38,6 +39,15 @@ A post-hoc four-rule detector flagged {total:,}/{n:,} nonempty N=2/5 explanation
 '''
     section('PAPER INSERTS',inserts)
     section('Reproducibility and execution notes','No new episodes, inference, GPU allocation, or judge calls were performed. **Saved-call anomaly:** 238 error-only call records have no output/parser-version field: 118 DeepSeek repair calls, 96 GPT-OSS initial calls and 24 GPT-OSS repair calls. These are explicitly logged call failures, not unobserved submitted actions; submitted actions and original reliability flags remain available. An error-only first call is not first-attempt-valid. Parser-version None in the manifest refers to these records. The original explanation-export hashes serialize strings as JSON; a raw-text hash check initially failed, was diagnosed against sample_for_cot_coding.py, and was corrected to the documented hash convention before audit results were calculated. All hashes and text links then passed. The optional judge was omitted because access/authorization was not supplied; no requested rank correlations were skipped. Human labeling remains outstanding. Scripts can be rerun in small sequential CPU jobs on Sharanga, with Task 0 failure preventing all later tasks. Local task commits preserve completed checkpoints; final packaging does not overwrite the manuscript.')
+    verification=HERE/'server_verification.json'
+    if verification.exists():
+        receipt=json.loads(verification.read_text())
+        section('Sharanga verification',f'All six short CPU jobs completed successfully (388781–388786), each requesting the compute/cpulimit minimum of four CPUs, 4 GB RAM and ten minutes; zero GPUs. Task wall times were 18, 32, 9, 9, 17 and 4 seconds. All {len(receipt["tables"])} downloaded CSV tables match the local outputs at rtol=atol=1e-10. Both environments passed all 97 reproduction anchors. Remote statsmodels is 0.14.5 versus local 0.15.0; other pinned numerical/plotting packages match. See server_verification.json and SHARANGA.md for receipts and deployment issues. Scheduler dependencies handled CPU availability without any GPU polling loop.')
+    report=HERE/'RESULTS.md'
+    chunks=re.split(r'(?=^## )',report.read_text(encoding='utf-8'),flags=re.MULTILINE)
+    order=['Task 0','Task 1','Task 2','Task 3','Task 4','PAPER INSERTS','Sharanga verification','Reproducibility']
+    chunks[1:]=sorted(chunks[1:],key=lambda s:next((i for i,t in enumerate(order) if s.startswith('## '+t)),len(order)))
+    report.write_text(''.join(chunks),encoding='utf-8')
     versions={p:metadata.version(p) for p in ['pandas','numpy','scipy','statsmodels','matplotlib','jinja2']}
     manifest=dict(label='POST-HOC / EXPLORATORY',seed=SEED,python=platform.python_version(),platform=platform.platform(),packages=versions,source_sha256=SOURCE_HASH,artifacts={})
     for folder in ['results','figures','validation']:

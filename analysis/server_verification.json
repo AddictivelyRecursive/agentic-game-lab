@@ -1,0 +1,146 @@
+{
+  "label": "POST-HOC / EXPLORATORY",
+  "source_sha256": "149ac53f8a19286b429d1de83939ae91028845b0b35a18e1dc8dd5cc0468b778",
+  "all_csvs_match": true,
+  "tolerance": {
+    "rtol": 1e-10,
+    "atol": 1e-10
+  },
+  "tables": [
+    "00_cells.csv",
+    "00_effects.csv",
+    "00_episode_outcomes.csv",
+    "00_heterogeneity.csv",
+    "00_reproduction.csv",
+    "01_dose_response.csv",
+    "01_fallback_by_round.csv",
+    "01_filtered_D.csv",
+    "01_filtered_outcomes.csv",
+    "01_filtered_paper_table.csv",
+    "01_qwen_late.csv",
+    "01_retained_per_cell.csv",
+    "01_verdicts.csv",
+    "02_bootstrap_draws.csv",
+    "02_endpoint_vs_fourpoint.csv",
+    "02_leave_one_out.csv",
+    "02_Q_resampling.csv",
+    "03_persistence.csv",
+    "03_persistence_by_N.csv",
+    "03_rank_correlations.csv",
+    "03_summary_grid.csv",
+    "04_decision_flags.csv",
+    "04_empty_explanations.csv",
+    "04_known_examples.csv",
+    "04_mismatch_by_model_mode.csv",
+    "04_mismatch_by_round.csv",
+    "04_mismatch_paper_table.csv",
+    "04_private_validation_key.csv",
+    "04_sampling_strata.csv"
+  ],
+  "remote_packages": {
+    "pandas": "2.3.3",
+    "numpy": "2.2.6",
+    "scipy": "1.15.3",
+    "statsmodels": "0.14.5",
+    "matplotlib": "3.10.7",
+    "jinja2": "3.1.6"
+  },
+  "jobs": [
+    {
+      "script": "00_reproduction.py",
+      "job_id": "388781",
+      "command": [
+        "/home/jagatsesh/f20220604_ts/agentic-game-lab/analysis/.venv_posthoc_20261010/bin/python",
+        "/home/jagatsesh/f20220604_ts/agentic-game-lab/analysis/00_reproduction.py",
+        "--input",
+        "results/analysis/main_complete_20261010/main.jsonl"
+      ],
+      "resources": {
+        "cpus": 4,
+        "memory": "4G",
+        "minutes": 10,
+        "gpus": 0
+      }
+    },
+    {
+      "script": "01_robustness.py",
+      "job_id": "388782",
+      "command": [
+        "/home/jagatsesh/f20220604_ts/agentic-game-lab/analysis/.venv_posthoc_20261010/bin/python",
+        "/home/jagatsesh/f20220604_ts/agentic-game-lab/analysis/01_robustness.py",
+        "--input",
+        "results/analysis/main_complete_20261010/main.jsonl"
+      ],
+      "resources": {
+        "cpus": 4,
+        "memory": "4G",
+        "minutes": 10,
+        "gpus": 0
+      }
+    },
+    {
+      "script": "02_heterogeneity.py",
+      "job_id": "388783",
+      "command": [
+        "/home/jagatsesh/f20220604_ts/agentic-game-lab/analysis/.venv_posthoc_20261010/bin/python",
+        "/home/jagatsesh/f20220604_ts/agentic-game-lab/analysis/02_heterogeneity.py",
+        "--input",
+        "results/analysis/main_complete_20261010/main.jsonl"
+      ],
+      "resources": {
+        "cpus": 4,
+        "memory": "4G",
+        "minutes": 10,
+        "gpus": 0
+      }
+    },
+    {
+      "script": "03_persistence.py",
+      "job_id": "388784",
+      "command": [
+        "/home/jagatsesh/f20220604_ts/agentic-game-lab/analysis/.venv_posthoc_20261010/bin/python",
+        "/home/jagatsesh/f20220604_ts/agentic-game-lab/analysis/03_persistence.py",
+        "--input",
+        "results/analysis/main_complete_20261010/main.jsonl"
+      ],
+      "resources": {
+        "cpus": 4,
+        "memory": "4G",
+        "minutes": 10,
+        "gpus": 0
+      }
+    },
+    {
+      "script": "04_mismatch.py",
+      "job_id": "388785",
+      "command": [
+        "/home/jagatsesh/f20220604_ts/agentic-game-lab/analysis/.venv_posthoc_20261010/bin/python",
+        "/home/jagatsesh/f20220604_ts/agentic-game-lab/analysis/04_mismatch.py",
+        "--input",
+        "results/analysis/main_complete_20261010/main.jsonl",
+        "--export-dir",
+        "analysis/explanation_export_20261010"
+      ],
+      "resources": {
+        "cpus": 4,
+        "memory": "4G",
+        "minutes": 10,
+        "gpus": 0
+      }
+    },
+    {
+      "script": "finalize.py",
+      "job_id": "388786",
+      "command": [
+        "/home/jagatsesh/f20220604_ts/agentic-game-lab/analysis/.venv_posthoc_20261010/bin/python",
+        "/home/jagatsesh/f20220604_ts/agentic-game-lab/analysis/finalize.py"
+      ],
+      "resources": {
+        "cpus": 4,
+        "memory": "4G",
+        "minutes": 10,
+        "gpus": 0
+      }
+    }
+  ]
+}

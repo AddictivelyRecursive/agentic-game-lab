@@ -67,6 +67,8 @@ def load(path=DEFAULT_INPUT):
                 assert not d['fallback_used'] or a==4
                 calls=d['model_calls']; assert calls
                 for call in calls:
+                    if 'output' not in call and not call.get('error'):
+                        raise ValueError('Missing saved call output without a logged failure; STOP')
                     parsers.add(str(call.get('json_extraction_version'))); stages.add(str(call.get('stage')))
                 try:
                     obj=extract_decision_json(calls[0].get('output',''))
@@ -129,5 +131,12 @@ def section(title, text):
     p=HERE/'RESULTS.md'
     content=p.read_text(encoding='utf-8') if p.exists() else '**POST-HOC / EXPLORATORY**\n\n'
     marker=f'## {title}\n'
-    if marker in content: content=content[:content.index(marker)]
-    p.write_text(content+marker+'\n'+text+'\n\n',encoding='utf-8')
+    replacement=marker+'\n'+text+'\n\n'
+    if marker in content:
+        start=content.index(marker)
+        end=content.find('\n## ',start+len(marker))
+        suffix=content[end+1:] if end>=0 else ''
+        content=content[:start]+replacement+suffix
+    else:
+        content+=replacement
+    p.write_text(content,encoding='utf-8')
