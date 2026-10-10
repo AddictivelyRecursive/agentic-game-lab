@@ -1,0 +1,19 @@
+% POST-HOC / EXPLORATORY
+\begin{tabular}{llrrrrrrrrrrlrrrrl}
+\toprule
+model & mode & episodes & late\_minus\_early & late\_minus\_early\_low & late\_minus\_early\_high & round\_slope\_pp & round\_slope\_pp\_low & round\_slope\_pp\_high & fraction\_zero\_late & fraction\_zero\_late\_low & fraction\_zero\_late\_high & half\_opening\_round & opening\_cooperation\_percent & crossing\_boot\_never\_fraction & crossing\_finite\_low & crossing\_finite\_high & crossing\_CI\_note \\
+\midrule
+DeepSeek & free\_form & 64 & -37.08 & -41.52 & -32.62 & -1.46 & -1.67 & -1.24 & 0.62 & 0.50 & 0.73 & 6 & 58.47 & 0.00 & 3.00 & 11.00 & finite-crossing quantiles only; never retained separately; strict threshold \\
+DeepSeek & structured & 64 & -3.64 & -5.26 & -2.16 & -0.13 & -0.19 & -0.08 & 0.88 & 0.78 & 0.95 & 2 & 17.37 & 0.00 & 2.00 & 2.00 & finite-crossing quantiles only; never retained separately; strict threshold \\
+GPT-OSS & free\_form & 8 & -12.54 & -24.46 & -0.50 & -0.43 & -0.84 & -0.02 & 1.00 & 1.00 & 1.00 & 5 & 18.96 & 0.00 & 2.00 & 5.00 & finite-crossing quantiles only; never retained separately; strict threshold \\
+GPT-OSS & structured & 8 & -1.56 & -3.12 & 0.00 & -0.05 & -0.10 & 0.00 & 1.00 & 1.00 & 1.00 & 2 & 6.25 & 0.25 & 2.00 & 2.00 & finite-crossing quantiles only; never retained separately; strict threshold \\
+Gemma & free\_form & 32 & 3.49 & -3.42 & 10.91 & 0.21 & -0.06 & 0.52 & 0.56 & 0.44 & 0.69 & never & 0.39 & 0.92 & 7.00 & 10.00 & finite-crossing quantiles only; never retained separately; strict threshold \\
+Gemma & structured & 32 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 1.00 & 1.00 & 1.00 & never & 0.00 & 1.00 & not estimable & not estimable & finite-crossing quantiles only; never retained separately; strict threshold \\
+Llama & free\_form & 56 & -1.47 & -6.17 & 3.66 & -0.04 & -0.23 & 0.17 & 0.25 & 0.18 & 0.32 & never & 29.18 & 0.55 & 2.00 & 24.00 & finite-crossing quantiles only; never retained separately; strict threshold \\
+Llama & structured & 56 & -3.64 & -6.42 & -0.55 & -0.16 & -0.27 & -0.03 & 0.54 & 0.41 & 0.66 & 5 & 14.48 & 0.00 & 2.00 & 12.00 & finite-crossing quantiles only; never retained separately; strict threshold \\
+Mistral & free\_form & 12 & 2.22 & -4.64 & 8.26 & 0.04 & -0.27 & 0.31 & 0.00 & 0.00 & 0.00 & never & 79.48 & 1.00 & not estimable & not estimable & finite-crossing quantiles only; never retained separately; strict threshold \\
+Mistral & structured & 12 & -0.65 & -4.46 & 3.22 & 0.03 & -0.17 & 0.24 & 0.33 & 0.08 & 0.58 & 8 & 4.17 & 0.29 & 4.00 & 8.00 & finite-crossing quantiles only; never retained separately; strict threshold \\
+Qwen & free\_form & 16 & -22.57 & -26.31 & -18.84 & -0.80 & -0.96 & -0.64 & 1.00 & 1.00 & 1.00 & 2 & 59.11 & 0.00 & 2.00 & 2.00 & finite-crossing quantiles only; never retained separately; strict threshold \\
+Qwen & structured & 16 & -0.81 & -1.62 & -0.25 & -0.03 & -0.05 & -0.01 & 1.00 & 1.00 & 1.00 & 2 & 4.06 & 0.02 & 2.00 & 2.00 & finite-crossing quantiles only; never retained separately; strict threshold \\
+\bottomrule
+\end{tabular}

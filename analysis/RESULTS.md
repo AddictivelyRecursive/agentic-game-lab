@@ -68,3 +68,21 @@ DeepSeek     5.728906      -3.317602       14.775414    6.239583     -3.234912  
 
 Verdict: distinguish model sensitivity of the omnibus test from an assertion that all models differ. Endpoint and four-point definitions need not agree in magnitude because intermediate N cells contribute only to the latter. The pooled forest marker uses a normal fixed-weight CI and is descriptive; six estimated model SEs and sparse GPT-OSS cells limit chi-square and bootstrap calibration.
 
+## Task 3 — persistence and summary grid
+
+All uncertainty resamples episodes within model-mode-N cells (5,000 draws), averaging four N cells equally. Slopes are episode OLS slopes on rounds 1–30, then averaged. Zero-late means every late-round seat action is 4. Crossing is strictly below half the opening mean; zero opening yields a zero threshold and never. Never bootstrap outcomes are reported separately from finite-crossing quantiles.
+
+   model  level_gap_pp         D  late_minus_early  late_minus_early_low  late_minus_early_high  fraction_zero_late half_opening_round
+   Llama     13.913442 14.019940         -1.473214             -6.171763               3.656399              0.2500              never
+    Qwen      6.105035 -3.907292        -22.572917            -26.312760             -18.843229              1.0000                  2
+   Gemma     13.018663 -5.794271          3.489583             -3.424805              10.912109              0.5625              never
+ Mistral     73.489583 -6.812500          2.215278             -4.639063               8.264063              0.0000              never
+DeepSeek     17.044922  5.728906        -37.075521            -41.519596             -32.618457              0.6250                  6
+ GPT-OSS      2.454861 -7.870833        -12.541667            -24.458333              -0.500000              1.0000                  5
+
+           x                y  n      rho                                                          note
+level_gap_pp       absolute_D  6 0.028571 n=6, descriptive only; no generalization to model populations
+level_gap_pp late_minus_early  6 0.142857 n=6, descriptive only; no generalization to model populations
+
+Verdict: level, N scaling and temporal persistence describe different behavior. Mistral has high sustained cooperation; Qwen and GPT-OSS have zero late cooperation in every episode, and DeepSeek shows a large mean decline. Llama has a small descriptive decline, while Gemma rises on average. The figure classes use only the sign of late-minus-early and do not imply a significant change; consult bootstrap CIs. Rank correlations involve only six named models and are descriptive only.
+

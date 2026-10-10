@@ -1,0 +1,3 @@
+x,y,n,rho,note
+level_gap_pp,absolute_D,6,0.028571428571428574,"n=6, descriptive only; no generalization to model populations"
+level_gap_pp,late_minus_early,6,0.14285714285714288,"n=6, descriptive only; no generalization to model populations"
