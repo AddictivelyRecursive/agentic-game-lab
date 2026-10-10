@@ -291,7 +291,7 @@ Report the exact scaffold and payoff representation, because the evaluated contr
 \end{center}
 
 \section{Conclusion}
-Cooperation evaluation should distinguish level, group-size response, and persistence. This six-model case study illustrates why these measurements require model-specific uncertainty, a specified scaffold, trajectories, and execution audits. The evidence supports a bounded evaluation contribution, rather than a universal account of scaling-induced defection.
+Cooperation evaluation should distinguish level, group-size response, and persistence. This six-model case study illustrates why these measurements require model-specific uncertainty, a specified scaffold, trajectories, and execution reliability checks. The evidence supports a bounded evaluation contribution, rather than a universal account of scaling-induced defection.
 
 \section*{Limitations}
 
@@ -371,7 +371,7 @@ between-model variance and six-model coverage.
 Local vLLM endpoints use temperature .7 and top-$p=1.0$ for all generations. DeepSeek's output ceiling is 8,192 tokens;
 all others use 2,048. Context limit is 16,384 and tensor parallelism one.
 Jobs use H100/H200 GPUs; GPT-OSS uses H200 with MXFP4 weights.
-Appendix~\ref{sec:execution} reports actual serving and reliability.
+Tables~\ref{tab:serving} and~\ref{tab:main-reliability} report actual serving and reliability.
 The 29 single-GPU chunks consumed 141.29 allocated GPU-hours
 (132.38 hours of recorded episode execution). Collection spanned
 58.17 hours from first allocation start to last finish.

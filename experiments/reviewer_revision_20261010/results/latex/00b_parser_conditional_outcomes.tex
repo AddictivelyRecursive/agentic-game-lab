@@ -1,0 +1,43 @@
+% POST-HOC / EXPLORATORY
+\begin{tabular}{llllrrrll}
+\toprule
+model & mode & phase & estimator & cooperation\_pct & low\_pct & high\_pct & eligible\_episodes\_by\_N & status \\
+\midrule
+gpt-oss-120b & free\_form & all & v2\_c & 2.21 & 0.05 & 4.38 & 2:2;3:2;4:2;5:2 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+gpt-oss-120b & free\_form & all & v3\_c & 2.21 & 0.05 & 4.38 & 2:2;3:2;4:2;5:2 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+gpt-oss-120b & free\_form & all & executed\_c & 2.72 & 0.10 & 5.33 & 2:2;3:2;4:2;5:2 & historical executed actions; unchanged primary trajectories \\
+gpt-oss-120b & free\_form & early & v2\_c & 13.51 & 0.31 & 26.70 & 2:2;3:2;4:2;5:2 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+gpt-oss-120b & free\_form & early & v3\_c & 13.51 & 0.31 & 26.70 & 2:2;3:2;4:2;5:2 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+gpt-oss-120b & free\_form & early & executed\_c & 12.54 & 0.50 & 24.46 & 2:2;3:2;4:2;5:2 & historical executed actions; unchanged primary trajectories \\
+gpt-oss-120b & free\_form & late & v2\_c & 0.00 & 0.00 & 0.00 & 2:2;3:2;4:2;5:2 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+gpt-oss-120b & free\_form & late & v3\_c & 0.00 & 0.00 & 0.00 & 2:2;3:2;4:2;5:2 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+gpt-oss-120b & free\_form & late & executed\_c & 0.00 & 0.00 & 0.00 & 2:2;3:2;4:2;5:2 & historical executed actions; unchanged primary trajectories \\
+gpt-oss-120b & structured & all & v2\_c & 0.28 & 0.00 & 0.56 & 2:2;3:2;4:2;5:2 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+gpt-oss-120b & structured & all & v3\_c & 0.28 & 0.00 & 0.56 & 2:2;3:2;4:2;5:2 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+gpt-oss-120b & structured & all & executed\_c & 0.26 & 0.00 & 0.52 & 2:2;3:2;4:2;5:2 & historical executed actions; unchanged primary trajectories \\
+gpt-oss-120b & structured & early & v2\_c & 6.25 & 0.00 & 12.50 & 2:2;3:2;4:2;5:2 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+gpt-oss-120b & structured & early & v3\_c & 6.25 & 0.00 & 12.50 & 2:2;3:2;4:2;5:2 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+gpt-oss-120b & structured & early & executed\_c & 1.56 & 0.00 & 3.12 & 2:2;3:2;4:2;5:2 & historical executed actions; unchanged primary trajectories \\
+gpt-oss-120b & structured & late & v2\_c & 0.00 & 0.00 & 0.00 & 2:2;3:2;4:2;5:2 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+gpt-oss-120b & structured & late & v3\_c & 0.00 & 0.00 & 0.00 & 2:2;3:2;4:2;5:2 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+gpt-oss-120b & structured & late & executed\_c & 0.00 & 0.00 & 0.00 & 2:2;3:2;4:2;5:2 & historical executed actions; unchanged primary trajectories \\
+llama-3.1-8b-instruct & free\_form & all & v2\_c & 20.45 & 17.26 & 23.82 & 2:14;3:14;4:14;5:14 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+llama-3.1-8b-instruct & free\_form & all & v3\_c & 20.92 & 17.83 & 24.27 & 2:14;3:14;4:14;5:14 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+llama-3.1-8b-instruct & free\_form & all & executed\_c & 20.43 & 17.39 & 23.60 & 2:14;3:14;4:14;5:14 & historical executed actions; unchanged primary trajectories \\
+llama-3.1-8b-instruct & free\_form & early & v2\_c & 23.40 & 20.36 & 26.40 & 2:14;3:14;4:14;5:14 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+llama-3.1-8b-instruct & free\_form & early & v3\_c & 23.58 & 20.66 & 26.58 & 2:14;3:14;4:14;5:14 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+llama-3.1-8b-instruct & free\_form & early & executed\_c & 23.41 & 20.37 & 26.39 & 2:14;3:14;4:14;5:14 & historical executed actions; unchanged primary trajectories \\
+llama-3.1-8b-instruct & free\_form & late & v2\_c & 21.44 & 16.79 & 26.41 & 2:14;3:14;4:14;5:14 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+llama-3.1-8b-instruct & free\_form & late & v3\_c & 22.35 & 17.95 & 27.23 & 2:14;3:14;4:14;5:14 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+llama-3.1-8b-instruct & free\_form & late & executed\_c & 21.94 & 17.64 & 26.68 & 2:14;3:14;4:14;5:14 & historical executed actions; unchanged primary trajectories \\
+llama-3.1-8b-instruct & structured & all & v2\_c & 6.78 & 5.12 & 8.69 & 2:14;3:14;4:14;5:14 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+llama-3.1-8b-instruct & structured & all & v3\_c & 6.66 & 5.08 & 8.50 & 2:14;3:14;4:14;5:14 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+llama-3.1-8b-instruct & structured & all & executed\_c & 6.52 & 4.92 & 8.32 & 2:14;3:14;4:14;5:14 & historical executed actions; unchanged primary trajectories \\
+llama-3.1-8b-instruct & structured & early & v2\_c & 9.56 & 7.04 & 12.11 & 2:14;3:14;4:14;5:14 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+llama-3.1-8b-instruct & structured & early & v3\_c & 9.54 & 7.02 & 12.19 & 2:14;3:14;4:14;5:14 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+llama-3.1-8b-instruct & structured & early & executed\_c & 9.27 & 6.95 & 11.80 & 2:14;3:14;4:14;5:14 & historical executed actions; unchanged primary trajectories \\
+llama-3.1-8b-instruct & structured & late & v2\_c & 5.74 & 3.34 & 8.66 & 2:14;3:14;4:14;5:14 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+llama-3.1-8b-instruct & structured & late & v3\_c & 5.63 & 3.27 & 8.51 & 2:14;3:14;4:14;5:14 & conditional on a parseable first attempt; fixed observed histories; selection biased \\
+llama-3.1-8b-instruct & structured & late & executed\_c & 5.63 & 3.29 & 8.61 & 2:14;3:14;4:14;5:14 & historical executed actions; unchanged primary trajectories \\
+\bottomrule
+\end{tabular}

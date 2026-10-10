@@ -1,0 +1,36 @@
+{
+  "seed": 20261010,
+  "prospective": true,
+  "registered": false,
+  "external_registration_required": true,
+  "cohorts": {
+    "rr_stage1_reliability_v2": {
+      "episodes": 16,
+      "manifest_sha256": "fadddd579976b1d244dcc62dd5e7760cc194db877e886f2f94967885a8bf6627"
+    },
+    "rr_stage2_independent_v2": {
+      "episodes": 192,
+      "manifest_sha256": "d02644b627a07a861f3611e35b71279741835382239d482b9987ae5571acb542"
+    },
+    "rr_stage3_fourarm_v2": {
+      "episodes": 576,
+      "manifest_sha256": "3feba0858755e7f48335d10c6056813df1303354b47123984dc5119f3b0f0f9a"
+    },
+    "rr_stage4_floor_smoke_v2": {
+      "episodes": 16,
+      "manifest_sha256": "f599a0a377deaf3df21c1c08e1065b91c29b3211519c1c0ba93b6ad87605e01d"
+    },
+    "rr_stage4_frozen_v2": {
+      "episodes": 192,
+      "manifest_sha256": "1caaedb1366914824f2658006a23d3f8f28b9c46b0b4d3bbdf8a901b919701d5"
+    }
+  },
+  "floor_rule": "Smoke F mean cooperation <5% at BOTH N=2 and N=5; calculated across two episodes per N, before inspecting slopes. S is descriptive only. Smoke seeds are not reused in the primary frozen cohort.",
+  "stage4_dynamic_control": "Stage3 S/F rows only; exact model, parser, prompt and runtime hashes must match. Otherwise no sharing.",
+  "unresolved": [
+    "Stage1 token budgets await exact-message calibration",
+    "Stage2 GPT-OSS protocol awaits instrumented diagnostic",
+    "Stage4 larger-model allocation awaits deployment and smoke checks",
+    "Full-cohort GPU budget and chunk sizing await measured timings"
+  ]
+}

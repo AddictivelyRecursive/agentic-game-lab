@@ -1,0 +1,17 @@
+cohort_id,stage,model,N,arm,seed,block,episode_id,T,dynamics,parser,status
+rr_stage4_floor_smoke_v2,4,llama-3.1-8b-instruct,2,S,200785,1,rr_stage4_floor_smoke_v2__llama-3.1-8b-instruct__S__n2__seed200785,30,frozen,v3_literal_whitespace_only_20261011,NOT_REGISTERED_NOT_SUBMITTED
+rr_stage4_floor_smoke_v2,4,llama-3.1-8b-instruct,5,F,200791,1,rr_stage4_floor_smoke_v2__llama-3.1-8b-instruct__F__n5__seed200791,30,frozen,v3_literal_whitespace_only_20261011,NOT_REGISTERED_NOT_SUBMITTED
+rr_stage4_floor_smoke_v2,4,llama-3.1-8b-instruct,5,S,200789,1,rr_stage4_floor_smoke_v2__llama-3.1-8b-instruct__S__n5__seed200789,30,frozen,v3_literal_whitespace_only_20261011,NOT_REGISTERED_NOT_SUBMITTED
+rr_stage4_floor_smoke_v2,4,llama-3.1-8b-instruct,2,F,200787,1,rr_stage4_floor_smoke_v2__llama-3.1-8b-instruct__F__n2__seed200787,30,frozen,v3_literal_whitespace_only_20261011,NOT_REGISTERED_NOT_SUBMITTED
+rr_stage4_floor_smoke_v2,4,mistral-small-3.1-24b-instruct,5,F,200799,1,rr_stage4_floor_smoke_v2__mistral-small-3.1-24b-instruct__F__n5__seed200799,30,frozen,final_decision_v2,NOT_REGISTERED_NOT_SUBMITTED
+rr_stage4_floor_smoke_v2,4,mistral-small-3.1-24b-instruct,2,S,200793,1,rr_stage4_floor_smoke_v2__mistral-small-3.1-24b-instruct__S__n2__seed200793,30,frozen,final_decision_v2,NOT_REGISTERED_NOT_SUBMITTED
+rr_stage4_floor_smoke_v2,4,mistral-small-3.1-24b-instruct,5,S,200797,1,rr_stage4_floor_smoke_v2__mistral-small-3.1-24b-instruct__S__n5__seed200797,30,frozen,final_decision_v2,NOT_REGISTERED_NOT_SUBMITTED
+rr_stage4_floor_smoke_v2,4,mistral-small-3.1-24b-instruct,2,F,200795,1,rr_stage4_floor_smoke_v2__mistral-small-3.1-24b-instruct__F__n2__seed200795,30,frozen,final_decision_v2,NOT_REGISTERED_NOT_SUBMITTED
+rr_stage4_floor_smoke_v2,4,llama-3.1-8b-instruct,2,F,200788,2,rr_stage4_floor_smoke_v2__llama-3.1-8b-instruct__F__n2__seed200788,30,frozen,v3_literal_whitespace_only_20261011,NOT_REGISTERED_NOT_SUBMITTED
+rr_stage4_floor_smoke_v2,4,llama-3.1-8b-instruct,2,S,200786,2,rr_stage4_floor_smoke_v2__llama-3.1-8b-instruct__S__n2__seed200786,30,frozen,v3_literal_whitespace_only_20261011,NOT_REGISTERED_NOT_SUBMITTED
+rr_stage4_floor_smoke_v2,4,llama-3.1-8b-instruct,5,F,200792,2,rr_stage4_floor_smoke_v2__llama-3.1-8b-instruct__F__n5__seed200792,30,frozen,v3_literal_whitespace_only_20261011,NOT_REGISTERED_NOT_SUBMITTED
+rr_stage4_floor_smoke_v2,4,llama-3.1-8b-instruct,5,S,200790,2,rr_stage4_floor_smoke_v2__llama-3.1-8b-instruct__S__n5__seed200790,30,frozen,v3_literal_whitespace_only_20261011,NOT_REGISTERED_NOT_SUBMITTED
+rr_stage4_floor_smoke_v2,4,mistral-small-3.1-24b-instruct,2,F,200796,2,rr_stage4_floor_smoke_v2__mistral-small-3.1-24b-instruct__F__n2__seed200796,30,frozen,final_decision_v2,NOT_REGISTERED_NOT_SUBMITTED
+rr_stage4_floor_smoke_v2,4,mistral-small-3.1-24b-instruct,5,S,200798,2,rr_stage4_floor_smoke_v2__mistral-small-3.1-24b-instruct__S__n5__seed200798,30,frozen,final_decision_v2,NOT_REGISTERED_NOT_SUBMITTED
+rr_stage4_floor_smoke_v2,4,mistral-small-3.1-24b-instruct,5,F,200800,2,rr_stage4_floor_smoke_v2__mistral-small-3.1-24b-instruct__F__n5__seed200800,30,frozen,final_decision_v2,NOT_REGISTERED_NOT_SUBMITTED
+rr_stage4_floor_smoke_v2,4,mistral-small-3.1-24b-instruct,2,S,200794,2,rr_stage4_floor_smoke_v2__mistral-small-3.1-24b-instruct__S__n2__seed200794,30,frozen,final_decision_v2,NOT_REGISTERED_NOT_SUBMITTED

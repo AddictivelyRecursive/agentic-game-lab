@@ -7,9 +7,10 @@ import subprocess
 import time
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument('--loop',action='store_true'); a=ap.parse_args()
+    ap=argparse.ArgumentParser(); ap.add_argument('--loop',action='store_true'); ap.add_argument('--receipts',type=Path); a=ap.parse_args()
     here=Path(__file__).resolve().parent
-    jobs=json.loads((here/'submissions.json').read_text())
+    receipt=a.receipts or (here/'submissions_v2_exact.json' if (here/'submissions_v2_exact.json').exists() else here/'submissions.json')
+    jobs=json.loads(receipt.read_text())
     ids=','.join(j['job_id'] for j in jobs)
     while True:
         record={'utc':datetime.datetime.now(datetime.timezone.utc).isoformat()}

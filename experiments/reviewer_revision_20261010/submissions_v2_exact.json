@@ -1,0 +1,50 @@
+[
+  {
+    "model": "qwen3-8b",
+    "repo": "Qwen/Qwen3-8B",
+    "args": [
+      "sbatch",
+      "--parsable",
+      "--nodes=1",
+      "--ntasks=1",
+      "--gres=gpu:1",
+      "--cpus-per-task=4",
+      "--mem=96G",
+      "--time=120",
+      "--partition=gpu_h100_4",
+      "--qos=qos_gpu_h100",
+      "--job-name=agl_cal_qwen3-8b",
+      "--output=/home/jagatsesh/f20220604_ts/agentic-game-lab/results/sharanga/reviewer_revision_v2_exact_20261011/runs/cal_%j.out",
+      "--export=ALL",
+      "/home/jagatsesh/f20220604_ts/agentic-game-lab/results/sharanga/reviewer_revision_v2_exact_20261011/calibration.sbatch"
+    ],
+    "requests": 24,
+    "gpus": 1,
+    "max_gpu_hours": 2.0,
+    "job_id": "388864"
+  },
+  {
+    "model": "deepseek-r1-distill-qwen-14b",
+    "repo": "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
+    "args": [
+      "sbatch",
+      "--parsable",
+      "--nodes=1",
+      "--ntasks=1",
+      "--gres=gpu:1",
+      "--cpus-per-task=4",
+      "--mem=128G",
+      "--time=99",
+      "--partition=gpu_h200_8",
+      "--qos=qos_gpu_h200",
+      "--job-name=agl_cal_deepseek-r1-distill-qwen-14b",
+      "--output=/home/jagatsesh/f20220604_ts/agentic-game-lab/results/sharanga/reviewer_revision_v2_exact_20261011/runs/cal_%j.out",
+      "--export=ALL",
+      "/home/jagatsesh/f20220604_ts/agentic-game-lab/results/sharanga/reviewer_revision_v2_exact_20261011/calibration.sbatch"
+    ],
+    "requests": 8,
+    "gpus": 1,
+    "max_gpu_hours": 1.65,
+    "job_id": "388865"
+  }
+]

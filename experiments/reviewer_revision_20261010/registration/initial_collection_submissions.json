@@ -1,0 +1,97 @@
+[
+  {
+    "job_id": "388987",
+    "chunk": {
+      "chunk_id": "rr_stage3_fourarm_v2__gemma-3-12b-it__b01__part01",
+      "cohort_id": "rr_stage3_fourarm_v2",
+      "model": "gemma-3-12b-it",
+      "block": 1,
+      "episode_ids": [
+        "rr_stage3_fourarm_v2__gemma-3-12b-it__EV-canonical__n5__seed200569",
+        "rr_stage3_fourarm_v2__gemma-3-12b-it__F__n4__seed200497",
+        "rr_stage3_fourarm_v2__gemma-3-12b-it__EV-canonical__n2__seed200425",
+        "rr_stage3_fourarm_v2__gemma-3-12b-it__F__n5__seed200545",
+        "rr_stage3_fourarm_v2__gemma-3-12b-it__F__n2__seed200401",
+        "rr_stage3_fourarm_v2__gemma-3-12b-it__EV-sorted__n5__seed200581",
+        "rr_stage3_fourarm_v2__gemma-3-12b-it__F__n3__seed200449",
+        "rr_stage3_fourarm_v2__gemma-3-12b-it__S__n2__seed200413",
+        "rr_stage3_fourarm_v2__gemma-3-12b-it__EV-sorted__n4__seed200533",
+        "rr_stage3_fourarm_v2__gemma-3-12b-it__EV-canonical__n4__seed200521",
+        "rr_stage3_fourarm_v2__gemma-3-12b-it__S__n3__seed200461",
+        "rr_stage3_fourarm_v2__gemma-3-12b-it__EV-sorted__n2__seed200437",
+        "rr_stage3_fourarm_v2__gemma-3-12b-it__EV-canonical__n3__seed200473",
+        "rr_stage3_fourarm_v2__gemma-3-12b-it__S__n4__seed200509",
+        "rr_stage3_fourarm_v2__gemma-3-12b-it__S__n5__seed200557",
+        "rr_stage3_fourarm_v2__gemma-3-12b-it__EV-sorted__n3__seed200485"
+      ],
+      "gpus": 1,
+      "cpus": 4,
+      "wall_minutes": 95,
+      "estimated_loading_minutes": 15,
+      "timing_margin": 2.0,
+      "timing_basis": "Original-budget episode mean; provisional; never an enrollment authorization",
+      "status": "AWAITING_EXTERNAL_REGISTRATION_AND_PROTOCOL_GATES"
+    },
+    "dependency": "388864:388865",
+    "protocol_lock_sha256": "a0068ee4651274748e3869edf68e5d1ec649f4b143ba1a668301d938d38da5e8",
+    "externally_registered": false
+  },
+  {
+    "job_id": "388988",
+    "chunk": {
+      "chunk_id": "rr_stage3_fourarm_v2__mistral-small-3.1-24b-instruct__b01__part01",
+      "cohort_id": "rr_stage3_fourarm_v2",
+      "model": "mistral-small-3.1-24b-instruct",
+      "block": 1,
+      "episode_ids": [
+        "rr_stage3_fourarm_v2__mistral-small-3.1-24b-instruct__F__n3__seed200641",
+        "rr_stage3_fourarm_v2__mistral-small-3.1-24b-instruct__EV-canonical__n2__seed200617",
+        "rr_stage3_fourarm_v2__mistral-small-3.1-24b-instruct__EV-sorted__n2__seed200629",
+        "rr_stage3_fourarm_v2__mistral-small-3.1-24b-instruct__F__n4__seed200689",
+        "rr_stage3_fourarm_v2__mistral-small-3.1-24b-instruct__F__n5__seed200737",
+        "rr_stage3_fourarm_v2__mistral-small-3.1-24b-instruct__F__n2__seed200593",
+        "rr_stage3_fourarm_v2__mistral-small-3.1-24b-instruct__S__n3__seed200653",
+        "rr_stage3_fourarm_v2__mistral-small-3.1-24b-instruct__S__n5__seed200749"
+      ],
+      "gpus": 1,
+      "cpus": 4,
+      "wall_minutes": 120,
+      "estimated_loading_minutes": 15,
+      "timing_margin": 2.0,
+      "timing_basis": "Original-budget episode mean; provisional; never an enrollment authorization",
+      "status": "AWAITING_EXTERNAL_REGISTRATION_AND_PROTOCOL_GATES"
+    },
+    "dependency": "388864:388865",
+    "protocol_lock_sha256": "a0068ee4651274748e3869edf68e5d1ec649f4b143ba1a668301d938d38da5e8",
+    "externally_registered": false
+  },
+  {
+    "job_id": "388989",
+    "chunk": {
+      "chunk_id": "rr_stage3_fourarm_v2__mistral-small-3.1-24b-instruct__b01__part02",
+      "cohort_id": "rr_stage3_fourarm_v2",
+      "model": "mistral-small-3.1-24b-instruct",
+      "block": 1,
+      "episode_ids": [
+        "rr_stage3_fourarm_v2__mistral-small-3.1-24b-instruct__EV-canonical__n3__seed200665",
+        "rr_stage3_fourarm_v2__mistral-small-3.1-24b-instruct__EV-sorted__n5__seed200773",
+        "rr_stage3_fourarm_v2__mistral-small-3.1-24b-instruct__EV-canonical__n4__seed200713",
+        "rr_stage3_fourarm_v2__mistral-small-3.1-24b-instruct__S__n4__seed200701",
+        "rr_stage3_fourarm_v2__mistral-small-3.1-24b-instruct__S__n2__seed200605",
+        "rr_stage3_fourarm_v2__mistral-small-3.1-24b-instruct__EV-canonical__n5__seed200761",
+        "rr_stage3_fourarm_v2__mistral-small-3.1-24b-instruct__EV-sorted__n4__seed200725",
+        "rr_stage3_fourarm_v2__mistral-small-3.1-24b-instruct__EV-sorted__n3__seed200677"
+      ],
+      "gpus": 1,
+      "cpus": 4,
+      "wall_minutes": 120,
+      "estimated_loading_minutes": 15,
+      "timing_margin": 2.0,
+      "timing_basis": "Original-budget episode mean; provisional; never an enrollment authorization",
+      "status": "AWAITING_EXTERNAL_REGISTRATION_AND_PROTOCOL_GATES"
+    },
+    "dependency": "388988",
+    "protocol_lock_sha256": "a0068ee4651274748e3869edf68e5d1ec649f4b143ba1a668301d938d38da5e8",
+    "externally_registered": false
+  }
+]

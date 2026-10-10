@@ -1,0 +1,12 @@
+{
+  "PLAN.md": "e3584b09949941fed787c4975bddf6e6f95984b9486b51c2cd757e1dc0b7a3c0",
+  "README.md": "f40058c7e08f09db0ce664a80460bd9f1195f994a08c81be0d34c952705c0e6f",
+  "calibrate.py": "4ff22dcb965a076196c4b2cda2cee2783095f5d774c86602dc866168a6071daf",
+  "calibration.sbatch": "b145cdfaf49a04c2bc8da85e5ddf184106f50509910b323cbf17f570630d9ae5",
+  "cache_snapshot.py": "57f1904ba7b8c8701aa5dfc5e32b17f5d51770b53623a80eb1de9f4c0be2d564",
+  "runtime_manifest.py": "c3f01be0306c4d257cc13cfd4d73cc1fc0fb2b00f8c016932011286d0a1cc4e2",
+  "frozen_parser_v2.py": "0326da53a7240e50195a259d5878a81fa94b6896fd5cef8750a14305c482f0d6",
+  "request_bank.jsonl": "5490efe5856a594edeb40fa6c424a802f3880ce12837b2b270ec48b2868ff6dd",
+  "submit_calibration.py": "a4513aeaa7438ff60fa4dd5d0b64e16fa7258ca3af03f8e1fbece12b2d46e486",
+  "replace_remote.py": "e180197fe8590f125fcfe0d1c22c8557582b9404673ac98a45deb37c446960ef"
+}

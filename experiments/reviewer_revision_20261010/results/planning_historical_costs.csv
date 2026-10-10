@@ -1,0 +1,7 @@
+model,count,mean,median,max,historical_gpu_hours_for_96_episodes_excluding_load,note
+deepseek-r1-distill-qwen-14b,128,2809.802132697045,2620.143900974421,6646.406842916273,74.92805687192121,Historical sequential episode runtime; changed protocols and loading can change cost substantially
+gemma-3-12b-it,64,147.41893249453278,146.58559931418858,225.98504880815744,3.9311715331875408,Historical sequential episode runtime; changed protocols and loading can change cost substantially
+gpt-oss-120b,16,874.0312521655578,881.2271985020489,1298.677975001745,23.307500057748207,Historical sequential episode runtime; changed protocols and loading can change cost substantially
+llama-3.1-8b-instruct,112,125.63843317937737,120.14296481339262,292.4467460438609,3.35035821811673,Historical sequential episode runtime; changed protocols and loading can change cost substantially
+mistral-small-3.1-24b-instruct,24,388.5006767887001,390.3734150561504,578.9603773579001,10.36001804769867,Historical sequential episode runtime; changed protocols and loading can change cost substantially
+qwen3-8b,32,2190.8909298107483,1995.7257988519996,4414.748047901994,58.42375812828662,Historical sequential episode runtime; changed protocols and loading can change cost substantially

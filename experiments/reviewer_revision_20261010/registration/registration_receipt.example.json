@@ -1,0 +1,7 @@
+{
+  "registration_type": "EXAMPLE_NOT_VALID",
+  "registration_url": "AUTHOR_TO_FILL_WITH_IMMUTABLE_OSF_REGISTRATION_URL",
+  "registered_at_utc": "AUTHOR_TO_FILL_UTC_TIMESTAMP",
+  "manifest_sha256": "3feba0858755e7f48335d10c6056813df1303354b47123984dc5119f3b0f0f9a",
+  "protocol_lock_sha256": "09a78a0f819dc9513cd2b8995954c7737286d1e15273e255bc7f655a4ceaa5c8"
+}

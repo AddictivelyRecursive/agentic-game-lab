@@ -1,0 +1,5 @@
+Choose one valid action using the supplied evidence and objective.
+Account for immediate rewards and any future consequences justified by the game rules and observed behavior.
+Explain your reasoning, including how you weighed the current game state and history. Include opponent predictions only when requested by the output schema.
+The supplied score values give the action-dependent component of immediate payoff. Use them alongside the game rules and observed history.
+The action must be an integer in the supplied action space. Additional reporting fields do not determine action validity.

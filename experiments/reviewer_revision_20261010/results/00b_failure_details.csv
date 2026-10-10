@@ -1,0 +1,8 @@
+model,mode,category,detail,count
+gpt-oss-120b,free_form,malformed_json_or_wrapper,no_complete_decision_json,63
+gpt-oss-120b,free_form,other,logged_transport_or_generation_error,77
+gpt-oss-120b,structured,malformed_json_or_wrapper,no_complete_decision_json,36
+gpt-oss-120b,structured,other,logged_transport_or_generation_error,19
+llama-3.1-8b-instruct,free_form,invalid_action,Action out of range: 5,2
+llama-3.1-8b-instruct,free_form,malformed_json_or_wrapper,no_complete_decision_json,607
+llama-3.1-8b-instruct,structured,malformed_json_or_wrapper,no_complete_decision_json,262

@@ -1,0 +1,25 @@
+{
+  "replaced_jobs": [
+    "388834",
+    "388835"
+  ],
+  "reason": "Original bank used compact JSON, while the original pipeline uses indent=2; Qwen pilot remains archived and non-qualifying. DeepSeek reduced to round 15.",
+  "old_allocated_seconds": 1133,
+  "replacement_qwen_minutes": 120,
+  "replacement_deepseek_minutes": 99,
+  "max_total_gpu_hours": 3.964722222222222,
+  "accounting": [
+    [
+      "388834",
+      "CANCELLED by 1248350512",
+      "1133",
+      "billing=4,cpu=4,gres/gpu:nvidia_h100_80gb_hbm3=1,gres/gpu=1,mem=96G,node=1"
+    ],
+    [
+      "388835",
+      "CANCELLED by 1248350512",
+      "0",
+      ""
+    ]
+  ]
+}

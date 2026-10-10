@@ -27,11 +27,11 @@ def main():
                     if mode=='structured': assert state['eu_ranking']==saved['eu_ranking']
                     policy='decision_policy_structured.txt' if mode=='structured' else 'decision_policy_system.txt'
                     system=(prompts/'base_system.txt').read_text()+'\n'+(prompts/policy).read_text()
-                    user=json.dumps(payload,ensure_ascii=False)
+                    user=json.dumps(payload,ensure_ascii=False,indent=2)
                     uid=f'{eid}__t{t}__p0'
                     rows.append(dict(id=uid,model=model,mode=mode,N=n,round=t,seat=0,episode_seed=1001,system=system,user=user,source_trace=str(paths[0].relative_to(ROOT)),source_trace_sha256=hashlib.sha256(paths[0].read_bytes()).hexdigest(),request_seed=int.from_bytes(hashlib.sha256(uid.encode()).digest()[:4],'little')%2147483647))
     target=HERE/'request_bank.jsonl'; target.write_text(''.join(json.dumps(r,ensure_ascii=False)+'\n' for r in rows),encoding='utf-8')
     assert len(rows)==24
-    print('Prepared',len(rows),'states, 48 planned requests. SHA256',hashlib.sha256(target.read_bytes()).hexdigest())
+    print('Prepared',len(rows),'bank states; v2 selects 12 Qwen + 4 DeepSeek states for 32 requests. SHA256',hashlib.sha256(target.read_bytes()).hexdigest())
 
 if __name__=='__main__': main()

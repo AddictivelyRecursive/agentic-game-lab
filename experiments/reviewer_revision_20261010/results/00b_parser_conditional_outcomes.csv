@@ -1,0 +1,37 @@
+model,mode,phase,estimator,cooperation_pct,low_pct,high_pct,eligible_episodes_by_N,status
+gpt-oss-120b,free_form,all,v2_c,2.2115260577915374,0.04595588235294117,4.377096233230134,2:2;3:2;4:2;5:2,conditional on a parseable first attempt; fixed observed histories; selection biased
+gpt-oss-120b,free_form,all,v3_c,2.2115260577915374,0.04595588235294117,4.377096233230134,2:2;3:2;4:2;5:2,conditional on a parseable first attempt; fixed observed histories; selection biased
+gpt-oss-120b,free_form,all,executed_c,2.715277777777778,0.10416666666666667,5.326388888888889,2:2;3:2;4:2;5:2,historical executed actions; unchanged primary trajectories
+gpt-oss-120b,free_form,early,v2_c,13.506944444444443,0.3125,26.70138888888889,2:2;3:2;4:2;5:2,conditional on a parseable first attempt; fixed observed histories; selection biased
+gpt-oss-120b,free_form,early,v3_c,13.506944444444443,0.3125,26.70138888888889,2:2;3:2;4:2;5:2,conditional on a parseable first attempt; fixed observed histories; selection biased
+gpt-oss-120b,free_form,early,executed_c,12.541666666666668,0.5,24.458333333333336,2:2;3:2;4:2;5:2,historical executed actions; unchanged primary trajectories
+gpt-oss-120b,free_form,late,v2_c,0.0,0.0,0.0,2:2;3:2;4:2;5:2,conditional on a parseable first attempt; fixed observed histories; selection biased
+gpt-oss-120b,free_form,late,v3_c,0.0,0.0,0.0,2:2;3:2;4:2;5:2,conditional on a parseable first attempt; fixed observed histories; selection biased
+gpt-oss-120b,free_form,late,executed_c,0.0,0.0,0.0,2:2;3:2;4:2;5:2,historical executed actions; unchanged primary trajectories
+gpt-oss-120b,structured,all,v2_c,0.2777777777777778,0.0,0.5555555555555556,2:2;3:2;4:2;5:2,conditional on a parseable first attempt; fixed observed histories; selection biased
+gpt-oss-120b,structured,all,v3_c,0.2777777777777778,0.0,0.5555555555555556,2:2;3:2;4:2;5:2,conditional on a parseable first attempt; fixed observed histories; selection biased
+gpt-oss-120b,structured,all,executed_c,0.26041666666666663,0.0,0.5208333333333333,2:2;3:2;4:2;5:2,historical executed actions; unchanged primary trajectories
+gpt-oss-120b,structured,early,v2_c,6.25,0.0,12.5,2:2;3:2;4:2;5:2,conditional on a parseable first attempt; fixed observed histories; selection biased
+gpt-oss-120b,structured,early,v3_c,6.25,0.0,12.5,2:2;3:2;4:2;5:2,conditional on a parseable first attempt; fixed observed histories; selection biased
+gpt-oss-120b,structured,early,executed_c,1.5625,0.0,3.125,2:2;3:2;4:2;5:2,historical executed actions; unchanged primary trajectories
+gpt-oss-120b,structured,late,v2_c,0.0,0.0,0.0,2:2;3:2;4:2;5:2,conditional on a parseable first attempt; fixed observed histories; selection biased
+gpt-oss-120b,structured,late,v3_c,0.0,0.0,0.0,2:2;3:2;4:2;5:2,conditional on a parseable first attempt; fixed observed histories; selection biased
+gpt-oss-120b,structured,late,executed_c,0.0,0.0,0.0,2:2;3:2;4:2;5:2,historical executed actions; unchanged primary trajectories
+llama-3.1-8b-instruct,free_form,all,v2_c,20.451217710195714,17.26181949600917,23.81515459489801,2:14;3:14;4:14;5:14,conditional on a parseable first attempt; fixed observed histories; selection biased
+llama-3.1-8b-instruct,free_form,all,v3_c,20.91863610529481,17.830127114966047,24.273021706625215,2:14;3:14;4:14;5:14,conditional on a parseable first attempt; fixed observed histories; selection biased
+llama-3.1-8b-instruct,free_form,all,executed_c,20.43377976190476,17.39161086309524,23.60378224206349,2:14;3:14;4:14;5:14,historical executed actions; unchanged primary trajectories
+llama-3.1-8b-instruct,free_form,early,v2_c,23.396149807410332,20.361093450177915,26.400413587978036,2:14;3:14;4:14;5:14,conditional on a parseable first attempt; fixed observed histories; selection biased
+llama-3.1-8b-instruct,free_form,early,v3_c,23.581255967299203,20.660111495255997,26.584191412310528,2:14;3:14;4:14;5:14,conditional on a parseable first attempt; fixed observed histories; selection biased
+llama-3.1-8b-instruct,free_form,early,executed_c,23.40922619047619,20.370535714285715,26.39289434523809,2:14;3:14;4:14;5:14,historical executed actions; unchanged primary trajectories
+llama-3.1-8b-instruct,free_form,late,v2_c,21.439582978053416,16.789767266767523,26.413710868075814,2:14;3:14;4:14;5:14,conditional on a parseable first attempt; fixed observed histories; selection biased
+llama-3.1-8b-instruct,free_form,late,v3_c,22.352301716141003,17.947213686611008,27.226530612244897,2:14;3:14;4:14;5:14,conditional on a parseable first attempt; fixed observed histories; selection biased
+llama-3.1-8b-instruct,free_form,late,executed_c,21.936011904761905,17.64281994047619,26.678645833333327,2:14;3:14;4:14;5:14,historical executed actions; unchanged primary trajectories
+llama-3.1-8b-instruct,structured,all,v2_c,6.7768388323060025,5.115760539808163,8.692046430015237,2:14;3:14;4:14;5:14,conditional on a parseable first attempt; fixed observed histories; selection biased
+llama-3.1-8b-instruct,structured,all,v3_c,6.655617154995507,5.076652688926969,8.503662796623772,2:14;3:14;4:14;5:14,conditional on a parseable first attempt; fixed observed histories; selection biased
+llama-3.1-8b-instruct,structured,all,executed_c,6.5203373015873005,4.922550843253968,8.320219494047617,2:14;3:14;4:14;5:14,historical executed actions; unchanged primary trajectories
+llama-3.1-8b-instruct,structured,early,v2_c,9.561915937303537,7.040619636554261,12.114913933880986,2:14;3:14;4:14;5:14,conditional on a parseable first attempt; fixed observed histories; selection biased
+llama-3.1-8b-instruct,structured,early,v3_c,9.54357993197279,7.016331845238095,12.19093856292517,2:14;3:14;4:14;5:14,conditional on a parseable first attempt; fixed observed histories; selection biased
+llama-3.1-8b-instruct,structured,early,executed_c,9.273809523809524,6.949367559523809,11.802120535714286,2:14;3:14;4:14;5:14,historical executed actions; unchanged primary trajectories
+llama-3.1-8b-instruct,structured,late,v2_c,5.744949843972677,3.342175463935574,8.659181482351714,2:14;3:14;4:14;5:14,conditional on a parseable first attempt; fixed observed histories; selection biased
+llama-3.1-8b-instruct,structured,late,v3_c,5.630952380952381,3.2677827380952387,8.510491071428572,2:14;3:14;4:14;5:14,conditional on a parseable first attempt; fixed observed histories; selection biased
+llama-3.1-8b-instruct,structured,late,executed_c,5.630952380952381,3.291666666666667,8.613169642857143,2:14;3:14;4:14;5:14,historical executed actions; unchanged primary trajectories
