@@ -1,0 +1,31 @@
+% POST-HOC / EXPLORATORY
+\begin{tabular}{lllrrrrrrrl}
+\toprule
+model & mode & predictor & rho & low & high & episodes & draws & estimable\_draws & invalid\_draws & status \\
+\midrule
+DeepSeek & free\_form & fallback & -0.11 & -0.27 & 0.09 & 64 & 5000 & 4999 & 1 & estimated; CI conditional on estimable draws \\
+DeepSeek & free\_form & repair & 0.31 & 0.06 & 0.54 & 64 & 5000 & 5000 & 0 & estimated; CI conditional on estimable draws \\
+DeepSeek & structured & fallback & -0.07 & -0.12 & -0.03 & 64 & 5000 & 4378 & 622 & estimated; CI conditional on estimable draws \\
+DeepSeek & structured & repair & 0.10 & -0.15 & 0.33 & 64 & 5000 & 4999 & 1 & estimated; CI conditional on estimable draws \\
+GPT-OSS & free\_form & fallback & not estimable & not estimable & not estimable & 8 & 5000 & 0 & 5000 & not estimable: constant predictor or outcome \\
+GPT-OSS & free\_form & repair & not estimable & not estimable & not estimable & 8 & 5000 & 0 & 5000 & not estimable: constant predictor or outcome \\
+GPT-OSS & structured & fallback & not estimable & not estimable & not estimable & 8 & 5000 & 0 & 5000 & not estimable: constant predictor or outcome \\
+GPT-OSS & structured & repair & not estimable & not estimable & not estimable & 8 & 5000 & 0 & 5000 & not estimable: constant predictor or outcome \\
+Gemma & free\_form & fallback & not estimable & not estimable & not estimable & 32 & 5000 & 0 & 5000 & not estimable: constant predictor or outcome \\
+Gemma & free\_form & repair & not estimable & not estimable & not estimable & 32 & 5000 & 0 & 5000 & not estimable: constant predictor or outcome \\
+Gemma & structured & fallback & not estimable & not estimable & not estimable & 32 & 5000 & 0 & 5000 & not estimable: constant predictor or outcome \\
+Gemma & structured & repair & not estimable & not estimable & not estimable & 32 & 5000 & 0 & 5000 & not estimable: constant predictor or outcome \\
+Llama & free\_form & fallback & 0.00 & -0.26 & 0.29 & 56 & 5000 & 5000 & 0 & estimated; CI conditional on estimable draws \\
+Llama & free\_form & repair & 0.17 & -0.09 & 0.42 & 56 & 5000 & 5000 & 0 & estimated; CI conditional on estimable draws \\
+Llama & structured & fallback & 0.22 & -0.08 & 0.50 & 56 & 5000 & 5000 & 0 & estimated; CI conditional on estimable draws \\
+Llama & structured & repair & 0.03 & -0.22 & 0.29 & 56 & 5000 & 5000 & 0 & estimated; CI conditional on estimable draws \\
+Mistral & free\_form & fallback & not estimable & not estimable & not estimable & 12 & 5000 & 0 & 5000 & not estimable: constant predictor or outcome \\
+Mistral & free\_form & repair & -0.06 & -0.60 & 0.46 & 12 & 5000 & 4994 & 6 & estimated; CI conditional on estimable draws \\
+Mistral & structured & fallback & not estimable & not estimable & not estimable & 12 & 5000 & 0 & 5000 & not estimable: constant predictor or outcome \\
+Mistral & structured & repair & 0.52 & -0.04 & 0.84 & 12 & 5000 & 5000 & 0 & estimated; CI conditional on estimable draws \\
+Qwen & free\_form & fallback & not estimable & not estimable & not estimable & 16 & 5000 & 0 & 5000 & not estimable: constant predictor or outcome \\
+Qwen & free\_form & repair & not estimable & not estimable & not estimable & 16 & 5000 & 0 & 5000 & not estimable: constant predictor or outcome \\
+Qwen & structured & fallback & not estimable & not estimable & not estimable & 16 & 5000 & 0 & 5000 & not estimable: constant predictor or outcome \\
+Qwen & structured & repair & not estimable & not estimable & not estimable & 16 & 5000 & 0 & 5000 & not estimable: constant predictor or outcome \\
+\bottomrule
+\end{tabular}

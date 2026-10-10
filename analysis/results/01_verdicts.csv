@@ -1,0 +1,7 @@
+model,label,reason,baseline_early,baseline_late
+Llama,WEAKENED,Filtering produces inconsistent decline signs.,23.40922619047619,21.936011904761905
+Qwen,NOT ESTIMABLE,At least one filtered mode summary lacks an N cell; observed conditional estimates cannot resolve robustness across all filters.,22.572916666666668,0.0
+Gemma,DOES NOT SURVIVE,No baseline early-then-decay pattern exists.,13.528645833333334,17.018229166666664
+Mistral,DOES NOT SURVIVE,No baseline early-then-decay pattern exists.,78.08333333333334,80.2986111111111
+DeepSeek,SURVIVES,"The late-minus-early sign remains negative under every estimable filter; this is descriptive sign robustness, not equivalence of magnitudes.",39.868489583333336,2.79296875
+GPT-OSS,NOT ESTIMABLE,At least one filtered mode summary lacks an N cell; observed conditional estimates cannot resolve robustness across all filters.,12.541666666666668,0.0
