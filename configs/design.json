@@ -1,0 +1,47 @@
+{
+  "episodes": 376,
+  "rounds": 30,
+  "group_sizes": [
+    2,
+    3,
+    4,
+    5
+  ],
+  "scaffolds": [
+    "structured",
+    "free_form"
+  ],
+  "seeds_per_cell": {
+    "llama-3.1-8b-instruct": 14,
+    "qwen3-8b": 4,
+    "gemma-3-12b-it": 8,
+    "mistral-small-3.1-24b-instruct": 3,
+    "deepseek-r1-distill-qwen-14b": 16,
+    "gpt-oss-120b": 2
+  },
+  "generation": {
+    "temperature": 0.7,
+    "top_p": 1.0,
+    "max_tokens_default": 2048,
+    "max_tokens_deepseek": 8192,
+    "max_model_len": 16384,
+    "tensor_parallel_size": 1
+  },
+  "analysis": {
+    "unit": "episode",
+    "level": "Equal average over four group sizes",
+    "interaction": "3 * (free-form slope over N - structured slope over N); cell-specific Welch uncertainty",
+    "multiplicity": "Holm correction across six model interactions",
+    "heterogeneity": "Inverse-variance Q and I-squared",
+    "persistence": "Rounds 1-5 versus 26-30; descriptive",
+    "pooled": "Gaussian mixed model with random model intercept and N slope; structured reference; pooled interaction secondary"
+  },
+  "internal_amendments": {
+    "date": "2026-10-07",
+    "externally_preregistered": false,
+    "interaction_amendment_sha256": "3ab3a35c2feb4ec40c0c9d6a77fb9e308dca00f5adb9d193cd19ca7fb852e8f4",
+    "allocation_amendment_sha256": "f735ffe6715987f427dcd3ecce105f05bd92453e8215c21b6f71c4017d665647",
+    "note": "Hashes retain provenance checks without distributing author planning notes."
+  },
+  "raw_main_sha256": "149ac53f8a19286b429d1de83939ae91028845b0b35a18e1dc8dd5cc0468b778"
+}

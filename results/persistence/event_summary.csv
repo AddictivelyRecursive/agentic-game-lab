@@ -1,0 +1,13 @@
+model,mode,episodes,curve_first_below,episodes_below_round1,episodes_with_active_break,first_active_break_median,first_active_break_q1,first_active_break_q3,first_break_with_later_observation,first_break_pre_mean,first_break_next3_mean,episodes_recovered_next3,terminal_zero_from_round1,terminal_zero_after_opening,terminal_zero_start_median,terminal_zero_late_onset,terminal_zero_not_reached
+Llama,structured,56,1.0,54,14,5.0,3.0,8.75,14,0.34469246031746026,0.1350198412698413,3,6,38,21.0,15,12
+Llama,free_form,56,1.0,42,48,6.0,3.0,10.25,48,0.3988425925925925,0.21030092592592595,9,1,19,24.0,8,36
+Qwen,structured,16,1.0,16,0,,,,0,,,0,13,3,2.0,0,0
+Qwen,free_form,16,2.0,4,12,2.0,2.0,2.0,12,0.7048611111111112,0.1261574074074074,2,0,16,18.0,0,0
+Gemma,structured,32,1.0,32,0,,,,0,,,0,32,0,,0,0
+Gemma,free_form,32,1.0,32,17,4.0,4.0,7.0,17,0.392156862745098,0.16544117647058823,8,10,12,20.0,4,10
+Mistral,structured,12,1.0,11,4,11.0,6.75,16.25,4,0.2708333333333333,0.16319444444444445,1,0,7,24.0,3,5
+Mistral,free_form,12,,1,1,22.0,22.0,22.0,1,1.0,0.5,1,0,0,,0,12
+DeepSeek,structured,64,1.0,53,15,2.0,2.0,6.0,15,0.4638888888888889,0.0,0,12,51,15.0,8,1
+DeepSeek,free_form,64,2.0,14,56,3.0,2.0,5.0,56,0.6247271825396826,0.33303571428571427,36,0,59,24.0,24,5
+GPT-OSS,structured,8,1.0,7,1,2.0,2.0,2.0,1,0.5,0.0,0,7,1,3.0,0,0
+GPT-OSS,free_form,8,1.0,7,1,8.0,8.0,8.0,1,0.5,0.16666666666666666,1,4,4,2.0,0,0

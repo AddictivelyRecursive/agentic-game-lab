@@ -1,7 +1,0 @@
-# POST-HOC / EXPLORATORY; isolated Sharanga CPU environment
-pandas==2.3.3
-numpy==2.2.6
-scipy==1.15.3
-statsmodels==0.14.5
-matplotlib==3.10.7
-jinja2>=3.1,<4

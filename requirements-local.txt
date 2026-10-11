@@ -1,3 +1,0 @@
-# Client + simulator only. Install once into a chosen environment, never per job.
-# vLLM/torch/transformers remain managed separately by the cluster environment.
-requests>=2.31,<3

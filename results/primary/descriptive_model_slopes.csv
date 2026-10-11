@@ -1,0 +1,13 @@
+model,mode,N_slope,training_group
+llama-3.1-8b-instruct,structured,0.00326388888888908,standard
+llama-3.1-8b-instruct,free_form,0.04999702380952403,standard
+qwen3-8b,structured,0.0012083333333334147,standard
+qwen3-8b,free_form,-0.011815972222222026,standard
+gemma-3-12b-it,structured,8.615793264018141e-17,standard
+gemma-3-12b-it,free_form,-0.01931423611111094,standard
+mistral-small-3.1-24b-instruct,structured,-0.006777777777777975,standard
+mistral-small-3.1-24b-instruct,free_form,-0.029486111111111362,standard
+deepseek-r1-distill-qwen-14b,structured,-0.0017291666666664322,reasoning-tuned
+deepseek-r1-distill-qwen-14b,free_form,0.017367187500000037,reasoning-tuned
+gpt-oss-120b,structured,-0.0031249999999998722,reasoning-tuned
+gpt-oss-120b,free_form,-0.02936111111111105,reasoning-tuned

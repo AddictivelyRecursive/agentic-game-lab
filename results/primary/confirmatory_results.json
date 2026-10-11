@@ -1,0 +1,178 @@
+{
+  "source_sha256": "149ac53f8a19286b429d1de83939ae91028845b0b35a18e1dc8dd5cc0468b778",
+  "statsmodels_version": "0.15.0",
+  "family": "Gaussian",
+  "link": "identity",
+  "unit": "episode mean",
+  "estimation": "maximum likelihood",
+  "primary_attempts": [
+    {
+      "random_formula": "1 + N",
+      "optimizer": "lbfgs",
+      "converged": true,
+      "usable": true,
+      "warnings": [
+        "The MLE may be on the boundary of the parameter space."
+      ]
+    }
+  ],
+  "H4": {
+    "role": "PRIMARY: six named-model fixed-effects interactions",
+    "per_model": [
+      {
+        "model": "llama-3.1-8b-instruct",
+        "status": "estimated",
+        "slope_interaction_per_player": 0.04673313492063489,
+        "endpoint_interaction": 0.14019940476190468,
+        "endpoint_standard_error": 0.04663853091462151,
+        "q_m": 0.030452135922237483,
+        "se_method": "eight-cell episode variance contrast with Welch-Satterthwaite df",
+        "episodes": 112,
+        "welch_df": 55.18410519116134,
+        "ci_low": 0.046740708487091234,
+        "ci_high": 0.23365810103671814,
+        "p_two_sided": 0.003977311749347616,
+        "p_holm_supplemental": 0.023863870496085696
+      },
+      {
+        "model": "qwen3-8b",
+        "status": "estimated",
+        "slope_interaction_per_player": -0.013024305555555555,
+        "endpoint_interaction": -0.039072916666666666,
+        "endpoint_standard_error": 0.01868601253680043,
+        "q_m": 0.0013966682581018513,
+        "se_method": "eight-cell episode variance contrast with Welch-Satterthwaite df",
+        "episodes": 32,
+        "welch_df": 5.6784414857601115,
+        "ci_low": -0.08543096667632753,
+        "ci_high": 0.007285133342994202,
+        "p_two_sided": 0.08411425646033137,
+        "p_holm_supplemental": 0.42057128230165686
+      },
+      {
+        "model": "gemma-3-12b-it",
+        "status": "estimated",
+        "slope_interaction_per_player": -0.019314236111111077,
+        "endpoint_interaction": -0.05794270833333323,
+        "endpoint_standard_error": 0.04782138539668922,
+        "q_m": 0.018295079210069443,
+        "se_method": "eight-cell episode variance contrast with Welch-Satterthwaite df",
+        "episodes": 64,
+        "welch_df": 13.25786411592052,
+        "ci_low": -0.1610506396034047,
+        "ci_high": 0.04516522293673825,
+        "p_two_sided": 0.24680057796337349,
+        "p_holm_supplemental": 0.6233460533939743
+      },
+      {
+        "model": "mistral-small-3.1-24b-instruct",
+        "status": "estimated",
+        "slope_interaction_per_player": -0.022708333333333386,
+        "endpoint_interaction": -0.06812500000000016,
+        "endpoint_standard_error": 0.041348367561489054,
+        "q_m": 0.005129062500000002,
+        "se_method": "eight-cell episode variance contrast with Welch-Satterthwaite df",
+        "episodes": 24,
+        "welch_df": 5.991712254429062,
+        "ci_low": -0.16933474370131374,
+        "ci_high": 0.033084743701313424,
+        "p_two_sided": 0.15060378994957038,
+        "p_holm_supplemental": 0.6024151597982815
+      },
+      {
+        "model": "deepseek-r1-distill-qwen-14b",
+        "status": "estimated",
+        "slope_interaction_per_player": 0.019096354166666732,
+        "endpoint_interaction": 0.057289062500000196,
+        "endpoint_standard_error": 0.044723728106453926,
+        "q_m": 0.03200338969184027,
+        "se_method": "eight-cell episode variance contrast with Welch-Satterthwaite df",
+        "episodes": 128,
+        "welch_df": 38.962255580732,
+        "ci_low": -0.033176018253042255,
+        "ci_high": 0.14775414325304265,
+        "p_two_sided": 0.20778201779799144,
+        "p_holm_supplemental": 0.6233460533939743
+      },
+      {
+        "model": "gpt-oss-120b",
+        "status": "estimated",
+        "slope_interaction_per_player": -0.02623611111111113,
+        "endpoint_interaction": -0.0787083333333334,
+        "endpoint_standard_error": 0.09051186424687342,
+        "q_m": 0.016384795138888887,
+        "se_method": "eight-cell episode variance contrast with Welch-Satterthwaite df",
+        "episodes": 16,
+        "welch_df": 1.0228237874884496,
+        "ci_low": -1.1698640025892977,
+        "ci_high": 1.012447335922631,
+        "p_two_sided": 0.541704027130754,
+        "p_holm_supplemental": 0.6233460533939743
+      }
+    ],
+    "heterogeneity": {
+      "status": "estimated",
+      "Q": 18.22516999916721,
+      "df": 5,
+      "p_value": 0.0026770479982968377,
+      "I_squared_percent": 72.56541365469583,
+      "fixed_weighted_mean_descriptive": -0.0188405381316121,
+      "caveat": "Chi-square approximation; six models and estimated standard errors, not proof of a power ceiling"
+    },
+    "multiplicity": "alpha .05 marginal per model; supplemental Holm p-values; Q is an additional primary test"
+  },
+  "analysis_amendment": "2026-10-07: docs/H4_amendment_20261007.txt",
+  "primary_status": "converged",
+  "selected_random_formula": "1 + N",
+  "H1": {
+    "coefficient": -0.0003969687806739642,
+    "ci_low": -0.017635117649481145,
+    "ci_high": 0.016841180088133217,
+    "p_two_sided": 0.9639996731742142
+  },
+  "H4_secondary_pooled": {
+    "coefficient": 0.013459515366430449,
+    "ci_low": -0.009076376298029197,
+    "ci_high": 0.035995407030890096,
+    "p_two_sided": 0.24176583257121598,
+    "endpoint_interaction": 0.04037854609929135
+  },
+  "predictions_outside_unit_interval": 0,
+  "H2": {
+    "flat": {
+      "aic": -602.0282508040598,
+      "bic": -595.5553668783999,
+      "coefficients": {
+        "Intercept": 0.028017139479905428
+      },
+      "episodes": 188,
+      "parameters_including_residual_variance": 2
+    },
+    "dilution": {
+      "aic": -600.2877182609677,
+      "bic": -590.5783923724779,
+      "coefficients": {
+        "Intercept": 0.031227192822937476,
+        "dilution": -0.006163302418621508
+      },
+      "episodes": 188,
+      "parameters_including_residual_variance": 3
+    },
+    "delta_aic_flat_minus_dilution": -1.7405325430920584,
+    "delta_bic_flat_minus_dilution": -4.976974505922044
+  },
+  "pooled_power_limitation": {
+    "label": "prior pilot-based six-model population sensitivity, not main-data achieved power",
+    "normal_ceiling_5_10_15_points": [
+      0.1845985783592366,
+      0.5613817471837477,
+      0.887168191857226
+    ],
+    "df5_ceiling_5_10_15_points": [
+      0.1395343917271507,
+      0.4026946596902156,
+      0.7185408040967691
+    ]
+  },
+  "pooled_fit_status": "converged"
+}

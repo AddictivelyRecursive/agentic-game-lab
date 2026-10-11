@@ -1,0 +1,45 @@
+{
+  "raw_main_sha256": "149ac53f8a19286b429d1de83939ae91028845b0b35a18e1dc8dd5cc0468b778",
+  "episodes": 376,
+  "cells": 48,
+  "decisions": 39480,
+  "release_kind": "Derived results; raw logs excluded",
+  "source_analyses": {
+    "primary": "Original primary fit and saved-log reproduction analysis, 2026-10-10",
+    "persistence": "Saved-log narrative support analysis, 2026-10-11",
+    "figures": "Figures from anonymous manuscript working tree",
+    "published_model_outcomes": "Rounded main-outcomes table from manuscript; reward per seat per round"
+  },
+  "files": {
+    "results/figures/main_cooperation.pdf": "e470d77825266f50d5c9c7c0eacc441fed3e927f528c256f5af0b6686105438c",
+    "results/figures/main_dynamics.pdf": "843752769884d5345edc58447cfd096f4bb3c2aafb1f82f469dce1ad9561f1d4",
+    "results/figures/main_trajectory_by_N.pdf": "066d29720b73073a45a829ca70d78463eebea5c670c967c91d71655b0128209c",
+    "results/persistence/event_summary.csv": "2a974f82460af8789f2f49c897074b06d75763b2a878d29bb752d99cfa2fa681",
+    "results/persistence/keyword_summary.csv": "4cf0d1c58198cd31d1dabb20ef56305344dfc7a6e62b1bd41c887c48f3313545",
+    "results/persistence/round_curves.csv": "6178419d512f56f19acfdfdaedb906b0dbbe122a0b62cfa87325921ff6ad9aab",
+    "results/primary/00_cells.csv": "d8e9b415e19c224680fdea1ca69698429b584dacc5d8cc263155fc36a757b7bc",
+    "results/primary/00_effects.csv": "4a973d505f337f2ac30a962fd5663c917fb3bf83eb55fd7261fe1cb165b09aae",
+    "results/primary/00_episode_outcomes.csv": "9b4c6cbae47dfb00cd13f49d32dca932562c51add15c91606fb190310a0efcfd",
+    "results/primary/00_heterogeneity.csv": "df9767b75bc84e5006560b56bb12f29d41ed6494f88070a0ac37f5aa69ac7f8e",
+    "results/primary/00_reproduction.csv": "29d04a44ae9272f8e3e09ed0d4db3b3baef293d970f8f1ff70b9deb733472476",
+    "results/primary/confirmatory_results.json": "e69626bef50e41eb90b0883ea2251ecbbb1a63c243ddf8322b6e51b1d503165b",
+    "results/primary/descriptive_model_slopes.csv": "21253730ea20d7465d325f46d6c40f25c69c50364909976c2b08a5ab82d020dd",
+    "results/primary/published_model_outcomes.csv": "fce89665125372af08ec9265a34f3c7ffad026b8ced31ad741476b0630da7826"
+  },
+  "source_file_sha256": {
+    "results/figures/main_cooperation.pdf": "e470d77825266f50d5c9c7c0eacc441fed3e927f528c256f5af0b6686105438c",
+    "results/figures/main_dynamics.pdf": "843752769884d5345edc58447cfd096f4bb3c2aafb1f82f469dce1ad9561f1d4",
+    "results/figures/main_trajectory_by_N.pdf": "066d29720b73073a45a829ca70d78463eebea5c670c967c91d71655b0128209c",
+    "results/persistence/event_summary.csv": "dd5c6cb547d12a25db7275611e8997731fb6f597ebb6fba4cf654f4b41788515",
+    "results/persistence/keyword_summary.csv": "12c31621bacdc01675f66d8417e5524e3cedf0fb21738be4632e69535aeb59d7",
+    "results/persistence/round_curves.csv": "89b45554c7c48360dcf469a9ad80429f4e134897fe2cee46fccd2a9f0d4fab1a",
+    "results/primary/00_cells.csv": "bec56dfd78399a9489bedf8321d0bbe95c37236be06ce5cad33568e7009af0d5",
+    "results/primary/00_effects.csv": "89bbc075ea02abfb02d116ff60509d8fe75bef7bcdf9875a2ffc65d2393d2021",
+    "results/primary/00_episode_outcomes.csv": "f9017fb53938f10ceec6137dc4f92fb187aea6caaebc74f69767efec01ae426e",
+    "results/primary/00_heterogeneity.csv": "334506819b8b0eb29bc032886c5a89e97cdd150cedfb20fff6020d377a196030",
+    "results/primary/00_reproduction.csv": "07806367cb3e1da47dea6793f56c09788b282787aa4b17a98f3a61208c85690a",
+    "results/primary/confirmatory_results.json": "05c3c2ebd5632358bc675dfbf2784d9b282535e9a84f5a0a1f1d792db505af5a",
+    "results/primary/descriptive_model_slopes.csv": "c7e16bfb5a7d00e9d2da54207a0d2fe41453dce1178d10b801002a007e3ca6d7"
+  },
+  "text_normalization": "Released text uses LF line endings; numeric contents unchanged."
+}
