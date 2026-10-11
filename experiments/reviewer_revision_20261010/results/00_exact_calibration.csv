@@ -1,0 +1,5 @@
+model,max_tokens,expected,observed,complete,first_valid_pct,length_pct,errors,mean_latency_s,mean_completion_tokens,max_completion_tokens,note
+deepseek-r1-distill-qwen-14b,8192,4,4,True,100.0,0.0,0,27.950186414760537,2733.5,3451,"Descriptive saved-state diagnostic, not independent episodes"
+deepseek-r1-distill-qwen-14b,16384,4,4,True,100.0,0.0,0,25.28454484906979,2482.75,4081,"Descriptive saved-state diagnostic, not independent episodes"
+qwen3-8b,2048,12,12,True,25.0,75.0,0,34.04177377745509,1964.8333333333333,2048,"Descriptive saved-state diagnostic, not independent episodes"
+qwen3-8b,16384,12,12,True,100.0,0.0,0,45.86003035555283,2649.75,5327,"Descriptive saved-state diagnostic, not independent episodes"

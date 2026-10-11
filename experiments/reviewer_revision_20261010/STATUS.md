@@ -61,3 +61,11 @@ Author instruction removed the OSF prerequisite. The frozen design, seeds and an
 Initial Stage 3 collection accepted by Sharanga: Gemma job 388987 (16 episodes), Mistral 388988 and 388989 (8 episodes each). Both first jobs have afterany dependencies on calibration 388864 and 388865; Mistral part 2 depends on 388988. At most two study GPUs can run concurrently. This is one balanced block per model, not full-grid enrollment. Check measured runtime and reliability before submitting further blocks. GPT-OSS remains gated on instrumentation; Qwen/DeepSeek remain gated on calibration. Scheduler acceptance does not mean completed episodes.
 
 Mistral preserves --tokenizer-mode mistral from its original deployment. The collector uses serving-side /tokenize for context checks; tokenizer/context failures leave an incomplete episode rather than generating artificial fallback outcomes. Four offline tests passed locally and on Sharanga; shell syntax checked, and the submission driver verified all 74 frozen source hashes before submission. Full transport responses and finish reasons are retained before parsing.
+
+## Progress check — 2026-10-11
+
+Calibration jobs 388864 and 388865 COMPLETED with exit code 0 (22m14s and 10m00s allocated GPU time). Exact-message source hashes verified by analyze_calibration.py; all 32 requests present, no duplicate model/state/budget rows and no transport errors.
+
+Qwen: 2048-token budget 3/12 first-attempt valid, 9/12 length finishes; 16384-token budget 12/12 valid, 0/12 length finishes. Mean latency 34.04 vs 45.86 seconds. DeepSeek: 4/4 valid with no length finishes at both 8192 and 16384; mean latency 27.95 vs 25.28 seconds. This small saved-state diagnostic supports testing Qwen's larger budget prospectively; it does not certify episode-level reliability or prove DeepSeek has no truncation problem generally. No new collection jobs were submitted during this progress check.
+
+Collection jobs 388987 (Gemma) and 388988 (Mistral part 1) are pending for Priority; calibration dependencies have cleared. Mistral part 2, 388989, remains pending on 388988. Completed new episodes: 0/32. Results saved in results/00_exact_calibration.csv and results/00_calibration_cost_sheet.csv, with LaTeX versions. Downloaded server logs retained under results/server_copies/reviewer_revision_20261011/exact_calibration/.

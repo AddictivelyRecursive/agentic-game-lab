@@ -1,0 +1,11 @@
+% POST-HOC / EXPLORATORY
+\begin{tabular}{lrrrrrrrrrrl}
+\toprule
+model & max\_tokens & expected & observed & complete & first\_valid\_pct & length\_pct & errors & mean\_latency\_s & mean\_completion\_tokens & max\_completion\_tokens & note \\
+\midrule
+deepseek-r1-distill-qwen-14b & 8192 & 4 & 4 & True & 100.00 & 0.00 & 0 & 27.95 & 2733.50 & 3451 & Descriptive saved-state diagnostic, not independent episodes \\
+deepseek-r1-distill-qwen-14b & 16384 & 4 & 4 & True & 100.00 & 0.00 & 0 & 25.28 & 2482.75 & 4081 & Descriptive saved-state diagnostic, not independent episodes \\
+qwen3-8b & 2048 & 12 & 12 & True & 25.00 & 75.00 & 0 & 34.04 & 1964.83 & 2048 & Descriptive saved-state diagnostic, not independent episodes \\
+qwen3-8b & 16384 & 12 & 12 & True & 100.00 & 0.00 & 0 & 45.86 & 2649.75 & 5327 & Descriptive saved-state diagnostic, not independent episodes \\
+\bottomrule
+\end{tabular}
