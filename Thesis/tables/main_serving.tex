@@ -1,0 +1,19 @@
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrllrr}
+\toprule
+Model & Tokens & GPU & Dtype & Quant. & S sec. & F sec. \\
+\midrule
+Llama & 2048 & H100/H200 & bfloat16 & -- & 0.99 & 1.40 \\
+Qwen & 2048 & H100/H200 & bfloat16 & -- & 15.71 & 26.02 \\
+Gemma & 2048 & H100/H200 & bfloat16 & -- & 1.32 & 1.48 \\
+Mistral & 2048 & H100/H200 & bfloat16 & -- & 3.71 & 3.69 \\
+DeepSeek & 8192 & H100/H200 & bfloat16 & -- & 20.11 & 33.41 \\
+GPT-OSS & 2048 & H200 & bfloat16 & MXFP4 & 7.50 & 9.15 \\
+\bottomrule
+\end{tabular}
+\caption{Actual main serving configuration and mean end-to-end decision latency. All jobs use TP=1, context limit 16,384, vLLM 0.25.1, torch 2.11.0 and transformers 5.14.1. No peak-VRAM time series was recorded.}
+\label{tab:serving}
+\end{table*}

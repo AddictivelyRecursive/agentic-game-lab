@@ -1,0 +1,74 @@
+\section{Prompt Templates}
+\label{sec:appendix-prompts}
+
+The text below gives the shared system and condition-specific decision
+instructions. Each decision also receives a JSON state containing the action
+mapping, payoff and dynamics rules, current state, and observed histories.
+Its \texttt{temporal\_context} explicitly supplies
+\texttt{total\_rounds=30} and
+\texttt{rounds\_remaining\_including\_current=31-t}.
+Thus agents are informed of the finite horizon; the opening and final rounds
+are not presented as an unknown-length interaction.
+
+\paragraph{Base system prompt (both conditions).}
+\begin{verbatim}
+You choose an action in a repeated
+multi-player game to maximize your own
+long-term average reward. Use the
+supplied individual observed
+histories, action mapping, payoff
+rules, and temporal context. Actions
+are simultaneous. Other players'
+current actions are unknown.
+Distinguish observations from true
+actions and tentative hypotheses from
+evidence. You may form tentative
+opponent-strategy hypotheses; do not
+treat a label as evidence. No
+particular action, cooperation level,
+or amount of action switching is
+preferred. Do not invent observations,
+future responses, or missing rules.
+Return one JSON object matching the
+requested schema, without markdown.
+\end{verbatim}
+
+\paragraph{Free-form decision prompt.}
+\begin{verbatim}
+Choose one valid action using the
+supplied evidence and objective.
+Account for immediate rewards and any
+future consequences justified by the
+game rules and observed behavior.
+Explain your reasoning, including how
+you weighed the current game state and
+history. Include opponent predictions
+only when requested by the output
+schema. The action must be an integer
+in the supplied action space.
+Additional reporting fields do not
+determine action validity.
+\end{verbatim}
+
+\paragraph{Structured decision prompt.}
+\begin{verbatim}
+Choose one valid action using the
+supplied evidence and objective.
+Account for immediate rewards and any
+future consequences justified by the
+game rules and observed behavior.
+Explain your reasoning, including how
+you weighed the current game state and
+history. Include opponent predictions
+only when requested by the output
+schema. You have been given a pre-
+computed ranking of actions by
+expected utility. Consider it
+alongside your own reasoning; you are
+not required to choose the top-ranked
+action. The action must be an integer
+in the supplied action space.
+Additional reporting fields do not
+determine action validity.
+\end{verbatim}
+

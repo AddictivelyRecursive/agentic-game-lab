@@ -8,6 +8,10 @@ from experiments import study_common as c
 
 
 class DeadlineAllocationTests(unittest.TestCase):
+    @unittest.skipUnless(
+        (c.ROOT/'results/analysis/main_dry_run_review_20261007/run_plan.json').is_file()
+        and (c.ROOT/'results/analysis/pilot_variance_20261007/variance_estimates.json').is_file(),
+        'Requires private planning evidence excluded from the review release')
     def test_real_evidence_unequal_counts_and_disjoint_shards(self):
         old = c.read_json(c.ROOT/'results/analysis/main_dry_run_review_20261007/run_plan.json')
         variance = c.ROOT/'results/analysis/pilot_variance_20261007/variance_estimates.json'

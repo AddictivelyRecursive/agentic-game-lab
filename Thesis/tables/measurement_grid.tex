@@ -1,0 +1,17 @@
+\begin{table*}[t]
+\centering\small
+\begin{tabular}{lrrrrr}
+\toprule
+Model & S level (\%) & F level (\%) & $D_m$ (pp) & F rounds 1--5 (\%) & F rounds 26--30 (\%) \\
+\midrule
+Llama & 6.52 & 20.43 & +14.02 & 23.41 & 21.94 \\
+Qwen & 0.14 & 6.24 & -3.91 & 22.57 & 0.00 \\
+Gemma & 0.00 & 13.02 & -5.79 & 13.53 & 17.02 \\
+Mistral & 6.75 & 80.24 & -6.81 & 78.08 & 80.30 \\
+DeepSeek & 1.19 & 18.24 & +5.73 & 39.87 & 2.79 \\
+GPT-OSS & 0.26 & 2.72 & -7.87 & 12.54 & 0.00 \\
+\bottomrule
+\end{tabular}
+\caption{Cooperation is not one number: levels, group-size responses, and persistence describe different behavior. S/F denote structured/free-form. Levels and early/late cooperation average equally across four group sizes; the early/late comparison is descriptive. $D_m$ is the endpoint-scale difference between fitted free-form and structured group-size slopes, not a raw endpoint difference. Table~\ref{tab:main-h4} reports its uncertainty and adjusted tests. Qwen's values describe the tested execution pipeline (Section~\ref{sec:reliability}).}
+\label{tab:measurement-grid}
+\end{table*}

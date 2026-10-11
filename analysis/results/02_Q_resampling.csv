@@ -1,6 +1,0 @@
-method,draws,valid_draws,invalid_draws,observed_Q,p,mc_se,note,low,high,fraction
-parametric_normal,20000,20000,0,18.225169999167203,0.002449877506124694,0.00034956226958366646,"Fixed observed SE; t uses SE as scale and df>=2, not unit-variance t",,,
-parametric_t,20000,20000,0,18.225169999167203,0.08509574521273937,0.001972998471355565,"Fixed observed SE; t uses SE as scale and df>=2, not unit-variance t",,,
-episode_bootstrap_Q,5000,4855,145,,,,Percentile CI CONDITIONAL on all six positive SEs; unconditional interval not estimable if invalid draws occur,9.71982122876072,219.12314820767048,
-episode_bootstrap_I2,5000,4855,145,,,,Percentile CI CONDITIONAL on all six positive SEs; unconditional interval not estimable if invalid draws occur,48.55871400808577,97.71817806313494,
-episode_bootstrap_Llama_Holm,5000,4855,145,,,,fraction conditional on estimable six-model Holm; low/high bound unconditional fraction by unresolved draws,0.6314,0.6604,0.6502574665293512

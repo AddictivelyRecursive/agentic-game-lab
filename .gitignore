@@ -225,3 +225,42 @@ __marimo__/
 .local_backups/
 paper/
 
+# Paper build intermediates (retain on disk)
+/Thesis/*.aux
+/Thesis/*.bbl
+/Thesis/*.blg
+/Thesis/*.fdb_latexmk
+/Thesis/*.fls
+/Thesis/*.out
+/Thesis/*.synctex.gz
+
+
+# Local research archive; excluded from the anonymous release
+/src/results/
+/src/plots/
+/experiments/reviewer_revision_20261010/
+/analysis/results/
+/analysis/figures/
+/analysis/validation/*.csv
+/analysis/PLAN.md
+/analysis/RESULTS.md
+/analysis/SHARANGA.md
+/analysis/server_verification.json
+/analysis/package_versions.json
+/analysis/submit_cpu.py
+/analysis/verify_server_copy.py
+/token_audit*
+/Thesis_Overleaf_Review.zip
+/docs/*
+!/docs/study_specification.md
+!/docs/experiment_workflow.md
+!/docs/H4*amendment*.txt
+!/docs/REVIEW_RELEASE.md
+/cluster/*
+!/cluster/README.md
+!/cluster/main_study_jobs.py
+!/cluster/lib.sh
+!/cluster/submit.sh
+!/cluster/sharanga_run.sbatch
+!/cluster/sharanga_pilot.sbatch
+!/cluster/sharanga_smoke.sbatch

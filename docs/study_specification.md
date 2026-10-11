@@ -1,6 +1,20 @@
 # AgenticGameLab — Scaling-Induced Defection & Decision Scaffolding Study
 # Full implementation and experiment plan (supersedes prior partial prompts)
 
+## Amendment approved 2026-10-06
+
+The user approved **30 rounds for both pilot and main**, and a maximum **12% fallback rate per model ? mode ? N cell**. Fallback records remain included, counted and flagged; they are not silently reclassified as model choices. Incomplete cells and uniform pilot cells remain flagged and block variance readiness. The threshold was raised from 5% to 12% after inspection of observed Qwen rates; this is a post-pilot amendment and must be disclosed in the paper. This amendment supersedes conflicting round-count and zero-fallback statements below. Main seed counts still require external power calculation and dry-run review. Existing 50-round records remain readable for historical inspection; new collection requires 30 rounds.
+
+## Pilot amendment approved 2026-10-03
+
+The user explicitly approved 240 pilot episodes with **30 rounds per episode**,
+retaining all six models, N=2–5, both modes, and seeds 101–105. DeepSeek uses
+max_tokens=8192; other models retain 2048. This supersedes the pilot T=50
+requirement below. Main-study T=50 remains unchanged and separately gated;
+30-round pilot variance cannot be assumed equivalent to 50-round variance.
+The approved pilot plan and receipt are under
+`results/sharanga/pilot30_20261003/` on Sharanga.
+
 This is the complete, current specification. Treat it as the source of
 truth for this project going forward — do not merge it with assumptions
 from earlier, partial instructions in this conversation.

@@ -29,7 +29,7 @@ python run_pilot.py --help
 python run_main.py --help
 ```
 
-`experiments/study_config.json` fixes M=5, p=0, theta=0.50, T=50. The unspecified
+`experiments/study_config.json` fixes M=5, p=0, theta=0.50, T=30. The unspecified
 payoff/drift/history/generation settings are inherited from the existing local
 smoke configuration and are printed in the reviewable plan. Review these before
 approving collection. N and reasoning mode come from the grid; the runner's
@@ -109,15 +109,15 @@ then contains one episode record per attempt: true cooperation by round,
 model-provided explanation, raw responses and repair attempts, reliability
 flags, seed, condition, and timings. Original simulator files and full agent
 traces are retained under `episodes/`. Interrupted/failed episodes cannot be
-mistaken for completed 50-round episodes. A summary is updated after each
+mistaken for completed 30-round episodes. A summary is updated after each
 attempt and at runner exit.
 
 ## External power calculation and main
 
 The variance analyzer reads only pilot JSONL. It performs no tests. Uniformity
 means all completed seed means differ by at most 1e-12. Incomplete cells,
-uniform cells, and any fallback contamination block readiness; fallback rates
-over 0.1 are separately flagged. Variance is sample variance (ddof=1).
+uniform cells, and fallback rates above 0.12 per cell block readiness. All
+fallback decisions remain flagged; rates above 0.1 also retain the historical warning. Variance is sample variance (ddof=1).
 
 The human conducts the power calculation and confirms its result in conversation.
 Create a report using `experiments/power_report.example.json`, tying the chosen
@@ -140,15 +140,14 @@ JSON parse success does not mean the action passed validation. A repair rate
 counts decisions requiring at least one repair, not the number of repair calls.
 
 Analysis/coding preparation require all 48 cells at their target seed counts
-and zero fallback. This conservative rule prevents deterministic fallback
-behavior from becoming model behavior. Changing that rule requires a separate
-reviewed analysis decision; the scripts do not silently discard contaminated
-episodes or cells.
+and at most 12% fallback per model/mode/N cell (approved 2026-10-06).
+Fallbacks remain included and flagged. The pilot also requires nonuniform seed
+means for variance readiness. No contaminated episodes are silently discarded.
 
 ## Statistical implementation
 
 The analysis unit is the episode mean of normalized true cooperation across
-50 rounds and N seats. Individual rounds are not independent replicates.
+30 rounds and N seats. Individual rounds are not independent replicates.
 Cooperation is graded at M=5, so the implementation uses a **Gaussian mixed
 model with identity link**, not a binary/binomial model. The specification
 does not name a likelihood/link; this choice is explicit for review before data

@@ -1,0 +1,25 @@
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llrrrr}
+\toprule
+Model & Mode & Decisions & Parse (\%) & Fallback (\%) & Seconds \\
+\midrule
+Llama & S & 5880 & 95.5 & 0.4 & 0.99 \\
+Llama & F & 5880 & 89.7 & 1.3 & 1.40 \\
+Qwen & S & 1680 & 31.5 & 0.0 & 15.71 \\
+Qwen & F & 1680 & 7.9 & 6.0 & 26.02 \\
+Gemma & S & 3360 & 100.0 & 0.0 & 1.32 \\
+Gemma & F & 3360 & 100.0 & 0.0 & 1.48 \\
+Mistral & S & 1260 & 98.8 & 0.0 & 3.71 \\
+Mistral & F & 1260 & 99.4 & 0.0 & 3.69 \\
+DeepSeek & S & 6720 & 99.3 & 0.0 & 20.11 \\
+DeepSeek & F & 6720 & 97.9 & 0.1 & 33.41 \\
+GPT-OSS & S & 840 & 93.5 & 0.0 & 7.50 \\
+GPT-OSS & F & 840 & 83.3 & 0.7 & 9.15 \\
+\bottomrule
+\end{tabular}
+\caption{Fresh-main reliability. Parse is recomputed using the actual v2 extractor, not the historical proxy; it does not imply action validity. Fallback uses the original flags. Seconds are mean end-to-end decision latency. Seat-round rates are descriptive; all 48 cells satisfy the 12\% fallback gate.}
+\label{tab:main-reliability}
+\end{table*}

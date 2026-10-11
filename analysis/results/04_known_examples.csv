@@ -1,3 +1,0 @@
-model,mode,N,seed,round,seat,action,flagged,rules
-Gemma,structured,2,1001,15,0,4,True,R1
-Llama,structured,2,1001,1,0,4,True,R1

@@ -44,7 +44,9 @@ class MainJobsTests(unittest.TestCase):
             args=argparse.Namespace(bundle=root/'bundle',config=jobs.ROOT/'experiments/main_study/config.json',
                 generation_overrides=jobs.ROOT/'experiments/main_study/generation_overrides.json',
                 deployment_report=root/'deployment.json',power_report=root/'power.json',serving=root/'serving.json')
-            with patch.object(jobs.subprocess,'run',side_effect=run):jobs.prepare(args)
+            with patch.object(jobs.subprocess,'run',side_effect=run), \
+                 patch.object(jobs.subprocess,'check_output',return_value='synthetic-test-provenance'):
+                jobs.prepare(args)
             self.assertFalse(any(cmd[0]=='sbatch' for cmd in calls))
             for alias in common.ROSTER:
                 modelroot=args.bundle/alias
