@@ -16,6 +16,7 @@
 !/results/primary/
 !/results/persistence/
 !/results/figures/
+!/results/logs/
 __pycache__/
 *.py[cod]
 .env

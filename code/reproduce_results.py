@@ -54,7 +54,7 @@ def main():
         np.testing.assert_allclose(value, expected['H1'][key], atol=1e-5, rtol=1e-4)
     print('PASS: 376 episodes, 48 cells, cell means/variances, six interactions,')
     print('Welch intervals, Holm correction, heterogeneity, pooled H1, and H2 AIC/BIC.')
-    print('This verifies derived summaries; it does not validate unreleased raw actions or text.')
+    print('This verifies derived summaries; run code/run_saved_log_analysis.py to reconstruct them from released logs.')
 
 
 if __name__ == '__main__':

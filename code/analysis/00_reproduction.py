@@ -10,7 +10,7 @@ def main():
     ep,dd,rr=load(args.input)
     (OUT/'SCHEMA.md').write_text('''# POST-HOC / EXPLORATORY — verified schema
 
-Canonical input and SHA256: see results/source_manifest.json. JSONL includes manifest and episode records; only completed episode records enter analysis. All 376 episodes / 48 cells / 39,480 decisions verified; seed counts 14/4/8/3/16/2 per model-mode-N cell. Unique episode_id and (model,mode,N,seed); exactly 30*N distinct seat-round decisions per episode. No pilots included.
+Canonical input and SHA256: see results/source_manifest.json. The anonymized JSONL includes completed episode records; original orchestration manifests are omitted. All 376 episodes / 48 cells / 39,480 decisions verified; seed counts 14/4/8/3/16/2 per model-mode-N cell. Unique episode_id and (model,mode,N,seed); exactly 30*N distinct seat-round decisions per episode. No pilots included.
 
 Episode fields: model (mapped explicitly to short name), reasoning_mode (structured/free_form), N, seed, episode_id, status. Decision fields: round (1–30), seat (0–N−1), repair_used (bool), repair_calls (0–3), fallback_used (bool), reasoning_text, first_parse_ok (historical proxy), model_calls, aborted. Submitted action is absent directly on decision: join by round to rounds[t].true_actions[seat]. Verified integer 0–4 and c=1−a/4 against true_coop and stored episode cooperation. Every fallback action is 4. No aborted decisions.
 
@@ -57,7 +57,7 @@ Unit of inference: episode. Model-mode outcome means average four N-cell episode
     check('total episodes',376,len(ep),0); check('total decisions',39480,len(dd),0)
     export=dd[dd.N.isin([2,5])]; check('explanation export scope',19740,len(export),0); check('empty explanations N2/5',274,export.text.str.strip().eq('').sum(),0)
     result=pd.DataFrame(rows); table(result,'00_reproduction'); passed=bool(result['pass'].all())
-    (OUT/'results/00_gate.json').write_text(json.dumps(dict(passed=passed,failures=result.loc[~result['pass'],'quantity'].tolist(),seed=SEED,source_sha256=SOURCE_HASH),indent=2))
+    (OUT/'results/00_gate.json').write_text(json.dumps(dict(passed=passed,failures=result.loc[~result['pass'],'quantity'].tolist(),seed=SEED,source_sha256=json.loads((OUT/'results/source_manifest.json').read_text())['sha256']),indent=2))
     failures=result[~result['pass']]
     section('Task 0 — reproduction gate',f'Gate: **{"PASS" if passed else "FAIL — STOP"}**. {len(result)-len(failures)}/{len(result)} anchors pass. All estimates recomputed from actions and original reliability flags. Cooperation tolerance 0.01 pp, D 0.05 pp, counts exact; other values checked against their published rounding intervals. Welch episode sample variances use ddof=1; eight-cell weights and separate-mode OLS agree.\n\n'+(failures.to_string(index=False) if len(failures) else f'Llama D={effects.iloc[0].D:.5f} pp; Q(5)={h["Q"]:.8f}, p={h["p"]:.8f}, I²={h["I2"]:.5f}%.')+'\n\nNo Tasks 1–4 may run following a failed gate without explicit acceptance of discrepancies. All subsequent work remains exploratory.')
     print(result.to_string(index=False)); print('GATE',passed)

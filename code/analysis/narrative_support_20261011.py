@@ -6,12 +6,13 @@ from pathlib import Path
 import sys
 import numpy as np
 import pandas as pd
+from log_io import DEFAULT_INPUT, open_text, verify_main, verify_agent_inputs
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 ROOT = Path(__file__).resolve().parents[2]
-SOURCE = ROOT/'data/main.jsonl'
+SOURCE = DEFAULT_INPUT
 OUT = ROOT/'results/generated/narrative'
 EXPECTED = '149ac53f8a19286b429d1de83939ae91028845b0b35a18e1dc8dd5cc0468b778'
 MODELS = dict(zip(['llama-3.1-8b-instruct','qwen3-8b','gemma-3-12b-it',
@@ -41,9 +42,9 @@ def main():
     args = parser.parse_args()
     SOURCE, OUT = args.input, args.output
     OUT.mkdir(parents=True,exist_ok=True)
-    assert sha(SOURCE)==EXPECTED, 'Source differs from original complete-main dataset'
+    source_digest = verify_main(SOURCE)
     episodes=[]; rounds=[]; decisions=[]; episode_ids=set()
-    with SOURCE.open(encoding='utf8') as f:
+    with open_text(SOURCE) as f:
         for line in f:
             row=json.loads(line)
             if 'decisions' not in row: continue
@@ -98,31 +99,8 @@ def main():
     ep.to_csv(OUT/'episode_events.csv',index=False)
     dd.to_csv(OUT/'keyword_flags.csv',index=False)
 
-    # Verify the supplied horizon from every saved per-seat trace, not just wrapper code.
-    final=ROOT/'results/server_copies/final_main_20261010'
-    snapshot=ROOT/'results/server_copies/snapshot_20261009_2103/results/sharanga/main_short_chunks_20261007/shards'
-    checked=0; checked_ids=set(); trace_sources=[]
-    for source in json.loads((final/'main_complete_20261010/source_checksums.json').read_text()):
-        worker=source['worker']; model=worker.split('__chunk')[0]
-        base=final/'remaining_shards' if model.startswith('deepseek') and worker.endswith(('chunk14','chunk15')) else snapshot
-        path=longpath(base/worker/model/'output/main.jsonl')
-        assert sha(path)==source['sha256']
-        trace_sources.append(dict(worker=worker,sha256=source['sha256']))
-        with path.open(encoding='utf8') as f:
-            for line in f:
-                row=json.loads(line)
-                if 'decisions' not in row: continue
-                eid=row['episode_id']; assert eid in episode_ids and eid not in checked_ids; checked_ids.add(eid)
-                for seat in range(row['N']):
-                    p=path.parent/'episodes'/eid/'agents'/f'p{seat}'/'agent_traces.jsonl'
-                    seen=set()
-                    with p.open(encoding='utf8') as tf:
-                        for tline in tf:
-                            state=json.loads(tline); t=state['round']; assert t not in seen; seen.add(t)
-                            assert state['raw_input']['temporal_context']==dict(total_rounds=30,rounds_remaining_including_current=31-t)
-                            checked+=1
-                    assert seen==set(range(1,31))
-    assert checked_ids==episode_ids and checked==39480
+    # Verify every released per-seat input, including the disclosed horizon.
+    checked, trace_sources = verify_agent_inputs(episode_ids)
 
     summaries=[]; curves=[]; keywords=[]
     for (m,mode),e in ep.groupby(['model','mode'],sort=False):
@@ -204,7 +182,7 @@ def main():
     handles,labels=axes[0,0].get_legend_handles_labels()
     fig.legend(handles,labels,loc='lower center',ncol=2,frameon=False)
     fig.tight_layout(rect=(0,.055,1,1)); fig.savefig(OUT/'main_dynamics_threshold.pdf'); plt.close(fig)
-    manifest=dict(status='POST-HOC / EXPLORATORY',source_sha256=EXPECTED,episodes=len(ep),decisions=len(dd),
+    manifest=dict(status='POST-HOC / EXPLORATORY',source_sha256=source_digest,episodes=len(ep),decisions=len(dd),
         horizon_observations_checked=checked,trace_sources=trace_sources,keyword_patterns=PATTERNS,
         script_sha256=sha(Path(__file__)),versions=dict(python=sys.version,numpy=np.__version__,pandas=pd.__version__,matplotlib=matplotlib.__version__),
         definitions=dict(active_break='g_t < .5 and streak_prev > 0; round 1 below threshold is not an active break',

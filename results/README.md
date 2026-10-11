@@ -9,7 +9,7 @@ These are derived outputs from the original completed main-study dataset, not ne
 | `primary/00_episode_outcomes.csv` | 376 episode summaries: model, scaffold, N, seed, cooperation, early/late outcomes, repair and fallback rates |
 | `primary/00_cells.csv` | 48 cell means, episode counts, and sample variances |
 | `primary/00_effects.csv` | Six endpoint-scale linear interactions, Welch SE/df/CI, marginal and Holm-adjusted p-values |
-| `primary/00_heterogeneity.csv` | Inverse-variance Q, I?, and descriptive pooled estimate |
+| `primary/00_heterogeneity.csv` | Inverse-variance Q, I-squared, and descriptive pooled estimate |
 | `primary/confirmatory_results.json` | Full primary analysis, mixed-model diagnostics, and H2 model comparison |
 | `primary/descriptive_model_slopes.csv` | Descriptive model-by-scaffold slopes |
 | `primary/published_model_outcomes.csv` | Rounded paper table, including per-seat per-round rewards |
@@ -21,10 +21,14 @@ These are derived outputs from the original completed main-study dataset, not ne
 
 `persistence/round_curves.csv` contains group-size-balanced model/scaffold round means. `event_summary.csv` distinguishes episode streak breaks, recoveries, and terminal-zero suffixes. `keyword_summary.csv` contains literal returned-explanation keyword counts with explicit denominators. Event medians condition on occurrence. These are descriptive summaries, not causal or confirmatory temporal tests.
 
-The three PDFs in `figures/` are the cooperation, dynamics, and group-size-specific trajectory figures used in the paper. Their underlying raw traces are not distributed.
+The three PDFs in `figures/` are the cooperation, dynamics, and group-size-specific trajectory figures used in the paper. The saved episode logs and agent inputs are released in `logs/`.
 
 ## Provenance and limits
 
-Saved-analysis files were copied without numerical changes and normalized to LF line endings. The published model-outcomes table preserves the paper?s displayed rounding. `MANIFEST.json` identifies their original analysis families and hashes the released bytes. The historical reproduction table is an archived result, not a substitute for running the current verification command.
+Saved-analysis files were copied without numerical changes and normalized to LF line endings. The published model-outcomes table preserves the paper's displayed rounding. `MANIFEST.json` identifies their original analysis families and hashes the released bytes. The historical reproduction table is an archived result, not a substitute for running the current verification command.
 
-Raw per-seat actions, prompts, outputs, repairs, and explanations are not included. This release permits verification of primary statistics from derived episode summaries, not independent verification of those summaries against raw decisions. Qwen's trajectory is pipeline-confounded; GPT-OSS uncertainty is weak. Larger groups contribute more decisions to lexical counts. Do not infer hidden reasoning or causal end-game effects from these summaries.
+`logs/main.jsonl.gz` contains all 376 completed episode records, including round actions, states/rewards, returned model outputs/explanations, parse flags, repair calls and fallback flags. `logs/agent_inputs.jsonl.gz` contains 39,480 saved per-seat input states, keyed by episode, seat, and round. Prompts are reconstructed by the released templates using those states. Non-episode orchestration records and episode plan/approval metadata are omitted to remove deployment paths and identifying metadata. Scientific episode fields, model text, and saved input states are unchanged. Archives use deterministic gzip headers. Original-source and released-file hashes are separate in `MANIFEST.json`; the anonymized file is not byte-identical to the private original.
+
+Run `python code/run_saved_log_analysis.py` to verify the frozen parser, reconstruct primary summaries from decisions, and regenerate descriptive reliability, persistence, timing, and keyword analyses. Run `python code/reproduce_results.py` for the faster primary-table verification. Both are offline. All analyses use episode replication; rounds/seats are not independent replicates.
+
+Qwen's trajectory is pipeline-confounded; GPT-OSS uncertainty is weak. Larger groups contribute more decisions to lexical counts. Do not infer hidden reasoning or causal end-game effects from these summaries.

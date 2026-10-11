@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 import numpy as np
 import pandas as pd
+from log_io import DEFAULT_INPUT, open_text, verify_main
 from scipy import stats
 from statsmodels.stats.multitest import multipletests
 
@@ -20,7 +21,6 @@ MODELS = dict(zip(['llama-3.1-8b-instruct','qwen3-8b','gemma-3-12b-it',
 COUNTS = dict(zip(MODELS.values(), [14,4,8,3,16,2]))
 MODES = ['structured','free_form']
 SOURCE_HASH = '149ac53f8a19286b429d1de83939ae91028845b0b35a18e1dc8dd5cc0468b778'
-DEFAULT_INPUT = REPO/'data/main.jsonl'
 for folder in ['results/latex','figures','validation']:
     (OUT/folder).mkdir(parents=True, exist_ok=True)
 
@@ -36,11 +36,9 @@ def table(df, name):
 def load(path=DEFAULT_INPUT):
     from frozen_parser_v2 import extract_decision_json, validate_decision
     path = Path(path)
-    digest = hashlib.sha256(path.read_bytes()).hexdigest()
-    if digest != SOURCE_HASH:
-        raise ValueError(f'Unapproved source hash: {digest}')
+    digest = verify_main(path)
     episodes=[]; decisions=[]; rounds=[]; record_types={}; parsers=set(); stages=set()
-    with path.open(encoding='utf-8') as stream:
+    with open_text(path) as stream:
         for line in stream:
             if not line.strip(): continue
             row=json.loads(line)

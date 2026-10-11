@@ -3,7 +3,7 @@
   "episodes": 376,
   "cells": 48,
   "decisions": 39480,
-  "release_kind": "Derived results; raw logs excluded",
+  "release_kind": "Anonymized episode logs, saved agent inputs, scripts, and derived results",
   "source_analyses": {
     "primary": "Original primary fit and saved-log reproduction analysis, 2026-10-10",
     "persistence": "Saved-log narrative support analysis, 2026-10-11",
@@ -24,7 +24,9 @@
     "results/primary/00_reproduction.csv": "29d04a44ae9272f8e3e09ed0d4db3b3baef293d970f8f1ff70b9deb733472476",
     "results/primary/confirmatory_results.json": "e69626bef50e41eb90b0883ea2251ecbbb1a63c243ddf8322b6e51b1d503165b",
     "results/primary/descriptive_model_slopes.csv": "21253730ea20d7465d325f46d6c40f25c69c50364909976c2b08a5ab82d020dd",
-    "results/primary/published_model_outcomes.csv": "fce89665125372af08ec9265a34f3c7ffad026b8ced31ad741476b0630da7826"
+    "results/primary/published_model_outcomes.csv": "fce89665125372af08ec9265a34f3c7ffad026b8ced31ad741476b0630da7826",
+    "results/logs/main.jsonl.gz": "f696ef56cd7185de91bd67b9a829324ae68d95bc93719abf32f1b3f9fee8d502",
+    "results/logs/agent_inputs.jsonl.gz": "9ede4599226ffdba44c9cd36c77f5dea4f1377c0fe45f07a860442594f687ac5"
   },
   "source_file_sha256": {
     "results/figures/main_cooperation.pdf": "e470d77825266f50d5c9c7c0eacc441fed3e927f528c256f5af0b6686105438c",
@@ -41,5 +43,23 @@
     "results/primary/confirmatory_results.json": "05c3c2ebd5632358bc675dfbf2784d9b282535e9a84f5a0a1f1d792db505af5a",
     "results/primary/descriptive_model_slopes.csv": "c7e16bfb5a7d00e9d2da54207a0d2fe41453dce1178d10b801002a007e3ca6d7"
   },
-  "text_normalization": "Released text uses LF line endings; numeric contents unchanged."
+  "text_normalization": "Released text uses LF line endings; numeric contents unchanged.",
+  "logs": {
+    "original_main_sha256": "149ac53f8a19286b429d1de83939ae91028845b0b35a18e1dc8dd5cc0468b778",
+    "main": {
+      "file": "results/logs/main.jsonl.gz",
+      "sha256": "f696ef56cd7185de91bd67b9a829324ae68d95bc93719abf32f1b3f9fee8d502",
+      "uncompressed_sha256": "295e640390cea52ce7dcc7f03eefe80e7046020ecd81c57b20224e2484cb84b6",
+      "records": 376,
+      "bytes": 43750636
+    },
+    "agent_inputs": {
+      "file": "results/logs/agent_inputs.jsonl.gz",
+      "sha256": "9ede4599226ffdba44c9cd36c77f5dea4f1377c0fe45f07a860442594f687ac5",
+      "uncompressed_sha256": "3ea9bf0dba11d469832a9810d0a33d434f6d6a737b2966b13f2f39405d57c596",
+      "records": 39480,
+      "bytes": 1620575
+    },
+    "anonymization": "Removed non-episode orchestration records and episode plan, approval, plan_sha256 fields. Saved agent traces retain only episode_id, seat, round, raw_input. Scientific values and returned model text are unchanged. Gzip header omits filename and timestamp."
+  }
 }
